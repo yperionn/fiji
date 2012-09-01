@@ -35,7 +35,7 @@
 		
 		<dependency>
 			<groupId>net.imglib2</groupId>
-			<artifactId>imglib2-core</artifactId>
+			<artifactId>imglib2</artifactId>
 			<version>${imagej.version}</version>
 		</dependency>
 		<dependency>
@@ -50,7 +50,7 @@
 		</dependency>
 		<dependency>
 			<groupId>net.imglib2</groupId>
-			<artifactId>imglib2-algorithms-core</artifactId>
+			<artifactId>imglib2-algorithms</artifactId>
 			<version>${imagej.version}</version>
 		</dependency>
 		<dependency>
