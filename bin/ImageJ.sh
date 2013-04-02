@@ -6,10 +6,19 @@
 # bend over for SunOS' sh, and use `` instead of $()
 DIRECTORY="`dirname "$0"`"
 PATHSEPARATOR=:
+ISWINDOWS=
+ISCYGWIN=
 case "$(uname -s)" in
 MINGW*)
+	ISWINDOWS=t
 	PATHSEPARATOR=";"
 	FIJI_ROOT="$(cd "$DIRECTORY" && pwd -W)"
+	;;
+CYGWIN*)
+	ISWINDOWS=t
+	ISCYGWIN=t
+	PATHSEPARATOR=";"
+	FIJI_ROOT="$(cygpath -d "$(cd "$DIRECTORY" && pwd)" | tr \\\\ /)"
 	;;
 *)
 	FIJI_ROOT="$(cd "$DIRECTORY" && pwd)"
@@ -27,6 +36,7 @@ sq_quote () {
 	echo "$1" | sed "s/[]\"\'\\\\(){}[\!\$ 	;]/\\\\&/g"
 }
 
+first_java_options=
 java_options=
 ij_options=
 main_class=fiji.Main
@@ -66,7 +76,9 @@ Options to run programs other than ImageJ:
 --main-class <class name>
 	start the given class instead of ImageJ
 --build
-	start Fiji's build instead of ImageJ
+	start Fiji's build instead of ImageJ (deprecated)
+--mini-maven
+	start MiniMaven instead of ImageJ
 --update
 	start Fiji's command-line Updater instead of ImageJ
 EOF
@@ -74,6 +86,13 @@ EOF
 		;;
 	?,--dry-run)
 		dry_run=t
+		;;
+	?,--headless)
+		first_java_options="$first_java_options -Djava.awt.headless=true"
+		;;
+	?,--mem=*)
+		memory=${option#--mem=}
+		first_java_options="$first_java_options -Xmx$memory"
 		;;
 	?,--jython)
 		main_class=org.python.util.jython
@@ -95,7 +114,12 @@ EOF
 		main_class="`expr "$1" : '--main-class=\(.*\)'`"
 		;;
 	?,--build)
+		echo 'WARNING: The Fiji Build system is DEPRECATED' >&2
+		echo 'Please use (Mini-)Maven instead!' >&2
 		main_class=fiji.build.Fake
+		;;
+	?,--mini-maven)
+		main_class=imagej.build.MiniMaven
 		;;
 	?,--update)
 		main_class=fiji.updater.Main
@@ -147,18 +171,24 @@ discover_tools_jar () {
 	done
 	if test -n "$javac"
 	then
-		javac="${javac%/bin/javac}/lib/tools.jar"
+		JAVA_HOME="${javac%/bin/javac}"
+		if test -n "$ISWINDOWS"
+		then
+			JAVA_HOME="$(cd "$JAVA_HOME" && pwd -W)"
+		fi
+		export JAVA_HOME
+		echo "$JAVA_HOME/lib/tools.jar"
 	fi
-	echo "$javac"
 }
 
 case "$main_class" in
 fiji.Main|ij.ImageJ)
-	ij_options="-port7 $ij_options"
+	ij_options="$main_class -port7 $ij_options"
+	main_class="imagej.ClassLauncher -ijjarpath jars/ -ijjarpath plugins/"
 	CLASSPATH="$FIJI_ROOT/jars/ij-launcher.jar$PATHSEPARATOR$FIJI_ROOT/jars/ij.jar$PATHSEPARATOR$FIJI_ROOT/jars/javassist.jar"
 	;;
 fiji.build.Fake)
-	CLASSPATH="$FIJI_ROOT/jars/fake.jar"
+	CLASSPATH="$(ls -t $(find $FIJI_ROOT/jars -name fake\*.jar) | head -n 1)"
 	;;
 org.apache.tools.ant.Main)
 	CLASSPATH="$(discover_tools_jar)"
@@ -215,5 +245,6 @@ eval java $EXT_OPTION \
 	-Dfiji.executable="`sq_quote "$EXECUTABLE_NAME"`" \
 	-Dij.executable="`sq_quote "$EXECUTABLE_NAME"`" \
 	`cat "$FIJI_ROOT"/jvm.cfg 2> /dev/null` \
+	$first_java_options \
 	$java_options \
 	$main_class $ij_options
