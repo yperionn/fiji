@@ -1,28 +1,27 @@
-package fiji.plugin.cwnt.segmentation;
-
-import static mpicbg.imglib.type.numeric.RGBALegacyType.rgba;
+package fiji.plugin.cwnt.detection;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import mpicbg.imglib.algorithm.MultiThreadedBenchmarkAlgorithm;
-import mpicbg.imglib.algorithm.OutputAlgorithm;
-import mpicbg.imglib.container.Container;
-import mpicbg.imglib.cursor.LocalizableByDimCursor;
-import mpicbg.imglib.cursor.LocalizableCursor;
-import mpicbg.imglib.image.Image;
-import mpicbg.imglib.labeling.Labeling;
-import mpicbg.imglib.labeling.LabelingType;
-import mpicbg.imglib.multithreading.Chunk;
-import mpicbg.imglib.multithreading.SimpleMultiThreading;
-import mpicbg.imglib.type.numeric.RGBALegacyType;
+import net.imglib2.Cursor;
+import net.imglib2.RandomAccess;
+import net.imglib2.algorithm.MultiThreadedBenchmarkAlgorithm;
+import net.imglib2.algorithm.OutputAlgorithm;
+import net.imglib2.img.Img;
+import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.labeling.Labeling;
+import net.imglib2.labeling.LabelingType;
+import net.imglib2.multithreading.Chunk;
+import net.imglib2.multithreading.SimpleMultiThreading;
+import net.imglib2.type.numeric.ARGBType;
 
-public class LabelToRGB extends MultiThreadedBenchmarkAlgorithm implements	OutputAlgorithm<RGBALegacyType> {
+
+public class LabelToRGB extends MultiThreadedBenchmarkAlgorithm implements	OutputAlgorithm<Img<ARGBType>> {
 
 	private Labeling<Integer> labels;
-	private Image<RGBALegacyType> rgb;
+	private Img<ARGBType> rgb;
 
 	public LabelToRGB(Labeling<Integer> labels) {
 		super();
@@ -39,10 +38,10 @@ public class LabelToRGB extends MultiThreadedBenchmarkAlgorithm implements	Outpu
 	public boolean process() {
 		long start = System.currentTimeMillis();
 
-		Container<RGBALegacyType> container = labels.getContainerFactory().createContainer(labels.getDimensions(), new RGBALegacyType());
-		rgb = new Image<RGBALegacyType>(container, new RGBALegacyType(), labels.getName()+"_RGB");
+		ArrayImgFactory<ARGBType> factory = new ArrayImgFactory<ARGBType>();
+		rgb = factory.create(labels, new ARGBType());
 		
-		Vector<Chunk> chunks = SimpleMultiThreading.divideIntoChunks(labels.getNumPixels(), numThreads);
+		Vector<Chunk> chunks = SimpleMultiThreading.divideIntoChunks(labels.size(), numThreads);
 		Thread[] threads = new Thread[numThreads];
 		
 		final int nColors = GLASBEY_LUT.size();
@@ -55,26 +54,23 @@ public class LabelToRGB extends MultiThreadedBenchmarkAlgorithm implements	Outpu
 				@Override
 				public void run() {
 					
-					LocalizableCursor<LabelingType<Integer>> cursor = labels.createLocalizableCursor();
-					LocalizableByDimCursor<RGBALegacyType> target = rgb.createLocalizableByDimCursor();
-					cursor.fwd(chunk.getStartPosition());
+					Cursor<LabelingType<Integer>> cursor = labels.localizingCursor();
+					RandomAccess<ARGBType> target = rgb.randomAccess();
+					cursor.jumpFwd(chunk.getStartPosition());
 					
 					for (long j = 0; j < chunk.getLoopSize(); j++) {
 						cursor.fwd();
 						target.setPosition(cursor);
 						
-						List<Integer> labeling = cursor.getType().getLabeling();
+						List<Integer> labeling = cursor.get().getLabeling();
 						if (labeling.size() > 0) {
 							int label = labeling .get(0);
 							int colorIndex = label % nColors;
 							int[] arr = GLASBEY_LUT.get(colorIndex);
-							int color = rgba(arr[0], arr[1], arr[2], 0);
-							target.getType().set(color);
+							int color = ARGBType.rgba(arr[0], arr[1], arr[2], 0);
+							target.get().set(color);
 						}
 					}
-					
-					cursor.close();
-					target.close();
 				}
 				
 			};
@@ -89,7 +85,7 @@ public class LabelToRGB extends MultiThreadedBenchmarkAlgorithm implements	Outpu
 	}
 
 	@Override
-	public Image<RGBALegacyType> getResult() {
+	public Img<ARGBType> getResult() {
 		return rgb;
 	}
 

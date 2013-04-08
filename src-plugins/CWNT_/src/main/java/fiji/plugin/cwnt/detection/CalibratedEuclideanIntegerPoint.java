@@ -1,4 +1,4 @@
-package fiji.plugin.cwnt.segmentation;
+package fiji.plugin.cwnt.detection;
 
 import java.util.Collection;
 
@@ -12,10 +12,10 @@ import org.apache.commons.math.util.FastMath;
  */
 public class CalibratedEuclideanIntegerPoint implements Clusterable<CalibratedEuclideanIntegerPoint>{
 
-	private final int[] point;
-	private final float[] calibration;
+	private final long[] point;
+	private final double[] calibration;
 
-	public CalibratedEuclideanIntegerPoint(final int[] point, final float[] calibration) {
+	public CalibratedEuclideanIntegerPoint(final long[] point, final double[] calibration) {
 		this.point = point;
 		this.calibration = calibration;
 	}
@@ -23,7 +23,7 @@ public class CalibratedEuclideanIntegerPoint implements Clusterable<CalibratedEu
 	@Override
 	public double distanceFrom(final CalibratedEuclideanIntegerPoint other) {
 	      double sum = 0;
-	      final int[] po = other.getPoint();
+	      final long[] po = other.getPoint();
 	      for (int i = 0; i < po.length; i++) {
 	          final double dp = (point[i] - po[i]) * calibration[i];
 	          sum += dp * dp;
@@ -33,7 +33,7 @@ public class CalibratedEuclideanIntegerPoint implements Clusterable<CalibratedEu
 
 	@Override
 	public CalibratedEuclideanIntegerPoint centroidOf(Collection<CalibratedEuclideanIntegerPoint> points) {
-		int[] centroid = new int[point.length];
+		long[] centroid = new long[point.length];
 		for (CalibratedEuclideanIntegerPoint p : points) {
 			for (int i = 0; i < centroid.length; i++) {
 				centroid[i] += p.getPoint()[i];
@@ -45,7 +45,7 @@ public class CalibratedEuclideanIntegerPoint implements Clusterable<CalibratedEu
 		return new CalibratedEuclideanIntegerPoint(centroid, calibration);
 	}
 
-	public int[] getPoint() {
+	public long[] getPoint() {
 		return point;
 	}
 

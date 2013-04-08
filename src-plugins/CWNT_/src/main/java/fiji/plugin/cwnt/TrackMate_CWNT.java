@@ -1,5 +1,6 @@
 package fiji.plugin.cwnt;
 
+import static fiji.plugin.cwnt.detection.CWNTKeys.KEY_DO_DISPLAY_LABELS;
 import ij.ImagePlus;
 import ij.gui.NewImage;
 import ij.plugin.Concatenator;
@@ -10,31 +11,30 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
-import mpicbg.imglib.image.Image;
-import mpicbg.imglib.labeling.Labeling;
-import mpicbg.imglib.type.numeric.RealType;
-
-import org.jfree.chart.renderer.InterpolatePaintScale;
-
-import fiji.plugin.cwnt.segmentation.CWSettings;
-import fiji.plugin.cwnt.segmentation.CrownWearingSegmenter;
-import fiji.plugin.cwnt.segmentation.LabelToGlasbey;
+import net.imglib2.labeling.Labeling;
+import fiji.plugin.cwnt.detection.CWNTFactory;
+import fiji.plugin.cwnt.detection.LabelToGlasbey;
+import fiji.plugin.trackmate.DetectorProvider;
+import fiji.plugin.trackmate.Dimension;
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.Spot;
+import fiji.plugin.trackmate.SpotAnalyzerProvider;
 import fiji.plugin.trackmate.TrackMateModel;
 import fiji.plugin.trackmate.TrackMate_;
-import fiji.plugin.trackmate.features.spot.SpotFeatureAnalyzer;
+import fiji.plugin.trackmate.detection.SpotDetectorFactory;
 import fiji.plugin.trackmate.gui.ActionChooserPanel;
+import fiji.plugin.trackmate.gui.DetectorChoiceDescriptor;
+import fiji.plugin.trackmate.gui.DetectorDescriptor;
 import fiji.plugin.trackmate.gui.DisplayerPanel;
 import fiji.plugin.trackmate.gui.GuiReader;
-import fiji.plugin.trackmate.gui.InitFilterPanel;
+import fiji.plugin.trackmate.gui.InitFilterDescriptor;
 import fiji.plugin.trackmate.gui.LoadDescriptor;
+import fiji.plugin.trackmate.gui.LogPanelDescriptor;
 import fiji.plugin.trackmate.gui.SaveDescriptor;
-import fiji.plugin.trackmate.gui.SegmentationDescriptor;
-import fiji.plugin.trackmate.gui.SegmenterChoiceDescriptor;
 import fiji.plugin.trackmate.gui.SpotFilterDescriptor;
 import fiji.plugin.trackmate.gui.StartDialogPanel;
 import fiji.plugin.trackmate.gui.TrackFilterDescriptor;
@@ -42,10 +42,7 @@ import fiji.plugin.trackmate.gui.TrackerChoiceDescriptor;
 import fiji.plugin.trackmate.gui.TrackingDescriptor;
 import fiji.plugin.trackmate.gui.WizardController;
 import fiji.plugin.trackmate.gui.WizardPanelDescriptor;
-import fiji.plugin.trackmate.segmentation.SegmenterSettings;
-import fiji.plugin.trackmate.segmentation.SpotSegmenter;
-import fiji.plugin.trackmate.tracking.SpotTracker;
-import fiji.plugin.trackmate.tracking.kdtree.NearestNeighborTracker;
+import fiji.plugin.trackmate.util.TMUtils;
 import fiji.plugin.trackmate.visualization.TrackMateModelView;
 import fiji.plugin.trackmate.visualization.hyperstack.HyperStackDisplayer;
 import fiji.plugin.trackmate.visualization.hyperstack.SpotOverlay;
@@ -71,7 +68,7 @@ public class TrackMate_CWNT extends TrackMate_ {
 	
 	public TrackMate_CWNT() {
 		super();
-		model.setInitialSpotFilterValue(0f); // Set it to 0 and forget about it.
+		model.getSettings().initialSpotFilterValue = 0d; // Set it to 0 and forget about it.
 	}
 	
 	/*
@@ -80,32 +77,28 @@ public class TrackMate_CWNT extends TrackMate_ {
 	
 	
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	protected List<SpotSegmenter<? extends RealType<?>>> createSegmenterList() {
-		List<SpotSegmenter<? extends RealType<?>>> list = new ArrayList<SpotSegmenter<? extends RealType<?>>>(1);
-		list.add(new CrownWearingSegmenter());
-		return list;
+	protected DetectorProvider createDetectorProvider() {
+		return new CWNTDetectorProvider();
 	}
 
 	@Override
-	protected List<SpotFeatureAnalyzer> createSpotFeatureAnalyzerList() {
-		List<SpotFeatureAnalyzer> analyzers = new ArrayList<SpotFeatureAnalyzer>(0);
-		return analyzers;
-	}
-
-	@Override
-	protected List<TrackMateModelView> createTrackMateModelViewList() {
-		List<TrackMateModelView> views = new ArrayList<TrackMateModelView>(1);
-		views.add(createLocalSliceDisplayer());
-		return views;
-	}
-
-	@Override
-	protected List<SpotTracker> createSpotTrackerList() {
-		List<SpotTracker> trackers = new ArrayList<SpotTracker>(1);
-		trackers.add(new NearestNeighborTracker());
-		return trackers;
+	protected SpotAnalyzerProvider createSpotAnalyzerProvider() {
+		// Return no feature analyzer
+		return new SpotAnalyzerProvider(model) {
+			@Override
+			protected void registerSpotFeatureAnalyzers() {
+				analyzerNames = new ArrayList<String>();
+				// features
+				features = new HashMap<String, List<String>>();
+				// features names
+				featureNames = new HashMap<String, String>();
+				// features short names
+				featureShortNames = new HashMap<String, String>();
+				// feature dimensions
+				featureDimensions = new HashMap<String, Dimension>();
+			}
+		};
 	}
 
 	@Override
@@ -116,15 +109,15 @@ public class TrackMate_CWNT extends TrackMate_ {
 			protected List<WizardPanelDescriptor> createWizardPanelDescriptorList() {
 				List<WizardPanelDescriptor> descriptors = new ArrayList<WizardPanelDescriptor>(14);
 				descriptors.add(new StartDialogPanel());
-				descriptors.add(new SegmenterChoiceDescriptor());
+				descriptors.add(new DetectorChoiceDescriptor());
 				descriptors.add(new CWNTSegmentationDescriptor());
 				descriptors.add(new CWMNTSpotFilterDescriptor());
 				descriptors.add(new TrackerChoiceDescriptor());
 				descriptors.add(new TrackingDescriptor());
 				descriptors.add(new TrackFilterDescriptor());
 				descriptors.add(new DisplayerPanel());
-				descriptors.add(new ActionChooserPanel(this.plugin));
-				descriptors.add(new InitFilterPanel()); // We put it, even if we skip it, so that we avoid NPE when loading
+				descriptors.add(ActionChooserPanel.instantiateForPlugin(plugin));
+				descriptors.add(new InitFilterDescriptor()); // We put it, even if we skip it, so that we avoid NPE when loading
 				// Override to pass the specific display made for CWNT when loading data
 				descriptors.add(new LoadDescriptor() {
 					@Override
@@ -160,6 +153,12 @@ public class TrackMate_CWNT extends TrackMate_ {
 					}
 				});
 				descriptors.add(new SaveDescriptor());
+				
+				WizardPanelDescriptor logPanelDescriptor = new LogPanelDescriptor();
+				logPanelDescriptor.setWizard(wizard);
+				descriptors.add(logPanelDescriptor);
+
+				
 				return descriptors;
 			}
 
@@ -169,38 +168,6 @@ public class TrackMate_CWNT extends TrackMate_ {
 		controller.getWizard().setTitle("CWNT - β4");
 	}
 
-
-	/**
-	 * We override the single segmentation method so as to be able to get
-	 * the label image that is computed if desired.
-	 */
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected List<Spot> execSingleFrameSegmentation(Image<? extends RealType<?>> img, Settings settings, int frameIndex) {
-		final float[] calibration = settings.getCalibration();
-		SpotSegmenter segmenter = settings.segmenter.createNewSegmenter();
-		segmenter.setTarget(img, calibration, settings.segmenterSettings);
-
-		if (segmenter.checkInput() && segmenter.process()) {
-
-			// Extra step: get back label image. if required
-			if (segmenter instanceof CrownWearingSegmenter) {
-
-				CWSettings cws = (CWSettings) settings.segmenterSettings;
-				if (cws.doDisplayLabels) {
-					Labeling labelsThisFrame = ((CrownWearingSegmenter) segmenter).getLabeling();
-					labels.put(frameIndex, labelsThisFrame);
-				}
-
-			}
-			List<Spot> spotsThisFrame = segmenter.getResult();
-			return translateAndPruneSpots(spotsThisFrame, settings);
-
-		} else {
-			model.getLogger().error(segmenter.getErrorMessage()+'\n');
-			return null;
-		}
-	}
 
 
 	/*
@@ -219,7 +186,7 @@ public class TrackMate_CWNT extends TrackMate_ {
 
 	}
 
-	private class  CWNTSegmentationDescriptor extends SegmentationDescriptor {
+	private class  CWNTSegmentationDescriptor extends DetectorDescriptor {
 
 		@Override
 		public String getNextDescriptorID() {
@@ -233,10 +200,12 @@ public class TrackMate_CWNT extends TrackMate_ {
 		@Override
 		public void aboutToHidePanel() {
 
-			SegmenterSettings s = model.getSettings().segmenterSettings;
-			if ( (s instanceof CWSettings)) {
-				CWSettings cws = (CWSettings) s;
-				if (cws.doDisplayLabels) {
+			Map<String, Object> detectorSettings = model.getSettings().detectorSettings;
+			SpotDetectorFactory<?> detectorFactory = model.getSettings().detectorFactory;
+			
+			if ( detectorFactory.getKey().equals(CWNTFactory.DETECTOR_KEY)) {
+				boolean doDisplayLabels = (Boolean) detectorSettings.get(KEY_DO_DISPLAY_LABELS);
+				if (doDisplayLabels) {
 
 					// Do that in another thread
 					new Thread("Crown-Wearing segmenter label renderer thread") {
@@ -261,7 +230,8 @@ public class TrackMate_CWNT extends TrackMate_ {
 
 								} else {
 									// Get the label, make it an 8-bit colored imp
-									LabelToGlasbey colorer = new LabelToGlasbey(labelThisFrame);
+									double[] calibration = TMUtils.getSpatialCalibration(model.getSettings().imp);
+									LabelToGlasbey colorer = new LabelToGlasbey(labelThisFrame, calibration);
 									if (colorer.checkInput() && colorer.process()) {
 										imp = colorer.getImp();
 									} else {
@@ -308,7 +278,6 @@ public class TrackMate_CWNT extends TrackMate_ {
 			wizard.setDisplayer(displayer);
 
 			try {
-				displayer.setModel(plugin.getModel());
 				displayer.render();
 			} finally {
 				// Re-enable the GUI
@@ -326,46 +295,56 @@ public class TrackMate_CWNT extends TrackMate_ {
 	 */
 	private  HyperStackDisplayer createLocalSliceDisplayer() {
 
-		return new HyperStackDisplayer() {
+		return new HyperStackDisplayer(model) {
 
 			@Override
 			protected SpotOverlay createSpotOverlay() {
 
 				return new SpotOverlay(model, model.getSettings().imp, displaySettings) {
 
-					public void drawSpot(final Graphics2D g2d, final Spot spot, final float zslice, 
-							final int xcorner, final int ycorner, final float magnification) {
+					@Override
+					public void drawSpot(final Graphics2D g2d, final Spot spot, final double zslice, 
+							final int xcorner, final int ycorner, final double magnification) {
 
-						final float x = spot.getFeature(Spot.POSITION_X);
-						final float y = spot.getFeature(Spot.POSITION_Y);
-						final float z = spot.getFeature(Spot.POSITION_Z);
-						final float dz2 = (z - zslice) * (z - zslice);
+						final double x = spot.getFeature(Spot.POSITION_X);
+						final double y = spot.getFeature(Spot.POSITION_Y);
+						final double z = spot.getFeature(Spot.POSITION_Z);
+						final double dz2 = (z - zslice) * (z - zslice);
 						float radiusRatio = (Float) displaySettings.get(TrackMateModelView.KEY_SPOT_RADIUS_RATIO);
-						final float radius = spot.getFeature(Spot.RADIUS)*radiusRatio;
+						final double radius = spot.getFeature(Spot.RADIUS) * radiusRatio;
 						if (dz2 >= radius * radius)
 							return;
 
 						// In pixel units
-						final float xp = x / calibration[0];
-						final float yp = y / calibration[1];
+						final double xp = x / calibration[0];
+						final double yp = y / calibration[1];
 						// Scale to image zoom
-						final float xs = (xp - xcorner) * magnification ;
-						final float ys = (yp - ycorner) * magnification ;
+						final double xs = (xp - xcorner) * magnification ;
+						final double ys = (yp - ycorner) * magnification ;
 
 						// Spots are painted as purple circled of white
-						final float apparentRadius =  3 *radiusRatio; 
-						g2d.fillOval(Math.round(xs - apparentRadius), Math.round(ys - apparentRadius), 
-								Math.round(2 * apparentRadius), Math.round(2 * apparentRadius));		
+						final double apparentRadius =  3 *radiusRatio; 
+						g2d.fillOval( 
+								(int) Math.round(xs - apparentRadius), 
+								(int) Math.round(ys - apparentRadius), 
+								(int) Math.round(2 * apparentRadius), 
+								(int) Math.round(2 * apparentRadius));		
 						g2d.setColor(Color.CYAN.darker()); // Carefully set to reflect Aliette Leroy's opinion
-						g2d.drawOval(Math.round(xs - apparentRadius), Math.round(ys - apparentRadius), 
-								Math.round(2 * apparentRadius), Math.round(2 * apparentRadius));		
+						g2d.drawOval(
+								(int) Math.round(xs - apparentRadius), 
+								(int) Math.round(ys - apparentRadius), 
+								(int) Math.round(2 * apparentRadius), 
+								(int) Math.round(2 * apparentRadius));		
 
 						boolean spotNameVisible = (Boolean) displaySettings.get(TrackMateModelView.KEY_DISPLAY_SPOT_NAMES);
 						if (spotNameVisible ) {
 							String str = spot.toString();
 							int xindent = fm.stringWidth(str) / 2;
 							int yindent = fm.getAscent() / 2;
-							g2d.drawString(spot.toString(), xs-xindent, ys+yindent);
+							g2d.drawString(
+									spot.toString(), 
+									(int) xs-xindent, 
+									(int) ys+yindent);
 						}
 					}
 
@@ -380,82 +359,49 @@ public class TrackMate_CWNT extends TrackMate_ {
 				return new TrackOverlay(model, model.getSettings().imp, displaySettings) {
 
 					@Override
-					protected void drawEdge(Graphics2D g2d, Spot source, Spot target, int xcorner, int ycorner,	float magnification) {
+					protected void drawEdge(Graphics2D g2d, Spot source, Spot target, int xcorner, int ycorner,	double magnification) {
 						// Find x & y in physical coordinates
-						final float x0i = source.getFeature(Spot.POSITION_X);
-						final float y0i = source.getFeature(Spot.POSITION_Y);
-						final float z0i = source.getFeature(Spot.POSITION_Z);
-						final float x1i = target.getFeature(Spot.POSITION_X);
-						final float y1i = target.getFeature(Spot.POSITION_Y);
-						final float z1i = target.getFeature(Spot.POSITION_Z);
+						final double x0i = source.getFeature(Spot.POSITION_X);
+						final double y0i = source.getFeature(Spot.POSITION_Y);
+						final double z0i = source.getFeature(Spot.POSITION_Z);
+						final double x1i = target.getFeature(Spot.POSITION_X);
+						final double y1i = target.getFeature(Spot.POSITION_Y);
+						final double z1i = target.getFeature(Spot.POSITION_Z);
 						// In pixel units
-						final float x0p = x0i / calibration[0];
-						final float y0p = y0i / calibration[1];
-						final float x1p = x1i / calibration[0];
-						final float y1p = y1i / calibration[1];
+						final double x0p = x0i / calibration[0];
+						final double y0p = y0i / calibration[1];
+						final double x1p = x1i / calibration[0];
+						final double y1p = y1i / calibration[1];
 
 						// Check if we are nearing their plane, if not, do not draw
-						final float zslice = (imp.getSlice()-1) * calibration[2];
-						float radiusRatio = (Float) displaySettings.get(TrackMateModelView.KEY_SPOT_RADIUS_RATIO);
-						final float tRadius = target.getFeature(Spot.RADIUS) * radiusRatio;
-						final float dz1 = (z1i - zslice) * (z1i - zslice);
-						final float sRadius = source.getFeature(Spot.RADIUS) * radiusRatio;
-						final float dz0 = (z0i - zslice) * (z0i - zslice);
+						final double zslice = (imp.getSlice()-1) * calibration[2];
+						double radiusRatio = (Float) displaySettings.get(TrackMateModelView.KEY_SPOT_RADIUS_RATIO);
+						final double tRadius = target.getFeature(Spot.RADIUS) * radiusRatio;
+						final double dz1 = (z1i - zslice) * (z1i - zslice);
+						final double sRadius = source.getFeature(Spot.RADIUS) * radiusRatio;
+						final double dz0 = (z0i - zslice) * (z0i - zslice);
 
 						if (dz1 >= tRadius * tRadius && dz0 >= sRadius * sRadius)
 							return;
 
 						// Scale to image zoom
-						final float x0s = (x0p - xcorner) * magnification ;
-						final float y0s = (y0p - ycorner) * magnification ;
-						final float x1s = (x1p - xcorner) * magnification ;
-						final float y1s = (y1p - ycorner) * magnification ;
+						final double x0s = (x0p - xcorner) * magnification ;
+						final double y0s = (y0p - ycorner) * magnification ;
+						final double x1s = (x1p - xcorner) * magnification ;
+						final double y1s = (y1p - ycorner) * magnification ;
 						// Round
-						final int x0 = Math.round(x0s);
-						final int y0 = Math.round(y0s);
-						final int x1 = Math.round(x1s);
-						final int y1 = Math.round(y1s);
+						final long x0 = Math.round(x0s);
+						final long y0 = Math.round(y0s);
+						final long x1 = Math.round(x1s);
+						final long y1 = Math.round(y1s);
 
-						g2d.drawLine(x0, y0, x1, y1);
+						g2d.drawLine(
+								(int) x0, 
+								(int) y0, 
+								(int) x1, 
+								(int) y1);
 					}
 
-					/**
-					 * Default color is all magenta
-					 */
-					public void computeTrackColors() {
-						int ntracks = model.getNFilteredTracks();
-						if (ntracks == 0)
-							return;
-						InterpolatePaintScale colorMap = (InterpolatePaintScale) displaySettings.get(TrackMateModelView.KEY_COLORMAP);
-						Color defaultColor = (Color) displaySettings.get(TrackMateModelView.KEY_COLOR);
-						edgeColors = new HashMap<Integer, Color>(ntracks);
-
-						final String feature = (String) displaySettings.get(TrackMateModelView.KEY_TRACK_COLOR_FEATURE);
-						if (feature != null) {
-
-							// Get min & max
-							double min = Float.POSITIVE_INFINITY;
-							double max = Float.NEGATIVE_INFINITY;
-							for (double val : model.getFeatureModel().getTrackFeatureValues().get(feature)) {
-								if (val > max) max = val;
-								if (val < min) min = val;
-							}
-
-							for(int i : model.getVisibleTrackIndices()) {
-								Float val = model.getFeatureModel().getTrackFeature(i, feature);
-								if (null == val) {
-									edgeColors.put(i, defaultColor); // if feature is not calculated
-								} else {
-									edgeColors.put(i, colorMap.getPaint((float) (val-min) / (max-min)));
-								}
-							}
-
-						} else {
-							for(int i : model.getVisibleTrackIndices()) {
-								edgeColors.put(i, defaultColor);
-							}
-						}
-					}
 
 				};
 

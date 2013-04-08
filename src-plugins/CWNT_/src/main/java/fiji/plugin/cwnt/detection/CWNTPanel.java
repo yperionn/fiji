@@ -1,9 +1,32 @@
-package fiji.plugin.cwnt.segmentation;
+package fiji.plugin.cwnt.detection;
 
+import static fiji.plugin.cwnt.detection.CWNTKeys.DEFAULT_ALPHA;
+import static fiji.plugin.cwnt.detection.CWNTKeys.DEFAULT_BETA;
+import static fiji.plugin.cwnt.detection.CWNTKeys.DEFAULT_DELTA;
+import static fiji.plugin.cwnt.detection.CWNTKeys.DEFAULT_EPSILON;
+import static fiji.plugin.cwnt.detection.CWNTKeys.DEFAULT_GAMMA;
+import static fiji.plugin.cwnt.detection.CWNTKeys.DEFAULT_KAPPA;
+import static fiji.plugin.cwnt.detection.CWNTKeys.DEFAULT_N_ANISOTROPIC_FILTERING;
+import static fiji.plugin.cwnt.detection.CWNTKeys.DEFAULT_SIGMA_FILTER;
+import static fiji.plugin.cwnt.detection.CWNTKeys.DEFAULT_SIGMA_GRADIENT;
+import static fiji.plugin.cwnt.detection.CWNTKeys.DEFAULT_THRESHOLD_FACTOR;
+import static fiji.plugin.cwnt.detection.CWNTKeys.KEY_ALPHA;
+import static fiji.plugin.cwnt.detection.CWNTKeys.KEY_BETA;
+import static fiji.plugin.cwnt.detection.CWNTKeys.KEY_DELTA;
+import static fiji.plugin.cwnt.detection.CWNTKeys.KEY_DO_DISPLAY_LABELS;
+import static fiji.plugin.cwnt.detection.CWNTKeys.KEY_EPSILON;
+import static fiji.plugin.cwnt.detection.CWNTKeys.KEY_GAMMA;
+import static fiji.plugin.cwnt.detection.CWNTKeys.KEY_KAPPA;
+import static fiji.plugin.cwnt.detection.CWNTKeys.KEY_N_ANISOTROPIC_FILTERING;
+import static fiji.plugin.cwnt.detection.CWNTKeys.KEY_SIGMA_FILTER;
+import static fiji.plugin.cwnt.detection.CWNTKeys.KEY_SIGMA_GRADIENT;
+import static fiji.plugin.cwnt.detection.CWNTKeys.KEY_THRESHOLD_FACTOR;
+import static fiji.plugin.trackmate.detection.DetectorKeys.DEFAULT_DO_MEDIAN_FILTERING;
+import static fiji.plugin.trackmate.detection.DetectorKeys.KEY_DO_MEDIAN_FILTERING;
+import static fiji.plugin.trackmate.detection.DetectorKeys.KEY_TARGET_CHANNEL;
 import static fiji.plugin.trackmate.gui.TrackMateWizard.BIG_FONT;
 import static fiji.plugin.trackmate.gui.TrackMateWizard.FONT;
 import static fiji.plugin.trackmate.gui.TrackMateWizard.SMALL_FONT;
-import ij.ImagePlus;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -11,8 +34,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -22,12 +48,10 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import fiji.plugin.cwnt.gui.DoubleJSlider;
-import fiji.plugin.trackmate.TrackMateModel;
-import fiji.plugin.trackmate.gui.SegmenterConfigurationPanel;
-import fiji.plugin.trackmate.segmentation.SegmenterSettings;
-import javax.swing.JCheckBox;
+import fiji.plugin.trackmate.Settings;
+import fiji.plugin.trackmate.gui.ConfigurationPanel;
 
-public class CWNTPanel extends SegmenterConfigurationPanel {
+public class CWNTPanel extends ConfigurationPanel {
 
 	private static final long serialVersionUID = 1L;
 	private int scale = 10; // sliders resolution
@@ -66,59 +90,61 @@ public class CWNTPanel extends SegmenterConfigurationPanel {
 	private JTextField thresholdFactorText;
 	private DoubleJSlider thresholdFactorSlider;
 	private boolean liveLaunched;
-	private ImagePlus targetImp;
 	private CWNTLivePreviewer previewer;
-	private CWSettings settings = new CWSettings();
 	JLabel labelDurationEstimate;
 	private JCheckBox chckbxDisplayLabel;
+	private Map<String, Object> settings = new HashMap<String, Object>();
+	private final Settings tmSettings;
 
-	public CWNTPanel() {
+	public CWNTPanel(final Settings tmSettings) {
 		// Grab defaults.
-		oldDoMedianFiltering 	= settings.doMedianFiltering;
-		oldThresholdFactor 		= settings.thresholdFactor;
-		oldGaussFilterSigma 	= settings.sigmaf;
-		oldNIterAnDiff 			= settings.nAD;
-		oldKappa				= settings.kappa;
-		oldGaussGradSigma		= settings.sigmag;
-		oldGamma 				= settings.gamma;
-		oldAlpha				= settings.alpha;
-		oldBeta					= settings.beta;
-		oldEpsilon				= settings.epsilon;
-		oldDelta				= settings.delta;
+		oldDoMedianFiltering 	= DEFAULT_DO_MEDIAN_FILTERING;
+		oldThresholdFactor 		= DEFAULT_THRESHOLD_FACTOR;
+		oldGaussFilterSigma 	= DEFAULT_SIGMA_FILTER;
+		oldNIterAnDiff 			= DEFAULT_N_ANISOTROPIC_FILTERING;
+		oldKappa				= DEFAULT_KAPPA;
+		oldGaussGradSigma		= DEFAULT_SIGMA_GRADIENT;
+		oldGamma 				= DEFAULT_GAMMA;
+		oldAlpha				= DEFAULT_ALPHA;
+		oldBeta					= DEFAULT_BETA;
+		oldEpsilon				= DEFAULT_EPSILON;
+		oldDelta				= DEFAULT_DELTA;
+		//
+		this.tmSettings = tmSettings;
 		// Layout
 		initGUI();
 		setSize(320, 518);
 	}
 	
 	
-	@Override
-	public void setSegmenterSettings(TrackMateModel model) {
-		CWSettings settings = (CWSettings) model.getSettings().segmenterSettings;
-		
-		chckbxDoMedianFiltering.setSelected(settings.doMedianFiltering);
-		gaussFiltSigmaText.setText(""+settings.sigmaf);
-		aniDiffNIterText.setText(""+settings.nAD);
-		aniDiffKappaText.setText(""+settings.kappa);
-		gaussGradSigmaText.setText(""+settings.sigmag);
-		gammaText.setText(""+settings.gamma);
-		alphaText.setText(""+settings.alpha);
-		betaText.setText(""+settings.beta);
-		epsilonText.setText(""+settings.epsilon);
-		deltaText.setText(""+settings.delta);
-		thresholdFactorText.setText(""+settings.thresholdFactor);
-		chckbxDisplayLabel.setSelected(settings.doDisplayLabels);
-		
-		targetImp = model.getSettings().imp;
-	}
 
 	@Override
-	public SegmenterSettings getSegmenterSettings() {
+	public void setSettings(Map<String, Object> settings) {
+
+		chckbxDoMedianFiltering.setSelected((Boolean) settings.get(KEY_DO_MEDIAN_FILTERING));
+		gaussFiltSigmaText.setText("" + settings.get(KEY_SIGMA_FILTER));
+		aniDiffNIterText.setText(""+settings.get(KEY_N_ANISOTROPIC_FILTERING));
+		aniDiffKappaText.setText(""+settings.get(KEY_KAPPA));
+		gaussGradSigmaText.setText(""+settings.get(KEY_SIGMA_GRADIENT));
+		gammaText.setText(""+settings.get(KEY_GAMMA));
+		alphaText.setText(""+settings.get(KEY_ALPHA));
+		betaText.setText(""+settings.get(KEY_BETA));
+		epsilonText.setText(""+settings.get(KEY_EPSILON));
+		deltaText.setText(""+settings.get(KEY_DELTA));
+		thresholdFactorText.setText(""+settings.get(KEY_THRESHOLD_FACTOR));
+		chckbxDisplayLabel.setSelected((Boolean) settings.get(KEY_DO_DISPLAY_LABELS));
+		
+		this.settings = new HashMap<String, Object>(settings);
+	}
+
+
+	@Override
+	public Map<String, Object> getSettings() {
 		return settings;
 	}
-
 	
-	public ImagePlus getTargetImagePlus() {
-		return targetImp;
+	public Settings getTMSettings() {
+		return tmSettings;
 	}
 	
 	
@@ -134,65 +160,92 @@ public class CWNTPanel extends SegmenterConfigurationPanel {
 				event == STEP5_PARAMETER_CHANGED) {
 			
 			// Grab settings values from GUI
+			double sigmaf = oldGaussFilterSigma;
+			int nAD = oldNIterAnDiff;
+			double kappa = oldKappa;
+			double sigmag = oldGaussGradSigma;
+			double gamma = oldGamma;
+			double alpha = oldAlpha;
+			double beta = oldBeta;
+			double epsilon = oldEpsilon;
+			double delta = oldDelta;
+			double thresholdFactor = oldThresholdFactor;
 			
-			settings.doMedianFiltering = chckbxDoMedianFiltering.isSelected();
+			boolean doMedianFiltering = chckbxDoMedianFiltering.isSelected();
 			try {
-				settings.sigmaf = Double.parseDouble(gaussFiltSigmaText.getText());
+				sigmaf = Double.parseDouble(gaussFiltSigmaText.getText());
 			} catch (NumberFormatException nfe) {}
 			try {
-				settings.nAD = (int) Double.parseDouble(aniDiffNIterText.getText());
+				nAD = (int) Double.parseDouble(aniDiffNIterText.getText());
 			} catch (NumberFormatException nfe) {}
 			try {
-				settings.kappa = Double.parseDouble(aniDiffKappaText.getText());
+				kappa = Double.parseDouble(aniDiffKappaText.getText());
 			} catch (NumberFormatException nfe) {}
 			try {
-				settings.sigmag = Double.parseDouble(gaussGradSigmaText.getText());
+				sigmag = Double.parseDouble(gaussGradSigmaText.getText());
 			} catch (NumberFormatException nfe) {}
 			try {
-				settings.gamma = Double.parseDouble(gammaText.getText());
+				gamma = Double.parseDouble(gammaText.getText());
 			} catch (NumberFormatException nfe) {}
 			try {
-				settings.alpha = Double.parseDouble(alphaText.getText());
+				alpha = Double.parseDouble(alphaText.getText());
 			} catch (NumberFormatException nfe) {}
 			try {
-				settings.beta = Double.parseDouble(betaText.getText());
+				beta = Double.parseDouble(betaText.getText());
 			} catch (NumberFormatException nfe) {}
 			try {
-				settings.epsilon = Double.parseDouble(epsilonText.getText());
+				epsilon = Double.parseDouble(epsilonText.getText());
 			} catch (NumberFormatException nfe) {}
 			try {
-				settings.delta = Double.parseDouble(deltaText.getText());
+				delta = Double.parseDouble(deltaText.getText());
 			} catch (NumberFormatException nfe) {}
 			try {
-				settings.thresholdFactor = Double.parseDouble(thresholdFactorText.getText());
+				thresholdFactor = Double.parseDouble(thresholdFactorText.getText());
 			} catch (NumberFormatException nfe) {}
 
 			// Check if they have changed
-			if (	settings.thresholdFactor == oldThresholdFactor
-					&& settings.doMedianFiltering 	== oldDoMedianFiltering					
-					&& settings.sigmaf 				== oldGaussFilterSigma
-					&& settings.nAD 				== oldNIterAnDiff
-					&& settings.kappa				== oldKappa
-					&& settings.sigmag 				== oldGaussGradSigma
-					&& settings.gamma 				== oldGamma
-					&& settings.alpha				== oldAlpha
-					&& settings.beta				== oldBeta
-					&& settings.epsilon				== oldEpsilon
-					&& settings.delta				== oldDelta
+			if (	thresholdFactor			== oldThresholdFactor
+					&& doMedianFiltering 	== oldDoMedianFiltering					
+					&& sigmaf 				== oldGaussFilterSigma
+					&& nAD 					== oldNIterAnDiff
+					&& kappa				== oldKappa
+					&& sigmag 				== oldGaussGradSigma
+					&& gamma 				== oldGamma
+					&& alpha				== oldAlpha
+					&& beta					== oldBeta
+					&& epsilon				== oldEpsilon
+					&& delta				== oldDelta
 			) {	return; } // We do not fire event if params did not change 
 			
 			// Update old values
-			oldDoMedianFiltering 	= settings.doMedianFiltering;
-			oldThresholdFactor 		= settings.thresholdFactor;
-			oldGaussFilterSigma 	= settings.sigmaf;
-			oldNIterAnDiff 			= settings.nAD;
-			oldKappa				= settings.kappa;
-			oldGaussGradSigma		= settings.sigmag;
-			oldGamma 				= settings.gamma;
-			oldAlpha				= settings.alpha;
-			oldBeta					= settings.beta;
-			oldEpsilon				= settings.epsilon;
-			oldDelta				= settings.delta;
+			oldDoMedianFiltering 	= doMedianFiltering;
+			oldThresholdFactor 		= thresholdFactor;
+			oldGaussFilterSigma 	= sigmaf;
+			oldNIterAnDiff 			= nAD;
+			oldKappa				= kappa;
+			oldGaussGradSigma		= sigmag;
+			oldGamma 				= gamma;
+			oldAlpha				= alpha;
+			oldBeta					= beta;
+			oldEpsilon				= epsilon;
+			oldDelta				= delta;
+			
+			
+			// Setup settings object
+			settings.clear();
+			settings.put(KEY_DO_MEDIAN_FILTERING, oldDoMedianFiltering);
+			settings.put(KEY_SIGMA_FILTER, oldGaussFilterSigma);
+			settings.put(KEY_N_ANISOTROPIC_FILTERING, oldNIterAnDiff);
+			settings.put(KEY_KAPPA, oldKappa);
+			settings.put(KEY_SIGMA_GRADIENT, oldGaussGradSigma);
+			settings.put(KEY_GAMMA, oldGamma);
+			settings.put(KEY_ALPHA, oldAlpha);
+			settings.put(KEY_BETA, oldBeta);
+			settings.put(KEY_EPSILON, oldEpsilon);
+			settings.put(KEY_DELTA, oldDelta);
+			settings.put(KEY_THRESHOLD_FACTOR, oldThresholdFactor);
+			settings.put(KEY_DO_DISPLAY_LABELS, chckbxDisplayLabel.isSelected());
+			settings.put(KEY_TARGET_CHANNEL, tmSettings.imp.getC());
 		}
 
 		// Forward event, whatever it is.
@@ -309,13 +362,6 @@ public class CWNTPanel extends SegmenterConfigurationPanel {
 			chckbxDisplayLabel = new JCheckBox("<html>\r\nCompute and display nuclei <br>\r\nlabels after segmentation.\r\n</html>");
 			chckbxDisplayLabel.setFont(FONT);
 			chckbxDisplayLabel.setBounds(16, 380, 262, 45);
-			// listen to click
-			chckbxDisplayLabel.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					settings.doDisplayLabels = chckbxDisplayLabel.isSelected();
-				}
-			});
 			panelIntroduction.add(chckbxDisplayLabel);
 		}
 
@@ -333,7 +379,7 @@ public class CWNTPanel extends SegmenterConfigurationPanel {
 				chckbxDoMedianFiltering = new JCheckBox("Do median filtering");
 				chckbxDoMedianFiltering.setBounds(10, 55, 268, 23);
 				chckbxDoMedianFiltering.setFont(SMALL_FONT);
-				chckbxDoMedianFiltering.setSelected(settings.doMedianFiltering);
+				chckbxDoMedianFiltering.setSelected(oldDoMedianFiltering);
 				panelDenoising.add(chckbxDoMedianFiltering);
 				chckbxDoMedianFiltering.addActionListener(new ActionListener() {
 					@Override
@@ -347,12 +393,12 @@ public class CWNTPanel extends SegmenterConfigurationPanel {
 				lblGaussianFilter.setToolTipText(GAUSSIAN_FILTER_TOOLTIP_STR);
 				panelDenoising.add(lblGaussianFilter);
 
-				gaussFiltSigmaSlider = new DoubleJSlider(0, 5*scale, (int) (settings.sigmaf*scale), scale);
+				gaussFiltSigmaSlider = new DoubleJSlider(0, 5*scale, (int) (oldGaussFilterSigma*scale), scale);
 				gaussFiltSigmaSlider.setBounds(10, 115, 223, 23);
 				gaussFiltSigmaSlider.setToolTipText(GAUSSIAN_FILTER_TOOLTIP_STR);
 				panelDenoising.add(gaussFiltSigmaSlider);
 
-				gaussFiltSigmaText = new JTextField(""+settings.sigmaf);
+				gaussFiltSigmaText = new JTextField(""+oldGaussFilterSigma);
 				gaussFiltSigmaText.setHorizontalAlignment(SwingConstants.CENTER);
 				gaussFiltSigmaText.setBounds(243, 115, 35, 23);
 				gaussFiltSigmaText.setFont(FONT);
@@ -379,13 +425,13 @@ public class CWNTPanel extends SegmenterConfigurationPanel {
 
 				aniDiffNIterText = new JTextField();
 				aniDiffNIterText.setHorizontalAlignment(SwingConstants.CENTER);
-				aniDiffNIterText.setText(""+settings.nAD);
+				aniDiffNIterText.setText(""+oldNIterAnDiff);
 				aniDiffNIterText.setFont(FONT);
 				aniDiffNIterText.setBounds(243, 251, 35, 23);
 				aniDiffNIterText.setToolTipText(ANISOTROPIC_FILTERING_TOOLTIP_STR);
 				panelDenoising.add(aniDiffNIterText);
 
-				aniDiffNIterSlider = new DoubleJSlider(1, 10, settings.nAD, 1);
+				aniDiffNIterSlider = new DoubleJSlider(1, 10, oldNIterAnDiff, 1);
 				aniDiffNIterSlider.setBounds(10, 251, 223, 23);
 				aniDiffNIterSlider.setToolTipText(ANISOTROPIC_FILTERING_TOOLTIP_STR);
 				panelDenoising.add(aniDiffNIterSlider);
@@ -404,13 +450,13 @@ public class CWNTPanel extends SegmenterConfigurationPanel {
 
 				aniDiffKappaText = new JTextField();
 				aniDiffKappaText.setHorizontalAlignment(SwingConstants.CENTER);
-				aniDiffKappaText.setText(""+settings.kappa);
+				aniDiffKappaText.setText(""+oldKappa);
 				aniDiffKappaText.setFont(FONT);
 				aniDiffKappaText.setBounds(243, 310, 35, 23);
 				aniDiffKappaText.setToolTipText(ANISOTROPIC_FILTERING_TOOLTIP_STR);
 				panelDenoising.add(aniDiffKappaText);
 
-				aniDiffKappaSlider = new DoubleJSlider(1, 100, (int) settings.kappa, 1);
+				aniDiffKappaSlider = new DoubleJSlider(1, 100, (int) oldKappa, 1);
 				aniDiffKappaSlider.setBounds(10, 310, 223, 23);
 				aniDiffKappaSlider.setToolTipText(ANISOTROPIC_FILTERING_TOOLTIP_STR);
 				panelDenoising.add(aniDiffKappaSlider);
@@ -439,13 +485,13 @@ public class CWNTPanel extends SegmenterConfigurationPanel {
 				gammaLabel.setToolTipText(GAMMA_PREFACTOR_TOOLTIP_STR);
 				panelMasking.add(gammaLabel);
 
-				gammaSlider = new DoubleJSlider(-5*scale, 5*scale, (int) (settings.gamma*scale), scale);
+				gammaSlider = new DoubleJSlider(-5*scale, 5*scale, (int) (oldGamma*scale), scale);
 				gammaSlider.setBounds(10, 159, 223, 23);
 				gammaSlider.setToolTipText(GAMMA_PREFACTOR_TOOLTIP_STR);
 				panelMasking.add(gammaSlider);
 
 				gammaText = new JTextField();
-				gammaText.setText(""+settings.gamma);
+				gammaText.setText(""+oldGamma);
 				gammaText.setFont(FONT);
 				gammaText.setBounds(243, 159, 35, 23);
 				gammaText.setToolTipText(GAMMA_PREFACTOR_TOOLTIP_STR);
@@ -462,12 +508,12 @@ public class CWNTPanel extends SegmenterConfigurationPanel {
 				lblNewLabel_3.setToolTipText(ALPHA_PREFACTOR_TOOLTIP_STR);
 				panelMasking.add(lblNewLabel_3);
 
-				alphaSlider = new DoubleJSlider(0, 20*scale, (int) (settings.alpha*scale), scale);
+				alphaSlider = new DoubleJSlider(0, 20*scale, (int) (oldAlpha*scale), scale);
 				alphaSlider.setBounds(10, 201, 223, 23);
 				alphaSlider.setToolTipText(ALPHA_PREFACTOR_TOOLTIP_STR);
 				panelMasking.add(alphaSlider);
 
-				alphaText = new JTextField(""+settings.alpha);
+				alphaText = new JTextField(""+oldAlpha);
 				alphaText.setFont(FONT);
 				alphaText.setBounds(243, 201, 35, 23);
 				alphaText.setToolTipText(ALPHA_PREFACTOR_TOOLTIP_STR);
@@ -484,14 +530,14 @@ public class CWNTPanel extends SegmenterConfigurationPanel {
 				betaLabel.setToolTipText(BETA_PREFACTOR_TOOLTIP_STR);
 				panelMasking.add(betaLabel);
 
-				betaSlider = new DoubleJSlider(0, 20*scale, (int) (settings.beta*scale), scale);
+				betaSlider = new DoubleJSlider(0, 20*scale, (int) (oldBeta*scale), scale);
 				betaSlider.setBounds(10, 246, 223, 23);
 				betaSlider.setToolTipText(BETA_PREFACTOR_TOOLTIP_STR);
 				panelMasking.add(betaSlider);
 
 				betaText = new JTextField();
 				betaText.setFont(FONT);
-				betaText.setText(""+settings.beta);
+				betaText.setText(""+oldBeta);
 				betaText.setBounds(243, 246, 35, 23);
 				betaText.setToolTipText(BETA_PREFACTOR_TOOLTIP_STR);
 				panelMasking.add(betaText);
@@ -507,14 +553,14 @@ public class CWNTPanel extends SegmenterConfigurationPanel {
 				epsilonLabel.setToolTipText(EPSILON_PREFACTOR_TOOLTIP_STR);
 				panelMasking.add(epsilonLabel);
 
-				epsilonSlider = new DoubleJSlider(0, 20*scale, (int) (scale*settings.epsilon), scale);
+				epsilonSlider = new DoubleJSlider(0, 20*scale, (int) (scale*oldEpsilon), scale);
 				epsilonSlider.setBounds(10, 291, 223, 23);
 				epsilonSlider.setToolTipText(EPSILON_PREFACTOR_TOOLTIP_STR);
 				panelMasking.add(epsilonSlider);
 
 				epsilonText = new JTextField();
 				epsilonText.setFont(FONT);
-				epsilonText.setText(""+settings.epsilon);
+				epsilonText.setText(""+oldEpsilon);
 				epsilonText.setBounds(243, 291, 35, 23);
 				epsilonText.setToolTipText(EPSILON_PREFACTOR_TOOLTIP_STR);
 				panelMasking.add(epsilonText);
@@ -532,12 +578,12 @@ public class CWNTPanel extends SegmenterConfigurationPanel {
 
 				deltaText = new JTextField();
 				deltaText.setFont(FONT);
-				deltaText.setText(""+settings.delta);
+				deltaText.setText(""+oldDelta);
 				deltaText.setBounds(243, 333, 35, 23);
 				deltaText.setToolTipText(DELTA_PREFACTOR_TOOLTIP_STR);
 				panelMasking.add(deltaText);
 
-				deltaSlider = new DoubleJSlider(0, 5*scale, (int) (settings.delta*scale), scale);
+				deltaSlider = new DoubleJSlider(0, 5*scale, (int) (oldDelta*scale), scale);
 				deltaSlider.setBounds(10, 333, 223, 23);
 				deltaSlider.setToolTipText(DELTA_PREFACTOR_TOOLTIP_STR);
 				panelMasking.add(deltaSlider);
@@ -574,10 +620,10 @@ public class CWNTPanel extends SegmenterConfigurationPanel {
 			gaussGradSigmaText.setFont(FONT);
 			gaussGradSigmaText.setHorizontalAlignment(SwingConstants.CENTER);
 			gaussGradSigmaText.setToolTipText(GAUSSIAN_GRADIENT_TOOLTIP_STR);
-			gaussGradSigmaText.setText(""+settings.sigmag);
+			gaussGradSigmaText.setText(""+oldGaussGradSigma);
 
 
-			gaussGradSigmaSlider = new DoubleJSlider(0, 5*scale, (int) (settings.sigmag*scale), scale);
+			gaussGradSigmaSlider = new DoubleJSlider(0, 5*scale, (int) (oldGaussGradSigma*scale), scale);
 			gaussGradSigmaSlider.setBounds(10, 52, 223, 23);
 			gaussGradSigmaSlider.setToolTipText(GAUSSIAN_GRADIENT_TOOLTIP_STR);
 			panelMasking.add(gaussGradSigmaSlider);
@@ -603,13 +649,13 @@ public class CWNTPanel extends SegmenterConfigurationPanel {
 			labelThresholdFactor.setToolTipText(THRESHOLD_PREFACTOR_TOOLTIP_STR);
 			panelThresholding.add(labelThresholdFactor);
 
-			thresholdFactorSlider = new DoubleJSlider(0, 5*scale, (int) (settings.thresholdFactor*scale), scale);
+			thresholdFactorSlider = new DoubleJSlider(0, 5*scale, (int) (oldThresholdFactor*scale), scale);
 			thresholdFactorSlider.setBounds(10, 75, 223, 23);
 			thresholdFactorSlider.setToolTipText(THRESHOLD_PREFACTOR_TOOLTIP_STR);
 			panelThresholding.add(thresholdFactorSlider);
 
 			thresholdFactorText = new JTextField();
-			thresholdFactorText.setText(""+settings.thresholdFactor);
+			thresholdFactorText.setText(""+oldThresholdFactor);
 			thresholdFactorText.setFont(FONT);
 			thresholdFactorText.setBounds(243, 75, 35, 23);
 			thresholdFactorText.setToolTipText(THRESHOLD_PREFACTOR_TOOLTIP_STR);
@@ -778,4 +824,5 @@ public class CWNTPanel extends SegmenterConfigurationPanel {
 			"a plain Otsu-based thresholding. This value is a multiplicative <br>" +
 			"factor allowing to specify the stringency of segmentation." +
 			"</html>";
+
 }

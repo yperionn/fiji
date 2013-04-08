@@ -1,4 +1,4 @@
-package fiji.plugin.cwnt.segmentation;
+package fiji.plugin.cwnt.detection;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,26 +6,29 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
-import mpicbg.imglib.algorithm.BenchmarkAlgorithm;
-import mpicbg.imglib.algorithm.labeling.AllConnectedComponents;
-import mpicbg.imglib.container.array.ArrayContainerFactory;
-import mpicbg.imglib.container.planar.PlanarContainerFactory;
-import mpicbg.imglib.cursor.LocalizableByDimCursor;
-import mpicbg.imglib.cursor.LocalizableCursor;
-import mpicbg.imglib.cursor.special.SphereCursor;
-import mpicbg.imglib.image.Image;
-import mpicbg.imglib.image.ImageFactory;
-import mpicbg.imglib.labeling.Labeling;
-import mpicbg.imglib.labeling.LabelingType;
-import mpicbg.imglib.type.label.FakeType;
-import mpicbg.imglib.type.logic.BitType;
-import mpicbg.imglib.util.Util;
-
 import org.apache.commons.math.stat.clustering.Cluster;
 import org.apache.commons.math.stat.clustering.KMeansPlusPlusClusterer;
 
+import net.imglib2.Cursor;
+import net.imglib2.Localizable;
+import net.imglib2.Point;
+import net.imglib2.RandomAccess;
+import net.imglib2.algorithm.BenchmarkAlgorithm;
+import net.imglib2.algorithm.labeling.AllConnectedComponents;
+import net.imglib2.algorithm.region.hypersphere.HyperSphere;
+import net.imglib2.algorithm.region.hypersphere.HyperSphereCursor;
+import net.imglib2.img.Img;
+import net.imglib2.img.array.ArrayImgFactory;
+import net.imglib2.img.display.imagej.ImageJFunctions;
+import net.imglib2.labeling.Labeling;
+import net.imglib2.labeling.LabelingType;
+import net.imglib2.labeling.NativeImgLabeling;
+import net.imglib2.roi.IterableRegionOfInterest;
+import net.imglib2.type.logic.BitType;
+import net.imglib2.type.numeric.integer.IntType;
+import net.imglib2.util.Util;
+
 import fiji.plugin.trackmate.Spot;
-import fiji.plugin.trackmate.SpotImp;
 
 public class NucleiSplitter extends BenchmarkAlgorithm {
 
@@ -54,9 +57,9 @@ public class NucleiSplitter extends BenchmarkAlgorithm {
 	private ArrayList<Integer> nucleiToSplit;
 	private ArrayList<Integer> thrashedLabels;
 	private final List<Spot> spots;
-	private final float[] calibration;
+	private final double[] calibration;
 	/** The physical volume of a voxel. */
-	private final float voxelVolume;
+	private final double voxelVolume;
 	/** If true, will modify the label image to reflect nuclei splitting process. */
 	private final boolean doSplitLabelImage;
 
@@ -92,7 +95,7 @@ public class NucleiSplitter extends BenchmarkAlgorithm {
 	 * 
 	 * @author Bhavna Rajasekarann, Jean-Yves Tinevez 
 	 */
-	public NucleiSplitter(Labeling<Integer> source, float[] calibration, Iterator<Integer> labelGenerator, boolean splitLabelImage) {
+	public NucleiSplitter(Labeling<Integer> source, double[] calibration, Iterator<Integer> labelGenerator, boolean splitLabelImage) {
 		super();
 		this.source = source;
 		this.calibration = calibration;
@@ -157,9 +160,9 @@ public class NucleiSplitter extends BenchmarkAlgorithm {
 	 */
 	private Spot createSpotFomLabel(Integer label) {
 		double nucleusVol = source.getArea(label) * voxelVolume;
-		float radius = (float) Math.pow(3 * nucleusVol / (4 * Math.PI), 0.33333);
-		float[] coordinates = getCentroid(label);
-		Spot spot = new SpotImp(coordinates);
+		double radius = Math.pow(3 * nucleusVol / (4 * Math.PI), 0.33333);
+		double[] coordinates = getCentroid(label);
+		Spot spot = new Spot(coordinates);
 		spot.putFeature(Spot.RADIUS, radius);
 		return spot;
 	}
@@ -171,27 +174,26 @@ public class NucleiSplitter extends BenchmarkAlgorithm {
 	 */
 	private int[][] getPixelPositionHistogramsForLabel(Integer label) {
 		// Prepare histogram holders
-		int[] minExtents = new int[source.getNumDimensions()];
-		int[] maxExtents = new int[source.getNumDimensions()];
+		long[] minExtents = new long[source.numDimensions()];
+		long[] maxExtents = new long[source.numDimensions()];
 		source.getExtents(label, minExtents, maxExtents); 
 		
-		int[][] histograms = new int[source.getNumDimensions()][];
-		for (int i = 0; i < source.getNumDimensions(); i++) {
-			histograms[i] = new int[maxExtents[i] - minExtents[i]];
+		int[][] histograms = new int[source.numDimensions()][];
+		for (int i = 0; i < source.numDimensions(); i++) {
+			histograms[i] = new int[(int) (maxExtents[i] - minExtents[i] +1)];
 		}
 		
 		// Build histograms
-		int[] position = source.createPositionArray();
-		LocalizableCursor<FakeType> cursor = source.createLocalizableLabelCursor(label);
+		long[] position = new long[source.numDimensions()];
+		Cursor<LabelingType<Integer>> cursor = source.getIterableRegionOfInterest(label)
+				.getIterableIntervalOverROI(source).localizingCursor();
 		while(cursor.hasNext()) {
 			cursor.fwd();
-			cursor.getPosition(position);
+			cursor.localize(position);
 			for (int i = 0; i < position.length; i++) {
-				histograms[i] [ position[i] - minExtents[i] ] ++;
+				histograms[i] [ (int) (position[i] - minExtents[i]) ] ++;
 			}
 		}
-		cursor.close();
-		
 		return histograms;
 	}
 
@@ -212,7 +214,7 @@ public class NucleiSplitter extends BenchmarkAlgorithm {
 		int[][] histograms = getPixelPositionHistogramsForLabel(label);
 		
 		// Investigate histograms
-		int[] nPeaks = new int[source.getNumDimensions()];
+		int[] nPeaks = new int[source.numDimensions()];
 		for (int i = 0; i < histograms.length; i++) {
 			int[] h = histograms[i];
 			boolean wasGoingUp = true;
@@ -263,13 +265,13 @@ public class NucleiSplitter extends BenchmarkAlgorithm {
 		// Harvest pixel coordinates in a collection of calibrated clusterable points
 		int volume = (int) source.getArea(label);
 		Collection<CalibratedEuclideanIntegerPoint> pixels = new ArrayList<CalibratedEuclideanIntegerPoint>(volume);
-		LocalizableCursor<FakeType> cursor = source.createLocalizableLabelCursor(label);
+		Cursor<LabelingType<Integer>> cursor = source.getIterableRegionOfInterest(label).getIterableIntervalOverROI(source).localizingCursor();
 		while (cursor.hasNext()) {
 			cursor.fwd();
-			int[] position = cursor.getPosition().clone();
+			long[] position = new long[source.numDimensions()];
+			cursor.localize(position);
 			pixels.add(new CalibratedEuclideanIntegerPoint(position, calibration));
 		}
-		cursor.close();
 		
 		// Check bad labels
 		if (pixels.size() <= n) {
@@ -286,7 +288,7 @@ public class NucleiSplitter extends BenchmarkAlgorithm {
 
 		// Create spots from clusters
 		for (Cluster<CalibratedEuclideanIntegerPoint> cluster : clusters) {
-			float[] centroid = new float[calibration.length];
+			double[] centroid = new double[calibration.length];
 			int npoints = cluster.getPoints().size();
 			for (CalibratedEuclideanIntegerPoint p : cluster.getPoints()) {
 				for (int i = 0; i < centroid.length; i++) {
@@ -296,7 +298,7 @@ public class NucleiSplitter extends BenchmarkAlgorithm {
 			final double voxelVolume = calibration[0] * calibration[1] * calibration[2];
 			double nucleusVol = cluster.getPoints().size() * voxelVolume;
 			float radius = (float) Math.pow(3 * nucleusVol / (4 * Math.PI), 0.33333);
-			Spot spot = new SpotImp(centroid);
+			Spot spot = new Spot(centroid);
 			spot.putFeature(Spot.RADIUS, radius);
 			if (DEBUG) {
 				System.out.println("[NucleiSplitter] #split: splitting label "+label+", child #"+clusters.indexOf(cluster)+" has a volume of "+nucleusVol);
@@ -309,24 +311,23 @@ public class NucleiSplitter extends BenchmarkAlgorithm {
 		if (doSplitLabelImage) {
 		
 			// Re-label newly split nuclei
-			LocalizableByDimCursor<LabelingType<Integer>> sourceCursor = source.createLocalizableByDimCursor();
+			RandomAccess<LabelingType<Integer>> sourceCursor = source.randomAccess();
 			for (Cluster<CalibratedEuclideanIntegerPoint> cluster : clusters) {
 
 				int nl = labelGenerator.next();
-				List<Integer> newLabel = sourceCursor.getType().intern(nl); 
+				List<Integer> newLabel = sourceCursor.get().intern(nl); 
 				if (DEBUG) {
 					System.out.println("[NucleiSplitter] #split: relabeling label "+label+", child #"+clusters.indexOf(cluster)+" with new label: " + newLabel);
 				}
 				for (CalibratedEuclideanIntegerPoint p : cluster.getPoints()) {
 					sourceCursor.setPosition(p.getPoint());
-					sourceCursor.getType().setLabeling(newLabel);
+					sourceCursor.get().setLabeling(newLabel);
 				}
 
 				if (DEBUG) {
 					System.out.println("[NucleiSplitter] #split: relabeling label "+label+", child #"+clusters.indexOf(cluster) + " done");
 				}
 			}
-			sourceCursor.close();
 		}
 	}
 
@@ -417,43 +418,41 @@ public class NucleiSplitter extends BenchmarkAlgorithm {
 	 */
 	private void eraseLabelsFromImage(final Iterable<Integer> labels) {
 		
-		LocalizableByDimCursor<LabelingType<Integer>> tempCursor = source.createLocalizableByDimCursor();
-		LabelingType<Integer> t = tempCursor.getType();
+		RandomAccess<LabelingType<Integer>> tempCursor = source.randomAccess();
+		LabelingType<Integer> t = tempCursor.get();
         final List<Integer> zero = t.intern(-1); // Make your zero label here.
 
         final Iterator<Integer> it = labels.iterator();
-        LocalizableByDimCursor<LabelingType<Integer>> destCursor = source.createLocalizableByDimCursor();
+        RandomAccess<LabelingType<Integer>> destCursor = source.randomAccess();
         while(it.hasNext()) {
         	int label = it.next();
-        	LocalizableCursor<FakeType> cursor = source.createLocalizableLabelCursor(label);
+        	Cursor<LabelingType<Integer>> cursor = source.getIterableRegionOfInterest(label).getIterableIntervalOverROI(source).localizingCursor();
         	if (DEBUG) {
         		System.out.println("[NucleiSplitter] #eraseLabelsFromImage: erasing label "+label+" started");
         	}
         	while (cursor.hasNext()) {
         		cursor.fwd();
         		destCursor.setPosition(cursor);
-        		destCursor.getType().setLabeling(zero); // Weird, but it seems we have to do that to get a label of 0
+        		destCursor.get().setLabeling(zero); // Weird, but it seems we have to do that to get a label of 0
         	}
-        	cursor.close();
         	if (DEBUG) {
         		System.out.println("[NucleiSplitter] #eraseLabelsFromImage: erasing label "+label+" done");
         	}
         }
-        destCursor.close();
         if (DEBUG) {
 			System.out.println("[NucleiSplitter] #eraseLabelsFromImage: all done");
 		}
 	}
 
-	private float[] getCentroid(final Integer label) {
-		final float[] centroid = new float[3];
-		final int[] position = source.createPositionArray();
-		LocalizableCursor<FakeType> cursor = source
-				.createLocalizableLabelCursor(label);
+	private double[] getCentroid(final Integer label) {
+		final double[] centroid = new double[3];
+		final long[] position = new long[source.numDimensions()];
+		IterableRegionOfInterest region = source.getIterableRegionOfInterest(label);
+		Cursor<LabelingType<Integer>> cursor = region.getIterableIntervalOverROI(source).localizingCursor();
 		int npixels = 0;
 		while (cursor.hasNext()) {
 			cursor.fwd();
-			cursor.getPosition(position);
+			cursor.localize(position);
 			for (int i = 0; i < position.length; i++) {
 				centroid[i] += position[i] * calibration[i];
 			}
@@ -474,43 +473,47 @@ public class NucleiSplitter extends BenchmarkAlgorithm {
 		
 		// First we create a blanck image
 		int[] dim = new int[] { 50, 40, 40 };
-		Image<BitType> img = new ImageFactory<BitType>(new BitType(), new ArrayContainerFactory()).createImage(dim);
+		Img<BitType> img = new ArrayImgFactory<BitType>().create(dim, new BitType());
 
 		// Then we add 2 blobs, touching in the middle to make 8-like shape.
-		float radius = 11;
-		float[] center = new float[] { 15, 20, 20 };
-		SphereCursor<BitType> cursor = new SphereCursor<BitType>(img, center , radius);
+		long radius = 11;
+		Localizable center = new Point(new long[] { 15, 20, 20 });
+		HyperSphere<BitType> sphere = new HyperSphere<BitType>(img, center, radius);
+		HyperSphereCursor<BitType> cursor = sphere.cursor();
 		while (cursor.hasNext()) {
 			cursor.fwd();
-			cursor.getType().set(true);
+			cursor.get().set(true);
 		}
 		
-		center = new float[] {35, 20, 20 };
-		cursor.moveCenterToCoordinates(center);
+		center = new Point(new long[] { 35, 20, 20 });
+		sphere.updateCenter(center);
+		cursor = sphere.cursor();
 		while (cursor.hasNext()) {
 			cursor.fwd();
-			cursor.getType().set(true);
+			cursor.get().set(true);
 		}
-		cursor.close();
+		
+
+		ij.ImageJ.main(args);
+		ImageJFunctions.wrap(img, "Source").show();
+		
 		
 		// Labeling
-		Iterator<Integer> labelGenerator = AllConnectedComponents.getIntegerNames(0);
-
-		PlanarContainerFactory containerFactory = new PlanarContainerFactory();
-		ImageFactory<LabelingType<Integer>> imageFactory = new ImageFactory<LabelingType<Integer>>(new LabelingType<Integer>(), containerFactory);
-		Labeling<Integer> labeling = new Labeling<Integer>(imageFactory, img.getDimensions(), "Labels");
-		labeling.setCalibration(img.getCalibration());
+		Iterator<Integer> labelGenerator = AllConnectedComponents.getIntegerNames(1);
+		long[] dims = new long[img.numDimensions()];
+		img.dimensions(dims);
+		NativeImgLabeling<Integer, IntType> labeling = new NativeImgLabeling<Integer, IntType>(new ArrayImgFactory< IntType >().create( dims  , new IntType() ) );
 
 		// 6-connected structuring element
-		int[][] structuringElement = new int[][] { {-1, 0, 0}, {1, 0, 0}, {0, -1, 0}, {0, 1, 0}, {0, 0, -1}, {0, 0, 1} };
-		CrownWearingSegmenter.labelAllConnectedComponents(labeling , img, labelGenerator, structuringElement);
+		long[][] structuringElement = new long[][] { {-1, 0, 0}, {1, 0, 0}, {0, -1, 0}, {0, 1, 0}, {0, 0, -1}, {0, 0, 1} };
+		AllConnectedComponents.labelAllConnectedComponents(labeling , img, labelGenerator, structuringElement);
 		// Splitter
-		Integer label = 0;
-		NucleiSplitter splitter = new NucleiSplitter(labeling, img.getCalibration(), labelGenerator, true);
+		Integer label = 1;
+		NucleiSplitter splitter = new NucleiSplitter(labeling, new double[] {1, 1, 1}, labelGenerator, true);
 		
 		// Prepare histogram holders
-		int[] minExtents = new int[labeling.getNumDimensions()];
-		int[] maxExtents = new int[labeling.getNumDimensions()];
+		long[] minExtents = new long[labeling.numDimensions()];
+		long[] maxExtents = new long[labeling.numDimensions()];
 		labeling.getExtents(label, minExtents, maxExtents);
 		System.out.println("Min extend of label "+label+": "+Util.printCoordinates(minExtents));
 		System.out.println("Max extend of label "+label+": "+Util.printCoordinates(maxExtents));
@@ -522,15 +525,14 @@ public class NucleiSplitter extends BenchmarkAlgorithm {
 		}
 		
 		int n = splitter.estimateNucleiNumber(label);
-		System.out.println("This one shall be split in "+n);
+		System.out.println("Label " + label + " shall be split in "+n);
 		
 		splitter.split(label, n);
 		
-		LabelToGlasbey colorer = new LabelToGlasbey(labeling);
+		LabelToGlasbey colorer = new LabelToGlasbey(labeling, new double[] {1, 1, 1});
 		colorer.checkInput();
 		colorer.process();
 		
-		ij.ImageJ.main(args);
 		colorer.getImp().show();
 		
 	}

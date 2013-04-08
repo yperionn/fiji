@@ -1,5 +1,7 @@
-package fiji.plugin.cwnt.segmentation;
+package fiji.plugin.cwnt.detection;
 
+import static fiji.plugin.cwnt.detection.CWNTKeys.*;
+import static fiji.plugin.trackmate.detection.DetectorKeys.*;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.plugin.Duplicator;
@@ -13,13 +15,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Map;
 
-import mpicbg.imglib.image.Image;
-import mpicbg.imglib.image.ImagePlusAdapter;
-import mpicbg.imglib.image.display.imagej.ImageJVirtualStack;
-import mpicbg.imglib.type.logic.BitType;
-import mpicbg.imglib.type.numeric.IntegerType;
-import mpicbg.imglib.type.numeric.real.FloatType;
+import net.imglib2.display.RealFloatConverter;
+import net.imglib2.img.ImagePlusAdapter;
+import net.imglib2.img.Img;
+import net.imglib2.img.display.imagej.ImageJVirtualStackFloat;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.logic.BitType;
+import net.imglib2.type.numeric.IntegerType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.numeric.real.FloatType;
 
 public class CWNTLivePreviewer extends MouseAdapter implements ActionListener {
 
@@ -37,7 +43,7 @@ public class CWNTLivePreviewer extends MouseAdapter implements ActionListener {
 
 	public CWNTLivePreviewer(CWNTPanel panel) {
 		this.source = panel;
-		this.imp = panel.getTargetImagePlus();
+		this.imp = panel.getTMSettings().imp;
 		this.updater = new DisplayUpdater();
 
 		source.addActionListener(this);
@@ -107,7 +113,7 @@ public class CWNTLivePreviewer extends MouseAdapter implements ActionListener {
 		ImagePlus snip = new Duplicator().run(imp, imp.getSlice(), imp.getSlice());
 
 		// Copy to Imglib
-		Image<? extends IntegerType<?>> img = null;
+		Img<? extends IntegerType<?>> img = null;
 		switch( imp.getType() )	{		
 		case ImagePlus.GRAY8 : 
 			img =  ImagePlusAdapter.wrapByte( snip );
@@ -116,7 +122,7 @@ public class CWNTLivePreviewer extends MouseAdapter implements ActionListener {
 			img = ImagePlusAdapter.wrapShort( snip );
 			break;
 		default:
-			System.err.println("Image type not handled: "+imp.getType());
+			System.err.println("Img type not handled: "+imp.getType());
 			return;
 		}
 
@@ -136,23 +142,23 @@ public class CWNTLivePreviewer extends MouseAdapter implements ActionListener {
 		source.labelDurationEstimate.setText("Total duration rough estimate: "+tmin+" min.");
 
 		// Prepare results holder;
-		Image 				F 	= nucleiMasker.getGaussianFilteredImage();
-		Image 				AD	= nucleiMasker.getAnisotropicDiffusionImage();
-		Image<FloatType> 	G 	= nucleiMasker.getGradientNorm();
-		Image<FloatType> 	L 	= nucleiMasker.getLaplacianMagnitude();
-		Image<FloatType> 	H 	= nucleiMasker.getHessianDeterminant();
-		Image<FloatType> 	M 	= nucleiMasker.getMask();
-		Image 				R 	= nucleiMasker.getResult();
+		Img 			F 	= nucleiMasker.getGaussianFilteredImage();
+		Img 			AD	= nucleiMasker.getAnisotropicDiffusionImage();
+		Img<FloatType> 	G 	= nucleiMasker.getGradientNorm();
+		Img<FloatType> 	L 	= nucleiMasker.getLaplacianMagnitude();
+		Img<FloatType> 	H 	= nucleiMasker.getHessianDeterminant();
+		Img<FloatType> 	M 	= nucleiMasker.getMask();
+		Img 			R 	= nucleiMasker.getResult();
 
-		double thresholdFactor  = ((CWSettings)source.getSegmenterSettings()).thresholdFactor;
+		double thresholdFactor  = (Double) source.getSettings().get(KEY_THRESHOLD_FACTOR);
 		OtsuThresholder2D thresholder = new OtsuThresholder2D(R, thresholdFactor);
 		thresholder.process();
-		Image 				B = thresholder.getResult();
+		Img 				B = thresholder.getResult();
 		
-		int width = F.getDimension(0);
-		int height = F.getDimension(1);
+		long width = F.dimension(0);
+		long height = F.dimension(1);
 
-		ImageStack floatStack = new ImageStack(width, height); // The stack of ips that scales roughly from 0 to 1
+		ImageStack floatStack = new ImageStack((int) width, (int) height); // The stack of ips that scales roughly from 0 to 1
 		floatStack.addSlice("Gradient norm", toFloatProcessor(G));
 		floatStack.addSlice("Laplacian mangitude", toFloatProcessor(L));
 		floatStack.addSlice("Hessian determintant", toFloatProcessor(H));
@@ -166,7 +172,7 @@ public class CWNTLivePreviewer extends MouseAdapter implements ActionListener {
 		comp2.show();
 		comp2.getProcessor().resetMinAndMax();
 
-		ImageStack tStack = new ImageStack(width, height); // The stack of ips that scales roughly like source image
+		ImageStack tStack = new ImageStack((int) width, (int) height); // The stack of ips that scales roughly like source image
 		tStack.addSlice("Gaussian filtered", toFloatProcessor(F));
 		tStack.addSlice("Anisotropic diffusion", toFloatProcessor(AD));
 		tStack.addSlice("Masked image", toFloatProcessor(R));
@@ -307,11 +313,11 @@ public class CWNTLivePreviewer extends MouseAdapter implements ActionListener {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void paramStep5Changed() {
-		double threshFact = ((CWSettings)source.getSegmenterSettings()).thresholdFactor;
-		Image<?> img = nucleiMasker.getResult();
+		double threshFact = (Double) source.getSettings().get(KEY_THRESHOLD_FACTOR);
+		Img<?> img = nucleiMasker.getResult();
 		OtsuThresholder2D<?> thresholder = new OtsuThresholder2D(img, threshFact);
 		thresholder.process();
-		Image<BitType> bit = thresholder.getResult();
+		Img<BitType> bit = thresholder.getResult();
 		
 		int slice2 = comp2.getSlice();
 		comp2.setSlice(5);
@@ -319,28 +325,21 @@ public class CWNTLivePreviewer extends MouseAdapter implements ActionListener {
 		comp2.setSlice(slice2);
 		comp2.getProcessor().setMinAndMax(0, 2);
 	}
-
-
-	@SuppressWarnings({ "rawtypes", "unchecked" }) 
-	private FloatProcessor toFloatProcessor(Image img) {
-		FloatProcessor fip = new FloatProcessor( img.getDimension(0), img.getDimension(1), 
-				ImageJVirtualStack.extractSliceFloat( img, img.getDisplay(), 0, 1, new int[3] ), null); 
-		fip.setMinAndMax( img.getDisplay().getMin(),  img.getDisplay().getMax() );
-		return fip;
-	}
 	
+	
+
 	private void readMaskingParameters() {
-		CWSettings settings = (CWSettings) source.getSegmenterSettings();
-		boolean doMedianFiltering 	= settings.doMedianFiltering;
-		double gaussFilterSigma 	= settings.sigmaf;
-		int nIterAnDiff 			= settings.nAD;
-		double kappa				= settings.kappa;
-		double gaussGradSigma		= settings.sigmag;
-		double gamma 				= settings.gamma;
-		double alpha				= settings.alpha;
-		double beta 				= settings.beta;
-		double epsilon				= settings.epsilon;
-		double delta 				= settings.delta;
+		Map<String, Object> settings = source.getSettings();
+		boolean doMedianFiltering 	= (Boolean) settings.get(KEY_DO_MEDIAN_FILTERING);
+		double gaussFilterSigma 	= (Double) settings.get(KEY_SIGMA_FILTER);
+		int nIterAnDiff 			= (Integer) settings.get(KEY_N_ANISOTROPIC_FILTERING);
+		double kappa				= (Double) settings.get(KEY_KAPPA);
+		double gaussGradSigma		= (Double) settings.get(KEY_SIGMA_GRADIENT);
+		double gamma 				= (Double) settings.get(KEY_GAMMA);
+		double alpha				= (Double) settings.get(KEY_ALPHA);
+		double beta 				= (Double) settings.get(KEY_BETA);
+		double epsilon				= (Double) settings.get(KEY_EPSILON);
+		double delta 				= (Double) settings.get(KEY_DELTA);
 		nucleiMasker.setParameters(doMedianFiltering, gaussFilterSigma, nIterAnDiff, kappa, 
 				gaussGradSigma, gamma, alpha, beta, epsilon, delta);
 	}
@@ -441,5 +440,10 @@ public class CWNTLivePreviewer extends MouseAdapter implements ActionListener {
 			}
 		}
 
+	}
+	
+	private static final <T extends NativeType<T> & RealType<T>> FloatProcessor toFloatProcessor(Img<T> img) {
+		ImageJVirtualStackFloat<T> v = new ImageJVirtualStackFloat<T>(img, new RealFloatConverter<T>());
+		return (FloatProcessor) v.getProcessor(1);
 	}
 }
