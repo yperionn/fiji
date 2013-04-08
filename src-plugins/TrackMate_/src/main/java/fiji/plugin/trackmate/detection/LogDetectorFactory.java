@@ -118,5 +118,4 @@ public class LogDetectorFactory<T extends RealType<T> & NativeType<T>>  implemen
 		ok = ok & checkMapKeys(settings, mandatoryKeys, null, errorHolder);
 		return ok;	
 	}
-
 }

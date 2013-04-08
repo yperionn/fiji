@@ -375,9 +375,9 @@ public class TrackMate_ implements PlugIn, Benchmark, MultiThreaded, Algorithm {
 	 * Execute the detection part.
 	 * <p>
 	 * This method configure the chosen {@link Settings#detectorFactory} with the source image 
-	 * and the detectr settings and execute the detection process for all the frames set 
+	 * and the detector settings and execute the detection process for all the frames set 
 	 * in the {@link Settings} object of the target model.
-	 * @return true if the whole detection step has exectued correctly.
+	 * @return true if the whole detection step has executed correctly.
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public boolean execDetection() {
