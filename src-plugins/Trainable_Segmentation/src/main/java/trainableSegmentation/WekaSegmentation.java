@@ -66,8 +66,10 @@ import weka.classifiers.Evaluation;
 import weka.classifiers.pmml.consumer.PMMLClassifier;
 import weka.classifiers.trees.RandomForest;
 
+import weka.core.AbstractInstance;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
+import weka.core.Instance;
 import weka.core.Instances;
 
 import weka.core.pmml.PMMLFactory;
@@ -808,11 +810,82 @@ public class WekaSegmentation {
 				{
 
 
-						double[] values = new double[featureStack.getSize()+1];
-						for (int z=1; z<=featureStack.getSize(); z++)
+						final int numFeatures = featureStack.getSize() + 1;
+						final double[] values = new double[numFeatures];
+						for (int z=1; z<numFeatures; z++)
 							values[z-1] = featureStack.getProcessor(z).getPixelValue(x, y);
-						values[featureStack.getSize()] = (double) classIndex;
-						loadedTrainingData.add(new DenseInstance(1.0, values));
+						values[numFeatures - 1] = (double) classIndex;
+						//loadedTrainingData.add(new DenseInstance(1.0, values));
+						loadedTrainingData.add(new AbstractInstance() {
+
+							@Override
+							public int index(int position) {
+								// TODO Auto-generated method stub
+								return 0;
+							}
+
+							@Override
+							public Instance mergeInstance(Instance inst) {
+								throw new UnsupportedOperationException();
+							}
+
+							@Override
+							public int numAttributes() {
+								return numFeatures;
+							}
+
+							@Override
+							public int numValues() {
+								return numFeatures;
+							}
+
+							@Override
+							public void replaceMissingValues(double[] array) {
+								throw new UnsupportedOperationException();
+							}
+
+							@Override
+							public void setValue(int attIndex, double value) {
+								throw new UnsupportedOperationException();
+							}
+
+							@Override
+							public void setValueSparse(int indexOfIndex,
+									double value) {
+								throw new UnsupportedOperationException();
+							}
+
+							@Override
+							public double[] toDoubleArray() {
+								throw new UnsupportedOperationException();
+							}
+
+							@Override
+							public String toStringNoWeight() {
+								throw new UnsupportedOperationException();
+							}
+
+							@Override
+							public double value(int attIndex) {
+								return values[attIndex];
+							}
+
+							@Override
+							public Object copy() {
+								throw new UnsupportedOperationException();
+							}
+
+							@Override
+							protected void forceDeleteAttributeAt(int position) {
+								throw new UnsupportedOperationException();
+							}
+
+							@Override
+							protected void forceInsertAttributeAt(int position) {
+								throw new UnsupportedOperationException();
+							}
+							
+						});
 						// increase number of instances for this class
 						nl ++;
 				}
