@@ -3385,7 +3385,9 @@ public class FeatureStack
 		
 		double[] values = new double[ getSize() + 1 + extra ];
 		int n = 0;
-		for (int z=1; z<=getSize(); z++, n++)		
+
+		final int numSlices = getSize();
+		for (int z=1; z<=numSlices; z++, n++)
 			values[z-1] = getProcessor(z).getPixelValue(x, y);
 		
 		
@@ -3412,7 +3414,7 @@ public class FeatureStack
 	 * @param ip input image
 	 * @param x x- pixel coordinate
 	 * @param y y- pixel coordinate
-	 * @return pixel vale
+	 * @return pixel value
 	 */
 	double getPixelMirrorConditions(ImageProcessor ip, int x, int y)
 	{
