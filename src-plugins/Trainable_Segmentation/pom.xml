@@ -114,6 +114,11 @@
 			<artifactId>Stitching_</artifactId>
 			<version>${imagej.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>${scijava-common.groupId}</groupId>
+			<artifactId>scijava-common</artifactId>
+			<version>${scijava-common.version}</version>
+		</dependency>
 	</dependencies>
 
 	<!-- NB: for project parent -->
