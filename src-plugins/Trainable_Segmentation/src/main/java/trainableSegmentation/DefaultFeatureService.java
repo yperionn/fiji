@@ -4,6 +4,7 @@ import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ImageProcessor;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -141,10 +142,34 @@ public class DefaultFeatureService extends AbstractService implements FeatureSer
 		return result;
 	}
 
+	private static ImagePlus loadFromResource(final String path) {
+		final URL url = DefaultFeatureService.class.getResource(path);
+		if (url == null) return null;
+		if ("file".equals(url.getProtocol())) return new ImagePlus(url.getPath());
+		return new ImagePlus(url.toString());
+	}
+
 	public static void main(String... args) {
-		final Context context = new Context(FeatureService.class);
-		final FeatureService featureService = context.getService(FeatureService.class);
-		System.err.println(featureService.toString());
+		final ImagePlus bridge = loadFromResource("/bridge.png");
+		if (bridge == null) System.exit(1);
+
+		final Context context = new Context( FeatureService.class );
+		final FeatureService featureService = context.getService( FeatureService.class );
+
+		System.err.println( "Found features in the FeatureService " + featureService.toString() );
+
+		final Collection<Feature> allFeatures = featureService.getAvailableFeatures();
+		final Collection<Feature> features = featureService.expandRange(allFeatures, "sigma", 2, 5, 17);
+		for (final Feature feature : features) {
+			System.err.println( "Feature: " + feature + " with " + feature.getParameterCount() + " parameters." );
+			for (int i = 0; i < feature.getParameterCount(); i++) {
+				System.err.println( "Parameter " + i + ": "
+						+ feature.getParameterName(i) + " = " + feature.getParameter(i));
+			}
+		}
+		final ImageStack featureStack = featureService.compute(bridge, features);
+
+		new ImagePlus("feature stack", featureStack).show();
 	}
 
 }
