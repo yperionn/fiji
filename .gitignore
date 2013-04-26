@@ -226,6 +226,7 @@ hs_err*.log
 /plugins/mpicbg_-[0-9]*.jar
 
 # Dependencies copied by MiniMaven #
+/jars/base64-[0-9]*.jar
 /jars/bcmail-jdk14-[0-9]*.jar
 /jars/bcprov-jdk14-[0-9]*.jar
 /jars/bsh-[0-9]*.jar
@@ -244,6 +245,7 @@ hs_err*.log
 /jars/jdom-[0-9]*.jar
 /jars/jdom-contrib-[0-9]*.jar
 /jars/jfreechart-[0-9]*.jar
+/jars/jgrapht-[0-9]*.jar
 /jars/jgrapht-jdk1.6-[0-9]*.jar
 /jars/jgraphx-[0-9]*.jar
 /jars/jna-[0-9]*.jar
@@ -307,6 +309,9 @@ hs_err*.log
 /modules/weka/weka/build/
 /modules/weka/weka/dist/
 
+# SciJava
+/jars/scijava-common-[0-9]*.jar
+
 # ImgLib #
 /jars/imglib-algorithms-[0-9]*.jar
 /jars/imglib-ij-[0-9]*.jar
@@ -314,6 +319,7 @@ hs_err*.log
 /jars/imglib-scripting-[0-9]*.jar
 /jars/imglib-[0-9]*.jar
 /jars/imglib2-algorithms-gpl-[0-9]*.jar
+/jars/imglib2-algorithms-legacy-[0-9]*.jar
 /jars/imglib2-algorithms-[0-9]*.jar
 /jars/imglib2-ij-[0-9]*.jar
 /jars/imglib2-io-[0-9]*.jar
@@ -335,6 +341,7 @@ hs_err*.log
 /jars/lwf-stubs-[0-9]*.jar
 /jars/mdbtools-java-[0-9]*.jar
 /jars/metakit-[0-9]*.jar
+/jars/native-lib-loader-[0-9]*.jar
 /jars/netcdf-[0-9]*.jar
 /jars/netcdf-java-[0-9]*.jar
 /jars/ome-xml-[0-9]*.jar
@@ -344,12 +351,14 @@ hs_err*.log
 /jars/serializer-[0-9]*.jar
 /jars/slf4j-api-[0-9]*.jar
 /jars/slf4j-log4j12-[0-9]*.jar
+/jars/turbojpeg-[0-9]*.jar
 /jars/xalan-[0-9]*.jar
 /jars/xml-apis-[0-9]*.jar
 
 # ImageJ2 #
 /jars/eventbus-[0-9]*.jar
 /jars/ij-app-[0-9]*.jar
+/jars/ij-commands-[0-9]*.jar
 /jars/ij-core-[0-9]*.jar
 /jars/ij-data-[0-9]*.jar
 /jars/ij-ext-swing-[0-9]*.jar
