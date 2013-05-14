@@ -3,7 +3,8 @@ import fiji.IJ1Patcher;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileInputStream;
+import java.io.StringBufferInputStream;
 import java.net.URL;
 
 import javassist.ClassPool;
@@ -53,6 +54,11 @@ copyJar(clazz, targetDirectory) {
 	copyStream(new FileInputStream(source), new File(targetDirectory, source.getName()));
 }
 
+writeMacro(menuLabel, code, targetDirectory) {
+	copyStream(new StringBufferInputStream(code),
+		new File(targetDirectory, menuLabel.replace(' ', '_') + ".ijm"));
+}
+
 copyStream(in, target) {
         parent = target.getParentFile();
         if (!parent.isDirectory()) parent.mkdirs();
@@ -73,6 +79,8 @@ copyClass("Another_Bare_PlugIn", sub);
 copyClass("test.Missing_Dependency", plugins);
 copyClass("Changed_Method_Signature", plugins);
 copyClass("ij.ImageJ", plugins);
+writeMacro("Not In A Submenu", "print('Not in a submenu');", plugins);
+writeMacro("Inside A Submenu", "print('Inside a submenu');", plugins);
 
 print("Redirecting stdout");
 
@@ -113,5 +121,7 @@ assertPlugInOutput("Another Bare PlugIn", "Hello (another bare) world!");
 assertPlugInOutput("Missing Dependency", "java.lang.NoClassDefFoundError: test/Dependency");
 assertPlugInOutput("Changed Method Signature",
 	"There was a problem with the class ij.ImageJ which can be found here:");
+assertPlugInOutput("Not In A Submenu", "Not in a submenu");
+assertPlugInOutput("Inside A Submenu", "Inside a submenu");
 
 teeBuffer.reset();
