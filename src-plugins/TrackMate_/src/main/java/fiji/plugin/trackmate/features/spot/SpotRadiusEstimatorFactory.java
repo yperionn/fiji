@@ -2,19 +2,19 @@ package fiji.plugin.trackmate.features.spot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import fiji.plugin.trackmate.Dimension;
-import fiji.plugin.trackmate.Spot;
-import fiji.plugin.trackmate.TrackMateModel;
-import net.imglib2.img.ImagePlusAdapter;
 import net.imglib2.img.ImgPlus;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.HyperSliceImgPlus;
+import fiji.plugin.trackmate.Dimension;
+import fiji.plugin.trackmate.Spot;
+import fiji.plugin.trackmate.TrackMateModel;
 
-public class SpotRadiusEstimatorFactory<T extends RealType<T> & NativeType<T>>  implements SpotFeatureAnalyzerFactory<T> {
+public class SpotRadiusEstimatorFactory<T extends RealType<T> & NativeType<T>>  implements SpotAnalyzerFactory<T> {
 	
 	/*
 	 * CONSTANT
@@ -34,13 +34,15 @@ public class SpotRadiusEstimatorFactory<T extends RealType<T> & NativeType<T>>  
 	}
 	public static final String KEY = "Spot radius estimator";
 	private final TrackMateModel model;
+	private final ImgPlus<T> img;
 	
 	/*
 	 * CONSTRUCTOR
 	 */
 	
-	public SpotRadiusEstimatorFactory(final TrackMateModel model) {
+	public SpotRadiusEstimatorFactory(final TrackMateModel model, final ImgPlus<T> img) {
 		this.model = model;
+		this.img = img;
 	}
 	
 	/*
@@ -48,10 +50,9 @@ public class SpotRadiusEstimatorFactory<T extends RealType<T> & NativeType<T>>  
 	 */
 	@Override
 	public SpotRadiusEstimator<T> getAnalyzer(int frame, int channel) {
-		final ImgPlus<T> img = ImagePlusAdapter.wrapImgPlus(model.getSettings().imp);
 		final ImgPlus<T> imgC = HyperSliceImgPlus.fixChannelAxis(img, channel);
 		final ImgPlus<T> imgCT = HyperSliceImgPlus.fixTimeAxis(imgC, frame);
-		final List<Spot> spots = model.getSpots().get(frame);
+		final Iterator<Spot> spots = model.getSpots().iterator(frame, false);
 		return new SpotRadiusEstimator<T>(imgCT, spots);
 	}
 

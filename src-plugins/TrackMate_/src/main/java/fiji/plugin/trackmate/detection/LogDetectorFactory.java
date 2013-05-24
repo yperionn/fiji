@@ -37,8 +37,6 @@ public class LogDetectorFactory<T extends RealType<T> & NativeType<T>>  implemen
 			"sub-pixel localization. " +
 			"</html>";
 
-
-
 	/*
 	 * FIELDS
 	 */

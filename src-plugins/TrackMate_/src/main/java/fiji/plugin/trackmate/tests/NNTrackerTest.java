@@ -1,14 +1,19 @@
 package fiji.plugin.trackmate.tests;
 
 import static fiji.plugin.trackmate.tracking.TrackerKeys.KEY_LINKING_MAX_DISTANCE;
+import ij.ImagePlus;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.scijava.util.AppUtils;
+
 import fiji.plugin.trackmate.Logger;
+import fiji.plugin.trackmate.SelectionModel;
+import fiji.plugin.trackmate.Settings;
+import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.TrackMateModel;
-import fiji.plugin.trackmate.TrackMate_;
 import fiji.plugin.trackmate.io.TmXmlReader;
 import fiji.plugin.trackmate.tracking.kdtree.NearestNeighborTracker;
 import fiji.plugin.trackmate.visualization.TrackMateModelView;
@@ -16,34 +21,25 @@ import fiji.plugin.trackmate.visualization.hyperstack.HyperStackDisplayer;
 
 public class NNTrackerTest {
 
-	
-	private static final File SPLITTING_CASE_3 = new File("/Users/tinevez/Desktop/Data/FakeTracks.xml");
-//	private static final File SPLITTING_CASE_3 = new File("E:/Users/JeanYves/Desktop/Data/FakeTracks.xml");
-
 	/*
 	 * MAIN METHOD
 	 */
 	
 	public static void main(String args[]) {
 		
-		File file = SPLITTING_CASE_3;
+
+		File file = new File(AppUtils.getBaseDirectory(TrackMate.class), "samples/FakeTracks.xml");
 		
 		// 1 - Load test spots
 		System.out.println("Opening file: "+file.getAbsolutePath());		
-		TrackMate_ plugin = new TrackMate_();
-		plugin.initModules();
-		TmXmlReader reader = new TmXmlReader(file, plugin);
-		if (!reader.checkInput() || !reader.process()) {
-			System.err.println("Problem loading the file:");
-			System.err.println(reader.getErrorMessage());
-		}
-		TrackMateModel model = plugin.getModel();
+		TmXmlReader reader = new TmXmlReader(file);
+		TrackMateModel model = reader.getModel();
+		Settings gs = new Settings();
+		reader.readSettings(gs, null, null, null, null, null);
 		
-		System.out.println("All spots: "+ model.getSpots());
-		System.out.println("Filtered spots: "+ model.getFilteredSpots());
+		System.out.println("Spots: "+ model.getSpots());
 		System.out.println("Found "+model.getTrackModel().getNTracks()+" tracks in the file:");
 		System.out.println("Track features: ");
-		plugin.computeTrackFeatures(true);
 		for (Integer trackID : model.getTrackModel().getTrackIDs()) {
 			System.out.println(model.getTrackModel().trackToString(trackID));
 		}
@@ -51,7 +47,7 @@ public class NNTrackerTest {
 		
 		// 2 - Track the test spots
 		long start = System.currentTimeMillis();
-		NearestNeighborTracker tracker = new NearestNeighborTracker(model.getFilteredSpots(), Logger.DEFAULT_LOGGER);
+		NearestNeighborTracker tracker = new NearestNeighborTracker(model.getSpots(), Logger.DEFAULT_LOGGER);
 		Map<String, Object> settings = new HashMap<String, Object>();
 		settings.put(KEY_LINKING_MAX_DISTANCE, 15d);
 		tracker.setSettings(settings );
@@ -71,23 +67,13 @@ public class NNTrackerTest {
 		System.out.println("Whole tracking done in "+(end-start)+" ms.");
 		System.out.println();
 
-
-		// 4 - Detailed info
-//		System.out.println("Segment costs:");
-//		LAPUtils.echoMatrix(lap.getSegmentCosts());
-		
-		System.out.println("Track features: ");
-		plugin.computeTrackFeatures(true);
-		for (Integer trackID : model.getTrackModel().getTrackIDs()) {
-			System.out.println(model.getTrackModel().trackToString(trackID));
-		}
-		
 		
 		// 5 - Display tracks
 		// Load Image
 		ij.ImageJ.main(args);
 		
-		TrackMateModelView sd2d = new HyperStackDisplayer(model);
+		ImagePlus imp = gs.imp;
+		TrackMateModelView sd2d = new HyperStackDisplayer(model, new SelectionModel(model), imp);
 		sd2d.render();
 		sd2d.setDisplaySettings(TrackMateModelView.KEY_TRACK_DISPLAY_MODE, TrackMateModelView.TRACK_DISPLAY_MODE_WHOLE);
 	}

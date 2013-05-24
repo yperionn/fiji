@@ -47,19 +47,21 @@ public class TrackSchemeGraphComponent extends mxGraphComponent implements mxIEv
 	/** The trackID for each column. */
 	Integer[] columnTrackIDs;
 	
-	private final TrackMateModel model;
 	private final TrackScheme trackScheme;
 
 	/** If true, will paint background decorations. */
 	private boolean doPaintDecorations = TrackScheme.DEFAULT_DO_PAINT_DECORATIONS;
+	/** The time unit. We need it to paint the correct row times. */
+	private String timeUnits = "frame";
+	/** The frame interval. We need it to paint the correct row times. */
+	private double dt = 1;
 
 	/*
 	 * CONSTRUCTOR
 	 */
 
-	public TrackSchemeGraphComponent(final JGraphXAdapter graph, final TrackMateModel model, final TrackScheme trackScheme) {
+	public TrackSchemeGraphComponent(final JGraphXAdapter graph, final TrackScheme trackScheme) {
 		super(graph);
-		this.model = model;
 		this.trackScheme = trackScheme;
 		
 		getViewport().setOpaque(true);
@@ -376,15 +378,13 @@ public class TrackSchemeGraphComponent extends mxGraphComponent implements mxIEv
 		int x = xcs / 4;
 		y = 3 * ycs / 2;
 		g.setFont(FONT.deriveFont(12*scale).deriveFont(Font.BOLD));
-		final String timeUnits = model.getSettings().timeUnits;
-		final double dt = model.getSettings().dt;
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		if (xcs > paintBounds.x) {
 			while (y < height) {
 				if (y > paintBounds.y - ycs && y < paintBounds.y + paintBounds.height) {
 					int frame = y / ycs;
-					g.drawString(String.format("%.1f " + timeUnits, frame * dt), x, y);
+					g.drawString(String.format("%.1f " + timeUnits , frame * dt), x, y);
 					g.drawString(String.format("frame %d", frame), x, Math.round(y+12*scale));
 				}
 				y += ycs;

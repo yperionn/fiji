@@ -51,6 +51,13 @@ public class TrackScheme extends AbstractTrackMateModelView {
 	 */
 	private static final boolean DEBUG = false;
 	private static final boolean DEBUG_SELECTION = false;
+	public static final String NAME = "TrackScheme";
+	public static final String INFO_TEXT = "<html>" +
+			"TrackScheme displays the tracking results as track lanes, <br>" +
+			"ignoring the spot actual position. " +
+			"<p>" +
+			"Tracks can be edited through link creation and removal." +
+			"</html>";
 	static final int Y_COLUMN_SIZE = 96;
 	static final int X_COLUMN_SIZE = 160;
 
@@ -97,9 +104,9 @@ public class TrackScheme extends AbstractTrackMateModelView {
 	private int unlaidSpotColumn = 3;
 	/**
 	 * The instance in charge of generating the string image representation 
-	 * of spots imported in this view.
+	 * of spots imported in this view. If <code>null</code>, nothing is done.
 	 */
-	private final SpotImageUpdater spotImageUpdater;
+	private SpotImageUpdater spotImageUpdater;
 
 	TrackSchemeStylist stylist;
 
@@ -107,9 +114,8 @@ public class TrackScheme extends AbstractTrackMateModelView {
 	 * CONSTRUCTORS
 	 */
 
-	public TrackScheme(final TrackMateModel model)  {
-		super(model);
-		spotImageUpdater = new SpotImageUpdater(model);
+	public TrackScheme(TrackMateModel model, SelectionModel selectionModel)  {
+		super(model, selectionModel);
 		initDisplaySettings();
 		initGUI();
 	}
@@ -119,6 +125,13 @@ public class TrackScheme extends AbstractTrackMateModelView {
 	 * METHODS
 	 */
 
+	public void setSpotImageUpdater(SpotImageUpdater spotImageUpdater) {
+		this.spotImageUpdater = spotImageUpdater;
+	}
+
+	public SelectionModel getSelectionModel() {
+		return selectionModel;
+	}
 
 	/**
 	 * @return the column index that is the first one after all the track columns.
@@ -139,29 +152,39 @@ public class TrackScheme extends AbstractTrackMateModelView {
 	}
 
 	/**
-	 * @return the GUI frame controlled by this class.
+	 * Returns the GUI frame controlled by this class.
 	 */
 	public TrackSchemeFrame getGUI() {
 		return gui;
 	}
 
 	/**
-	 * @return the {@link JGraphXAdapter} that serves as a model for the graph displayed in this frame.
+	 * Returns the {@link JGraphXAdapter} that serves as a model for the graph displayed in this frame.
 	 */
 	public JGraphXAdapter getGraph() {
 		return graph;
 	}
 
 	/**
-	 * @return the graph layout in charge of arranging the cells on the graph.
+	 * Returns the graph layout in charge of arranging the cells on the graph.
 	 */
 	public TrackSchemeGraphLayout getGraphLayout() {
 		return graphLayout;	
 	}
+	
+	@Override
+	public String getKey() {
+		return NAME;
+	}
 
+	
+	/*
+	 * PRIVATE METHODS
+	 */
+	
+	
 	/**
 	 * Used to instantiate and configure the {@link JGraphXAdapter} that will be used for display.
-	 * Hook for subclassers.
 	 */
 	private JGraphXAdapter createGraph() {
 
@@ -179,10 +202,10 @@ public class TrackScheme extends AbstractTrackMateModelView {
 		graph.setDropEnabled(false);
 
 		// Group spots per frame
-		Set<Integer> frames = model.getFilteredSpots().keySet();
+		Set<Integer> frames = model.getSpots().keySet();
 		final HashMap<Integer, HashSet<Spot>> spotPerFrame = new HashMap<Integer, HashSet<Spot>>(frames.size());
 		for (Integer frame : frames) {
-			spotPerFrame.put(frame, new HashSet<Spot>(model.getFilteredSpots().getNSpots(frame))); // max size
+			spotPerFrame.put(frame, new HashSet<Spot>(model.getSpots().getNSpots(frame, true))); // max size
 		}
 		for (Integer trackID : model.getTrackModel().getFilteredTrackIDs()) {
 			for (Spot spot : model.getTrackModel().getTrackSpots(trackID)) {
@@ -190,28 +213,30 @@ public class TrackScheme extends AbstractTrackMateModelView {
 				spotPerFrame.get(frame).add(spot);
 			}
 		}
-		
-		// Set spot image to cell style
-		gui.logger.setStatus("Collecting spot thumbnails.");
-		int index = 0;
-		try {
-			graph.getModel().beginUpdate();
-			
-			// Iterate per frame
-			for (Integer frame : frames) {
-				for (Spot spot : spotPerFrame.get(frame)) {
 
-					mxICell cell = graph.getCellFor(spot);
-					String imageStr = spotImageUpdater.getImageString(spot);
-					graph.getModel().setStyle(cell, mxConstants.STYLE_IMAGE+"="+"data:image/base64," + imageStr);
-					
+		// Set spot image to cell style
+		if (null != spotImageUpdater) {
+			gui.logger.setStatus("Collecting spot thumbnails.");
+			int index = 0;
+			try {
+				graph.getModel().beginUpdate();
+
+				// Iterate per frame
+				for (Integer frame : frames) {
+					for (Spot spot : spotPerFrame.get(frame)) {
+
+						mxICell cell = graph.getCellFor(spot);
+						String imageStr = spotImageUpdater.getImageString(spot);
+						graph.getModel().setStyle(cell, mxConstants.STYLE_IMAGE+"="+"data:image/base64," + imageStr);
+
+					}
+					gui.logger.setProgress( (double) index++ / frames.size() );
 				}
-				gui.logger.setProgress( (double) index++ / frames.size() );
+			} finally {
+				graph.getModel().endUpdate();
+				gui.logger.setProgress(0d);
+				gui.logger.setStatus("");
 			}
-		} finally {
-			graph.getModel().endUpdate();
-			gui.logger.setProgress(0d);
-			gui.logger.setStatus("");
 		}
 
 		// Cells removed from JGraphX
@@ -225,7 +250,7 @@ public class TrackScheme extends AbstractTrackMateModelView {
 	}
 
 	/**
-	 * Update or create a cell for the target spot. Is called after the user modified a spot 
+	 * Updates or creates a cell for the target spot. Is called after the user modified a spot 
 	 * (location, radius, ...) somewhere else. 
 	 * @param spot  the spot that was modified.
 	 */
@@ -233,7 +258,7 @@ public class TrackScheme extends AbstractTrackMateModelView {
 
 		mxICell cell = graph.getCellFor(spot);
 		if (DEBUG)
-			System.out.println("[TrackSchemeFrame] modelChanged: updating cell for spot "+spot);
+			System.out.println("[TrackScheme] modelChanged: updating cell for spot "+spot);
 		if (null == cell) {
 			// mxCell not present in graph. Most likely because the corresponding spot belonged
 			// to an invisible track, and a cell was not created for it when TrackScheme was
@@ -245,13 +270,16 @@ public class TrackScheme extends AbstractTrackMateModelView {
 		}
 
 		// Update cell look
-		String imageStr = spotImageUpdater.getImageString(spot);
-		String style = cell.getStyle();
-		style = mxStyleUtils.setStyle(style, mxConstants.STYLE_IMAGE, "data:image/base64," + imageStr);
-		graph.getModel().setStyle(cell, style);
-		final double dx = model.getSettings().dx;
-		long height = Math.min(DEFAULT_CELL_WIDTH, Math.round(2 * spot.getFeature(Spot.RADIUS) / dx ));
-		height = Math.max(height, DEFAULT_CELL_HEIGHT/3);
+		long height = DEFAULT_CELL_HEIGHT;
+		if (spotImageUpdater != null) {
+			String style = cell.getStyle();
+			String imageStr = spotImageUpdater.getImageString(spot);
+			style = mxStyleUtils.setStyle(style, mxConstants.STYLE_IMAGE, "data:image/base64," + imageStr);
+			graph.getModel().setStyle(cell, style);
+			final double dx = spotImageUpdater.getPixelSize();
+			height = Math.min(DEFAULT_CELL_WIDTH, Math.round(2 * spot.getFeature(Spot.RADIUS) / dx ));
+			height = Math.max(height, DEFAULT_CELL_HEIGHT/3);
+		}
 		graph.getModel().getGeometry(cell).setHeight(height);
 	}
 
@@ -271,7 +299,7 @@ public class TrackScheme extends AbstractTrackMateModelView {
 		int row = spot.getFeature(Spot.FRAME).intValue() + 1;
 		double x = (targetColumn-1) * X_COLUMN_SIZE - DEFAULT_CELL_WIDTH/2;
 		double y = (0.5 + row) * Y_COLUMN_SIZE - DEFAULT_CELL_HEIGHT/2; 
-		double dx = model.getSettings().dx;
+		double dx = spotImageUpdater.getPixelSize();
 		long height = Math.min(DEFAULT_CELL_WIDTH, Math.round(2 * spot.getFeature(Spot.RADIUS) / dx ));
 		height = Math.max(height, 12);
 		mxGeometry geometry = new mxGeometry(x, y, DEFAULT_CELL_WIDTH, height);
@@ -399,7 +427,7 @@ public class TrackScheme extends AbstractTrackMateModelView {
 			} finally {
 				graphModel.endUpdate();
 				model.endUpdate();
-				model.getSelectionModel().clearEdgeSelection();
+				selectionModel.clearEdgeSelection();
 			}
 		}
 	}
@@ -421,7 +449,6 @@ public class TrackScheme extends AbstractTrackMateModelView {
 
 		/* Performance issue: we do our highlighting here, in batch, bypassing highlight* methods		 */
 		{
-			SelectionModel selectionModel = model.getSelectionModel();
 			ArrayList<Object> newSelection = new ArrayList<Object>(selectionModel.getSpotSelection().size() + selectionModel.getEdgeSelection().size());
 			Iterator<DefaultWeightedEdge> edgeIt = selectionModel.getEdgeSelection().iterator();
 			while(edgeIt.hasNext()) {
@@ -784,7 +811,6 @@ public class TrackScheme extends AbstractTrackMateModelView {
 		if (DEBUG_SELECTION)
 			System.out.println("[TrackScheme] userChangeSelection: sending selection change to model.");
 		doFireSelectionChangeEvent = false;
-		SelectionModel selectionModel = model.getSelectionModel();
 		if (!edgesToAdd.isEmpty())
 			selectionModel.addEdgeToSelection(edgesToAdd);
 		if (!spotsToAdd.isEmpty())
@@ -799,12 +825,9 @@ public class TrackScheme extends AbstractTrackMateModelView {
 	private void initGUI() {
 		this.gui = new TrackSchemeFrame(this);
 		String title = "TrackScheme";
-		if (null != model.getSettings().imp)
-			title += ": "+model.getSettings().imp.getTitle();
 		gui.setTitle(title);
 		gui.setSize(DEFAULT_SIZE);
 		gui.setVisible(true);
-
 	}
 
 
@@ -825,8 +848,7 @@ public class TrackScheme extends AbstractTrackMateModelView {
 
 			// Separate spots from edges
 			Object[] objects = (Object[]) evt.getProperty("cells");
-			ArrayList<Spot> spotsToRemove = new ArrayList<Spot>();
-			ArrayList<Integer> fromFrames = new ArrayList<Integer>();
+			HashSet<Spot> spotsToRemove = new HashSet<Spot>();
 			ArrayList<DefaultWeightedEdge> edgesToRemove = new ArrayList<DefaultWeightedEdge>();
 			for(Object obj : objects) {
 				mxCell cell = (mxCell) obj;
@@ -834,13 +856,7 @@ public class TrackScheme extends AbstractTrackMateModelView {
 					if (cell.isVertex()) {
 						// Build list of removed spots 
 						Spot spot = graph.getSpotFor(cell);
-						Integer frame = model.getSpots().getFrame(spot);
-						if (frame == null) {
-							// Already removed; second call to event, have to skip it
-							continue;
-						}
 						spotsToRemove.add(spot);
-						fromFrames.add(frame);
 						// Clean maps 
 						graph.removeMapping(spot);
 					} else if (cell.isEdge()) {
@@ -861,14 +877,14 @@ public class TrackScheme extends AbstractTrackMateModelView {
 			doFireModelChangeEvent = false;
 			model.beginUpdate();
 			try {
-				model.getSelectionModel().clearSelection();
+				selectionModel.clearSelection();
 				// We remove edges first so that we ensure we do not end having orphan edges.
 				// Normally JGraphT handles that well, but we enforce things here. To be sure.
 				for (DefaultWeightedEdge edge : edgesToRemove) {
 					model.removeEdge(edge);
 				}
 				for (Spot spot : spotsToRemove)  {
-					model.removeSpotFrom(spot, null); 
+					model.removeSpot(spot); 
 				}
 
 			} finally {
@@ -1000,7 +1016,7 @@ public class TrackScheme extends AbstractTrackMateModelView {
 
 		// Sort spots by time
 		TreeMap<Integer, Spot> spotsInTime = new TreeMap<Integer, Spot>();
-		for (Spot spot : model.getSelectionModel().getSpotSelection()) {
+		for (Spot spot : selectionModel.getSpotSelection()) {
 			spotsInTime.put(spot.getFeature(Spot.FRAME).intValue(), spot);
 		}
 
@@ -1074,7 +1090,7 @@ public class TrackScheme extends AbstractTrackMateModelView {
 	}
 
 	/**
-	 * Remove the cell selected by the user in the GUI.
+	 * Removes the cell selected by the user in the GUI.
 	 */
 	public void removeSelectedCells() {
 		graph.getModel().beginUpdate();
@@ -1112,7 +1128,7 @@ public class TrackScheme extends AbstractTrackMateModelView {
 			inspectionEdges.add(dwe);
 		}
 		// Forward to selection model
-		model.getSelectionModel().selectTrack(inspectionSpots, inspectionEdges, direction);
+		selectionModel.selectTrack(inspectionSpots, inspectionEdges, direction);
 	}
 
 }

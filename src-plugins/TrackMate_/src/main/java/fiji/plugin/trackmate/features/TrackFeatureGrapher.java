@@ -19,7 +19,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import fiji.plugin.trackmate.Dimension;
 import fiji.plugin.trackmate.FeatureModel;
-import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.TrackMateModel;
 import fiji.plugin.trackmate.util.ExportableChartPanel;
 import fiji.plugin.trackmate.util.TMUtils;
@@ -40,10 +39,8 @@ public class TrackFeatureGrapher extends AbstractFeatureGrapher {
 	@Override
 	public void render() {
 
-		final Settings settings = model.getSettings();
-
 		// Check x units
-		String xdim= TMUtils.getUnitsFor(xDimension, settings);
+		String xdim= TMUtils.getUnitsFor(xDimension, model.getSpaceUnits(), model.getTimeUnits());
 		if (null == xdim) { // not a number feature
 			return; 
 		}
@@ -59,7 +56,7 @@ public class TrackFeatureGrapher extends AbstractFeatureGrapher {
 		for (Dimension dimension : dimensions) {
 
 			// Y label
-			String yAxisLabel = TMUtils.getUnitsFor(dimension, settings);
+			String yAxisLabel = TMUtils.getUnitsFor(dimension, model.getSpaceUnits(), model.getTimeUnits());
 			
 			// Check y units
 			if (null == yAxisLabel) { // not a number feature

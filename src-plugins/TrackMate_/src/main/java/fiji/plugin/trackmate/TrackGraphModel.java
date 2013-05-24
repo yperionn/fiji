@@ -257,7 +257,6 @@ public class TrackGraphModel {
 		boolean removed = graph.removeEdge(edge);
 		if (removed) {
 			edgesRemoved.add(edge);
-			model.getSelectionModel().removeEdgeFromSelection(edge);
 			if (DEBUG)
 				System.out.println("[TrackGraphModel] Removing edge " + edge + " between " + graph.getEdgeSource(edge) + " and " + graph.getEdgeTarget(edge));
 		}
@@ -668,7 +667,7 @@ public class TrackGraphModel {
 
 
 	/**
-	 * Compute the two track lists {@link #trackSpots} and {@link #trackSpots}
+	 * Computes the two track lists {@link #trackSpots} and {@link #trackSpots}
 	 * from the {@link #graph}. These two track lists are the only objects
 	 * reflecting the tracks visible from outside the model.
 	 * <p>
@@ -709,7 +708,7 @@ public class TrackGraphModel {
 				continue;
 			}
 
-			Integer uniqueKey = track.hashCode();
+			Integer uniqueKey = track.hashCode(); // FIXME is not actually unique, since it is the sum of spot IDs. A track made of 2 spots with IDs 2 & 5 will have the same hash that of a track made of the spots with IDs 3 & 4.
 			// Add to spot set collection
 			trackSpots.put(uniqueKey, track);
 			// Add to edge set collection, using the same hash as a key
@@ -884,7 +883,7 @@ public class TrackGraphModel {
 	 * 	<li>It ignores events triggered by spots being added
 	 * or removed, because they can't be triggered automatically, and are dealt with 
 	 * in the {@link TrackGraphModel#addSpotTo(Spot, Integer)} and 
-	 * {@link TrackGraphModel#removeSpotFrom(Spot, Integer)} methods.
+	 * {@link TrackGraphModel#removeSpot(Spot, Integer)} methods.
 	 * 	<li> It catches all events triggered by a link being added or removed in the graph,
 	 * whether they are triggered manually through a call to a model method such as 
 	 * {@link TrackGraphModel#addEdge(Spot, Spot, double)}, or triggered by another call.

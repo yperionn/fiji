@@ -2,10 +2,10 @@ package fiji.plugin.trackmate.features.spot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import net.imglib2.img.ImagePlusAdapter;
 import net.imglib2.img.ImgPlus;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
@@ -14,7 +14,7 @@ import fiji.plugin.trackmate.Dimension;
 import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.TrackMateModel;
 
-public class SpotContrastAnalyzerFactory<T extends RealType<T> & NativeType<T>> implements SpotFeatureAnalyzerFactory<T> {
+public class SpotContrastAnalyzerFactory<T extends RealType<T> & NativeType<T>> implements SpotAnalyzerFactory<T> {
 
 	/*
 	 * FIELDS
@@ -34,13 +34,15 @@ public class SpotContrastAnalyzerFactory<T extends RealType<T> & NativeType<T>> 
 	}
 	
 	private final TrackMateModel model;
+	private final ImgPlus<T> img;
 	
 	/*
 	 * CONSTRUCTOR
 	 */
 	
-	public SpotContrastAnalyzerFactory(final TrackMateModel model) {
+	public SpotContrastAnalyzerFactory(final TrackMateModel model, ImgPlus<T> img) {
 		this.model = model;
+		this.img = img;
 	}
 	
 	/*
@@ -49,10 +51,9 @@ public class SpotContrastAnalyzerFactory<T extends RealType<T> & NativeType<T>> 
 	
 	@Override
 	public final SpotContrastAnalyzer<T> getAnalyzer(final int frame, final int channel) {
-		final ImgPlus<T> img = ImagePlusAdapter.wrapImgPlus(model.getSettings().imp);
 		final ImgPlus<T> imgC = HyperSliceImgPlus.fixChannelAxis(img, channel);
 		final ImgPlus<T> imgCT = HyperSliceImgPlus.fixTimeAxis(imgC, frame);
-		final List<Spot> spots = model.getSpots().get(frame);
+		final Iterator<Spot> spots = model.getSpots().iterator(frame, false);
 		return new SpotContrastAnalyzer<T>(imgCT, spots);
 	}
 

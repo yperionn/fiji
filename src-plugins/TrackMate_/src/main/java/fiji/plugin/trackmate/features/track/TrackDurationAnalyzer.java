@@ -139,7 +139,27 @@ public class TrackDurationAnalyzer implements TrackAnalyzer, MultiThreaded {
 	}
 	
 	@Override
-	public String toString() {
+	public List<String> getFeatures() {
+		return FEATURES;
+	}
+
+	@Override
+	public Map<String, String> getFeatureShortNames() {
+		return FEATURE_SHORT_NAMES;
+	}
+
+	@Override
+	public Map<String, String> getFeatureNames() {
+		return FEATURE_NAMES;
+	}
+
+	@Override
+	public Map<String, Dimension> getFeatureDimensions() {
+		return FEATURE_DIMENSIONS;
+	}
+
+	@Override
+	public String getKey() {
 		return KEY;
 	}
 }

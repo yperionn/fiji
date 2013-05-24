@@ -12,13 +12,16 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.DefaultXYDataset;
 
+import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.SpotCollection;
 import fiji.plugin.trackmate.TrackMateModel;
-import fiji.plugin.trackmate.TrackMate_;
+import fiji.plugin.trackmate.TrackMate;
+import fiji.plugin.trackmate.gui.TrackMateGUIController;
 import fiji.plugin.trackmate.util.ExportableChartPanel;
 import fiji.plugin.trackmate.visualization.trackscheme.TrackSchemeFrame;
 
 public class PlotNSpotsVsTimeAction extends AbstractTMAction {
+
 
 	public static final ImageIcon ICON = new ImageIcon(TrackSchemeFrame.class.getResource("resources/plots.png"));
 	public static final String NAME = "Plot N spots vs time";
@@ -27,29 +30,29 @@ public class PlotNSpotsVsTimeAction extends AbstractTMAction {
 			"of time. Only the filtered spots are taken into account. " +
 			"</html>";
 
-	public PlotNSpotsVsTimeAction() {
+	public PlotNSpotsVsTimeAction(TrackMate trackmate, TrackMateGUIController controller) {
+		super(trackmate, controller);
 		this.icon = ICON;
 	}
 	
 	@Override
-	public void execute(TrackMate_ plugin) {
+	public void execute() {
 		// Collect data
-		final TrackMateModel model = plugin.getModel();
-		final double dt = model.getSettings().dt;
-		final SpotCollection spots = model.getFilteredSpots();
+		final TrackMateModel model = trackmate.getModel();
+		final SpotCollection spots = model.getSpots();
 		final int nFrames = spots.keySet().size();
 		final double[][] data = new double[2][nFrames];
 		int index = 0;
 		for (int frame : spots.keySet()) {
-			data[0][index] = frame*dt;
-			data[1][index] = spots.get(frame).size();
+			data[0][index] = spots.iterator(frame, false).next().getFeature(Spot.POSITION_T);
+			data[1][index] = spots.getNSpots(frame, true);
 			index++;
 		}
 		
 		// Plot data
-		String xAxisLabel = "Time ("+model.getSettings().timeUnits+")";
+		String xAxisLabel = "Time ("+trackmate.getModel().getTimeUnits()+")";
 		String yAxisLabel = "N spots";
-		String title = "Nspots vs Time for "+model.getSettings().imp.getShortTitle();
+		String title = "Nspots vs Time for "+trackmate.getSettings().imp.getShortTitle();
 		DefaultXYDataset dataset = new DefaultXYDataset();
 		dataset.addSeries("Nspots", data);
 		
