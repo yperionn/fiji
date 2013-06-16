@@ -22,7 +22,7 @@ public class Spot {
 	 * FIELDS
 	 */
 
-	public static AtomicInteger IDcounter = new AtomicInteger(0); 
+	public static AtomicInteger IDcounter = new AtomicInteger(-1);
 
 	/** Store the individual features, and their values. */
 	private final ConcurrentHashMap<String, Double> features = new ConcurrentHashMap<String, Double>();
@@ -44,7 +44,7 @@ public class Spot {
 	 * when calculating distances and so on.
 	 */
 	public Spot(double[] coordinates, String name) {
-		this.ID = IDcounter.getAndIncrement();
+		this.ID = IDcounter.incrementAndGet();
 		for (int i = 0; i < 3; i++)
 			putFeature(POSITION_FEATURES[i], coordinates[i]);
 		if (null == name)
@@ -64,8 +64,10 @@ public class Spot {
 	 */
 	public Spot(int ID) {
 		this.ID = ID;
-		if (IDcounter.get() < ID) {
-			IDcounter.set(ID+1);
+		synchronized (IDcounter) {
+			if (IDcounter.get() < ID) {
+				IDcounter.set(ID);
+			}
 		}
 	}
 
@@ -260,7 +262,7 @@ public class Spot {
 	/** A comparator used to sort spots by name. The comparison uses numerical natural sorting,
 	 * So that "Spot_4" comes before "Spot_122". */ 
 	public final static Comparator<Spot> nameComparator = new Comparator<Spot>() {
-		private final AlphanumComparator comparator = new AlphanumComparator();
+		private final AlphanumComparator comparator = AlphanumComparator.instance;
 		@Override
 		public int compare(Spot o1, Spot o2) {
 			return comparator.compare(o1.getName(), o2.getName());

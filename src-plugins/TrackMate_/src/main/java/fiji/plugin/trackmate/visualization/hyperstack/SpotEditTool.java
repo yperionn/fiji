@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import javax.swing.SwingUtilities;
 
@@ -27,7 +28,7 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import fiji.plugin.trackmate.SelectionModel;
 import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.SpotCollection;
-import fiji.plugin.trackmate.TrackMateModel;
+import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.util.TMUtils;
 import fiji.tool.AbstractTool;
 
@@ -68,6 +69,8 @@ public class SpotEditTool extends AbstractTool implements MouseMotionListener, M
 	/** The radius of the previously edited spot. */
 	private Double previousRadius = null;
 	private Spot quickEditedSpot;
+	/** Flag for the auto-linking mode. */
+	private boolean autolinkingmode = false;
 
 
 
@@ -125,12 +128,10 @@ public class SpotEditTool extends AbstractTool implements MouseMotionListener, M
 	 */
 	public void register(final ImagePlus imp, final HyperStackDisplayer displayer) {
 		if (DEBUG) System.out.println("[SpotEditTool] Currently registered: " + displayers);
-		
 		if (displayers.containsKey(imp)) {
 			unregisterTool(imp);
 			if (DEBUG) System.out.println("[SpotEditTool] De-registering " + imp + " as tool listener.");
 		}
-		
 		displayers.put(imp, displayer);
 		if (DEBUG) {
 			System.out.println("[SpotEditTool] Registering "+imp+" and "+displayer + "." +
@@ -163,7 +164,7 @@ public class SpotEditTool extends AbstractTool implements MouseMotionListener, M
 
 		final Spot clickLocation = makeSpot(imp, displayer, getImageCanvas(e), e.getPoint());
 		final int frame = displayer.imp.getFrame() - 1;
-		final TrackMateModel model = displayer.getModel();
+		final Model model = displayer.getModel();
 		Spot target = model.getSpots().getSpotAt(clickLocation, frame, true);
 		Spot editedSpot = editedSpots.get(imp);
 
@@ -174,29 +175,37 @@ public class SpotEditTool extends AbstractTool implements MouseMotionListener, M
 
 		case 1: {
 			// Change selection
-			// only if we are not currently editing and if target is non null
-			if (null != editedSpot || target == null)
+			// only if we are not currently editing.
+			if (null != editedSpot) {
 				return;
-			updateStatusBar(target, imp.getCalibration().getUnits());
-			final int addToSelectionMask = InputEvent.SHIFT_DOWN_MASK;
-			if ((e.getModifiersEx() & addToSelectionMask) == addToSelectionMask) { 
-				if (selectionModel.getSpotSelection().contains(target)) {
-					selectionModel.removeSpotFromSelection(target);
+			}
+			// If no target, we clear selection
+			if (null == target) {
+				
+				if (!autolinkingmode) {
+					selectionModel.clearSelection();
+				}
+
+			} else {
+
+				updateStatusBar(target, imp.getCalibration().getUnits());
+				final int addToSelectionMask = InputEvent.SHIFT_DOWN_MASK;
+				if ((e.getModifiersEx() & addToSelectionMask) == addToSelectionMask) { 
+					if (selectionModel.getSpotSelection().contains(target)) {
+						selectionModel.removeSpotFromSelection(target);
+					} else {
+						selectionModel.addSpotToSelection(target);
+					}
 				} else {
+					selectionModel.clearSpotSelection();
 					selectionModel.addSpotToSelection(target);
 				}
-			} else {
-				selectionModel.clearSpotSelection();
-				selectionModel.addSpotToSelection(target);
 			}
 			break;
 		}
 
 		case 2: {
 			// Edit spot
-
-			// Empty current selection
-			selectionModel.clearSelection();
 
 			if (null == editedSpot) {
 				// No spot is currently edited, we pick one to edit
@@ -219,6 +228,7 @@ public class SpotEditTool extends AbstractTool implements MouseMotionListener, M
 				}
 				editedSpot = target;
 				displayer.spotOverlay.editingSpot = editedSpot;
+				displayer.refresh();
 				// Edit spot
 				if (DEBUG)
 					System.out.println("[SpotEditTool] mouseClicked: Set "+editedSpot+" as editing spot for this imp.");
@@ -234,7 +244,7 @@ public class SpotEditTool extends AbstractTool implements MouseMotionListener, M
 				double calibration[] = TMUtils.getSpatialCalibration(imp);
 				final double zslice = (displayer.imp.getSlice()-1) * calibration[2];
 				editedSpot.putFeature(Spot.POSITION_Z, zslice);
-				Integer initFrame = editedSpot.getFeature(Spot.FRAME).intValue();
+				Double initFrame = editedSpot.getFeature(Spot.FRAME);
 				// Move it in Z
 				final double z = (displayer.imp.getSlice()-1) * calibration[2];
 				editedSpot.putFeature(Spot.POSITION_Z, z);
@@ -248,7 +258,7 @@ public class SpotEditTool extends AbstractTool implements MouseMotionListener, M
 						model.addSpotTo(editedSpot, frame);
 					} else if (initFrame != frame) {
 						// Move it to the new frame
-						model.moveSpotFrom(editedSpot, initFrame, frame);
+						model.moveSpotFrom(editedSpot, initFrame.intValue(), frame);
 					} else {
 						// The spots pre-existed and was not moved across frames
 						model.updateFeatures(editedSpot);
@@ -257,6 +267,31 @@ public class SpotEditTool extends AbstractTool implements MouseMotionListener, M
 				} finally {
 					model.endUpdate();
 				}
+				
+				/*
+				 * If we are in auto-link mode, we create an edge with spot in selection,
+				 * if there is just one and if it is in a previous frame
+				 */
+				if (autolinkingmode) {
+					Set<Spot> spotSelection = selectionModel.getSpotSelection();
+					if (spotSelection.size() == 1) {
+						Spot source = spotSelection.iterator().next();
+						if (editedSpot.diffTo(source, Spot.FRAME) > 0) {
+							model.beginUpdate();
+							try {
+								model.addEdge(source, editedSpot, -1);
+								System.out.println("Created a link between " + source + " and " + editedSpot +".");
+							} finally {
+								model.endUpdate();
+							}
+						}
+					}
+				}
+				
+				// Set selection
+				selectionModel.clearSpotSelection();
+				selectionModel.addSpotToSelection(editedSpot);
+				
 				// Forget edited spot, but remember its radius
 				previousRadius = editedSpot.getFeature(Spot.RADIUS);
 				editedSpot = null;
@@ -379,7 +414,7 @@ public class SpotEditTool extends AbstractTool implements MouseMotionListener, M
 		if (null == displayer)
 			return;
 
-		TrackMateModel model = displayer.getModel();
+		Model model = displayer.getModel();
 		SelectionModel selectionModel = displayer.getSelectionModel();
 		Spot editedSpot = editedSpots.get(imp);
 		final ImageCanvas canvas = getImageCanvas(e);
@@ -452,8 +487,31 @@ public class SpotEditTool extends AbstractTool implements MouseMotionListener, M
 					model.endUpdate();
 				}
 
+				/*
+				 * If we are in auto-link mode, we create an edge with spot in selection,
+				 * if there is just one and if it is in a previous frame
+				 */
+				if (autolinkingmode) {
+					Set<Spot> spotSelection = selectionModel.getSpotSelection();
+					if (spotSelection.size() == 1) {
+						Spot source = spotSelection.iterator().next();
+						if (newSpot.diffTo(source, Spot.FRAME) > 0) {
+							model.beginUpdate();
+							try {
+								model.addEdge(source, newSpot, -1);
+								System.out.println("Created a link between " + source + " and " + newSpot +".");
+							} finally {
+								model.endUpdate();
+							}
+						}
+					}
+					selectionModel.clearSpotSelection();
+					selectionModel.addSpotToSelection(newSpot);
+				}
+				
 				imp.updateAndDraw();
 				e.consume();
+				
 
 			} else {
 
@@ -611,6 +669,83 @@ public class SpotEditTool extends AbstractTool implements MouseMotionListener, M
 			break;
 		}
 
+		case KeyEvent.VK_L: {
+
+			if (e.isShiftDown()) {
+				/*
+				 * Toggle auto-linking mode
+				 */
+				autolinkingmode = !autolinkingmode;
+				System.out.println("Toggled auto-linking mode " + (autolinkingmode ? "on." : "off."));
+
+			} else {
+				/*
+				 * Toggle a link between two spots.
+				 */
+				Set<Spot> selectedSpots = selectionModel.getSpotSelection();
+				if (selectedSpots.size() == 2) {
+					Iterator<Spot> it = selectedSpots.iterator();
+					Spot source = it.next();
+					Spot target = it.next();
+
+					if (model.getTrackModel().containsEdge(source, target)) {
+						/*
+						 * Remove it
+						 */
+						model.beginUpdate();
+						try {
+							model.removeEdge(source, target);
+							System.out.println("Removed edge between " + source + " and " + target);
+						} finally {
+							model.endUpdate();
+						}
+
+
+					} else {
+						/*
+						 * Create a new link
+						 */
+						int ts = source.getFeature(Spot.FRAME).intValue();
+						int tt = target.getFeature(Spot.FRAME).intValue();
+
+						if (tt != ts ) {
+							model.beginUpdate();
+							try {
+								model.addEdge(source, target, -1);
+								System.out.println("Created an edge between " + source + " and " + target);
+							} finally { 
+								model.endUpdate();
+							}
+							/*
+							 * To emulate a kind of automatic linking, we put the last 
+							 * spot to the selection, so several spots can be tracked
+							 * in a row without having to de-select one
+							 */
+							Spot single;
+							if (tt > ts) {
+								single = target;
+							} else {
+								single = source;
+							}
+							selectionModel.clearSpotSelection();
+							selectionModel.addSpotToSelection(single);
+							
+						} else {
+							System.out.println("Cannot create an edge between two spots belonging in the same frame.");
+						}
+					}
+
+				} else {
+					System.out.println("Expected selection to contain 2 spots, found " + selectedSpots.size());
+				}
+
+			}
+			e.consume();
+			break;
+
+
+		}
+
 		case KeyEvent.VK_W: {
 			e.consume(); // consume it: we do not want IJ to close the window
 			break;
@@ -651,7 +786,7 @@ public class SpotEditTool extends AbstractTool implements MouseMotionListener, M
 			final HyperStackDisplayer displayer = displayers.get(imp);
 			if (null == displayer)
 				return;
-			TrackMateModel model = displayer.getModel();
+			Model model = displayer.getModel();
 			model.beginUpdate();
 			try {
 				model.updateFeatures(quickEditedSpot);

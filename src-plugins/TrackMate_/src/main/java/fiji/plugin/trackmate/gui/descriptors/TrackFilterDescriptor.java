@@ -11,7 +11,7 @@ import javax.swing.event.ChangeListener;
 
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.TrackMate;
-import fiji.plugin.trackmate.TrackMateModel;
+import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.features.track.TrackIndexAnalyzer;
 import fiji.plugin.trackmate.gui.panels.components.FilterGuiPanel;
@@ -76,12 +76,12 @@ public class TrackFilterDescriptor implements WizardPanelDescriptor {
 		final Logger logger = trackmate.getModel().getLogger();
 		logger.log("Performing track filtering on the following features:\n", Logger.BLUE_COLOR);
 		List<FeatureFilter> featureFilters = component.getFeatureFilters();
-		final TrackMateModel model = trackmate.getModel();
+		final Model model = trackmate.getModel();
 		trackmate.getSettings().setTrackFilters(featureFilters);
 		trackmate.execTrackFiltering(true);
 
 		if (featureFilters == null || featureFilters.isEmpty()) {
-			logger.log("No feature threshold set, kept the " + model.getTrackModel().getNTracks() + " tracks.\n");
+			logger.log("No feature threshold set, kept the " + model.getTrackModel().nTracks(false) + " tracks.\n");
 		} else {
 			for (FeatureFilter ft : featureFilters) {
 				String str = "  - on "+model.getFeatureModel().getTrackFeatureNames().get(ft.feature);
@@ -93,7 +93,7 @@ public class TrackFilterDescriptor implements WizardPanelDescriptor {
 				str += '\n';
 				logger.log(str);
 			}
-			logger.log("Kept "+model.getTrackModel().getNFilteredTracks()+" tracks out of "+model.getTrackModel().getNTracks()+".\n");
+			logger.log("Kept "+model.getTrackModel().nTracks(true)+" tracks out of "+model.getTrackModel().nTracks(false)+".\n");
 		}
 
 		trackmate.computeEdgeFeatures(true);

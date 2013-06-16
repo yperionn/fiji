@@ -9,13 +9,13 @@ import java.util.List;
 
 import org.jdom2.JDOMException;
 import org.jgrapht.graph.DefaultWeightedEdge;
-import org.jgrapht.graph.SimpleDirectedWeightedGraph;
+import org.jgrapht.graph.SimpleWeightedGraph;
 import org.scijava.util.AppUtils;
 
+import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.SelectionModel;
 import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.SpotCollection;
-import fiji.plugin.trackmate.TrackMateModel;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.features.SpotFeatureGrapher;
 import fiji.plugin.trackmate.features.track.TrackIndexAnalyzer;
@@ -29,7 +29,7 @@ public class SpotFeatureGrapher_TestDrive {
 		// Load objects 
 		File file = new File(AppUtils.getBaseDirectory(TrackMate.class), "samples/FakeTracks.xml");
 		TmXmlReader reader = new TmXmlReader(file);
-		TrackMateModel model = reader.getModel();
+		Model model = reader.getModel();
 
 		HashSet<String> Y = new HashSet<String>(1);
 		Y.add(Spot.POSITION_T);
@@ -42,7 +42,7 @@ public class SpotFeatureGrapher_TestDrive {
 		grapher.render();
 		
 		TrackIndexAnalyzer analyzer = new TrackIndexAnalyzer(model);
-		analyzer.process(model.getTrackModel().getFilteredTrackIDs()); // need for trackScheme
+		analyzer.process(model.getTrackModel().trackIDs(true)); // needed for trackScheme
 		
 		TrackScheme trackScheme = new TrackScheme(model, new SelectionModel(model));
 		trackScheme.render();
@@ -53,7 +53,7 @@ public class SpotFeatureGrapher_TestDrive {
 	 *  Another example: spots that go in spiral
 	 */
 	@SuppressWarnings("unused")
-	private static TrackMateModel getSpiralModel() {
+	private static Model getSpiralModel() {
 		
 		final int N_SPOTS = 50;
 		List<Spot> spots = new ArrayList<Spot>(N_SPOTS);
@@ -75,10 +75,10 @@ public class SpotFeatureGrapher_TestDrive {
 			spot.putFeature(SpotCollection.VISIBLITY, SpotCollection.ONE);
 		}
 		
-		TrackMateModel model = new TrackMateModel();
+		Model model = new Model();
 		model.setSpots(sc, false);
 		
-		SimpleDirectedWeightedGraph<Spot, DefaultWeightedEdge> graph = new SimpleDirectedWeightedGraph<Spot, DefaultWeightedEdge>(DefaultWeightedEdge.class);
+		SimpleWeightedGraph<Spot, DefaultWeightedEdge> graph = new SimpleWeightedGraph<Spot, DefaultWeightedEdge>(DefaultWeightedEdge.class);
 		for (Spot spot : spots) {
 			graph.addVertex(spot);
 		}
