@@ -3,13 +3,12 @@ package fiji.plugin.trackmate.visualization;
 import java.util.HashMap;
 import java.util.Map;
 
+import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.ModelChangeListener;
 import fiji.plugin.trackmate.SelectionChangeEvent;
 import fiji.plugin.trackmate.SelectionChangeListener;
 import fiji.plugin.trackmate.SelectionModel;
 import fiji.plugin.trackmate.Spot;
-import fiji.plugin.trackmate.Model;
-import fiji.plugin.trackmate.features.track.TrackIndexAnalyzer;
 
 /**
  * An abstract class for spot displayers, that can overlay detected spots and tracks on top
@@ -98,12 +97,12 @@ public abstract class AbstractTrackMateModelView implements SelectionChangeListe
 		displaySettings.put(KEY_HIGHLIGHT_COLOR, DEFAULT_HIGHLIGHT_COLOR);
 		displaySettings.put(KEY_SPOTS_VISIBLE, true);
 		displaySettings.put(KEY_DISPLAY_SPOT_NAMES, false);
-		displaySettings.put(KEY_SPOT_COLORING, new SpotColorGenerator(model));
+//		displaySettings.put(KEY_SPOT_COLORING, new SpotColorGenerator(model));
 		displaySettings.put(KEY_SPOT_RADIUS_RATIO, 1.0f);
 		displaySettings.put(KEY_TRACKS_VISIBLE, true);
 		displaySettings.put(KEY_TRACK_DISPLAY_MODE, DEFAULT_TRACK_DISPLAY_MODE);
 		displaySettings.put(KEY_TRACK_DISPLAY_DEPTH, DEFAULT_TRACK_DISPLAY_DEPTH);
-		displaySettings.put(KEY_TRACK_COLORING, new PerTrackFeatureColorGenerator(model, TrackIndexAnalyzer.TRACK_INDEX));
+//		displaySettings.put(KEY_TRACK_COLORING, new PerTrackFeatureColorGenerator(model, TrackIndexAnalyzer.TRACK_INDEX));
 		displaySettings.put(KEY_COLORMAP, DEFAULT_COLOR_MAP);
 		return displaySettings;
 	}

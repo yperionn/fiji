@@ -245,6 +245,9 @@ public class Model {
 	 */
 
 	public void addModelChangeListener(ModelChangeListener listener) {
+		
+		System.out.println("Added " + listener + " as a listener of " + this.hashCode());//DEBUG 
+		
 		modelChangeListeners.add(listener);
 	}
 

@@ -6,6 +6,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,10 +42,7 @@ import fiji.plugin.trackmate.ModelChangeEvent;
 import fiji.plugin.trackmate.SelectionChangeEvent;
 import fiji.plugin.trackmate.SelectionModel;
 import fiji.plugin.trackmate.Spot;
-import fiji.plugin.trackmate.features.track.TrackIndexAnalyzer;
 import fiji.plugin.trackmate.visualization.AbstractTrackMateModelView;
-import fiji.plugin.trackmate.visualization.PerTrackFeatureColorGenerator;
-import fiji.plugin.trackmate.visualization.SpotColorGenerator;
 import fiji.plugin.trackmate.visualization.TrackColorGenerator;
 import fiji.plugin.trackmate.visualization.TrackMateModelView;
 
@@ -274,8 +273,10 @@ public class TrackScheme extends AbstractTrackMateModelView {
 		mxGeometry geometry = new mxGeometry(x, y, DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT);
 		cellAdded.setGeometry(geometry);
 		// Set its style
-		String imageStr = spotImageUpdater.getImageString(spot);
-		graph.getModel().setStyle(cellAdded, mxConstants.STYLE_IMAGE+"="+"data:image/base64," + imageStr);
+		if (null != spotImageUpdater && doThumbnailCapture) {
+			String imageStr = spotImageUpdater.getImageString(spot);
+			graph.getModel().setStyle(cellAdded, mxConstants.STYLE_IMAGE+"="+"data:image/base64," + imageStr);
+		}
 		return cellAdded;
 	}
 
@@ -611,12 +612,8 @@ public class TrackScheme extends AbstractTrackMateModelView {
 
 	@Override
 	public void setDisplaySettings(String key, Object value) {
-
 		if (key == TrackMateModelView.KEY_TRACK_COLORING) {
 			if (null != stylist) {
-				// unregister the old one
-				TrackColorGenerator oldColorGenerator = (TrackColorGenerator) displaySettings.get(KEY_TRACK_COLORING);
-				oldColorGenerator.terminate();
 				// pass the new one to the track overlay - we ignore its spot coloring and keep the spot coloring
 				TrackColorGenerator colorGenerator = (TrackColorGenerator) value;
 				stylist.setColorGenerator(colorGenerator);
@@ -624,7 +621,6 @@ public class TrackScheme extends AbstractTrackMateModelView {
 				refresh();
 			}
 		}
-
 		displaySettings.put(key, value);
 	}
 
@@ -711,8 +707,8 @@ public class TrackScheme extends AbstractTrackMateModelView {
 	protected void initDisplaySettings() {
 		displaySettings.put(KEY_SPOTS_VISIBLE, true);
 		displaySettings.put(KEY_DISPLAY_SPOT_NAMES, false);
-		displaySettings.put(KEY_SPOT_COLORING, new SpotColorGenerator(model));
-		displaySettings.put(KEY_TRACK_COLORING, new PerTrackFeatureColorGenerator(model, TrackIndexAnalyzer.TRACK_INDEX));
+//		displaySettings.put(KEY_SPOT_COLORING, new SpotColorGenerator(model));
+//		displaySettings.put(KEY_TRACK_COLORING, new PerTrackFeatureColorGenerator(model, TrackIndexAnalyzer.TRACK_INDEX));
 		displaySettings.put(KEY_SPOT_RADIUS_RATIO, 1.0f);
 		displaySettings.put(KEY_TRACKS_VISIBLE, true);
 		displaySettings.put(KEY_TRACK_DISPLAY_MODE, DEFAULT_TRACK_DISPLAY_MODE);
@@ -818,6 +814,14 @@ public class TrackScheme extends AbstractTrackMateModelView {
 		String title = "TrackScheme";
 		gui.setTitle(title);
 		gui.setSize(DEFAULT_SIZE);
+		gui.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				System.out.println("Closed TrackScheme");//DEBUG
+				model.removeModelChangeListener(TrackScheme.this);
+				System.out.println(model.getModelChangeListener());//DEBUG 
+			}
+		});
 		gui.setVisible(true);
 	}
 

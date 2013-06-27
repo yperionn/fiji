@@ -39,10 +39,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 
-import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.Model;
-import fiji.plugin.trackmate.features.edges.EdgeVelocityAnalyzer;
-import fiji.plugin.trackmate.features.track.TrackIndexAnalyzer;
+import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.gui.DisplaySettingsEvent;
 import fiji.plugin.trackmate.gui.DisplaySettingsListener;
 import fiji.plugin.trackmate.gui.TrackMateWizard;
@@ -53,7 +51,6 @@ import fiji.plugin.trackmate.visualization.AbstractTrackMateModelView;
 import fiji.plugin.trackmate.visualization.FeatureColorGenerator;
 import fiji.plugin.trackmate.visualization.PerEdgeFeatureColorGenerator;
 import fiji.plugin.trackmate.visualization.PerTrackFeatureColorGenerator;
-import fiji.plugin.trackmate.visualization.SpotColorGenerator;
 import fiji.plugin.trackmate.visualization.TrackColorGenerator;
 import fiji.plugin.trackmate.visualization.TrackMateModelView;
 
@@ -105,9 +102,9 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 
 	public ConfigureViewsPanel(Model model) {
 		this.model = model;
-		this.trackColorGenerator = new PerTrackFeatureColorGenerator(model, TrackIndexAnalyzer.TRACK_INDEX);
-		this.edgeColorGenerator = new PerEdgeFeatureColorGenerator(model, EdgeVelocityAnalyzer.VELOCITY);
-		this.spotColorGenerator = new SpotColorGenerator(model);
+//		this.trackColorGenerator = new PerTrackFeatureColorGenerator(model, TrackIndexAnalyzer.TRACK_INDEX);
+//		this.edgeColorGenerator = new PerEdgeFeatureColorGenerator(model, EdgeVelocityAnalyzer.VELOCITY);
+//		this.spotColorGenerator = new SpotColorGenerator(model);
 		initGUI();
 		refreshGUI();
 	}
@@ -157,7 +154,9 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 	 * @param trackColorGenerator the new color generator. The previous one will be terminated.
 	 */
 	public void setTrackColorGenerator(PerTrackFeatureColorGenerator trackColorGenerator) {
-		this.trackColorGenerator.terminate();
+		if (null != this.trackColorGenerator) {
+			this.trackColorGenerator.terminate();
+		}
 		this.trackColorGenerator = trackColorGenerator;
 	}
 
@@ -166,7 +165,9 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 	 * @param edgeColorGenerator the new color generator. The previous one will be terminated.
 	 */
 	public void setEdgeColorGenerator(PerEdgeFeatureColorGenerator edgeColorGenerator) {
-		this.edgeColorGenerator.terminate();
+		if (null != this.edgeColorGenerator) {
+			this.edgeColorGenerator.terminate();
+		}
 		this.edgeColorGenerator = edgeColorGenerator;
 	}
 	
@@ -175,7 +176,9 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 	 * @param spotColorGenerator the new color generator.
 	 */
 	public void setSpotColorGenerator(FeatureColorGenerator<Spot> spotColorGenerator) {
-		this.spotColorGenerator.terminate();
+		if (null != this.spotColorGenerator) { 
+			this.spotColorGenerator.terminate();
+		}
 		this.spotColorGenerator = spotColorGenerator;
 	}
 
@@ -187,7 +190,7 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 			jPanelTrackOptions.remove(trackColorGUI);
 		}
 		
-		trackColorGUI = new ColorByFeatureGUIPanel(model, Arrays.asList(new Category[] { Category.TRACKS, Category.EDGES } ));
+		trackColorGUI = new ColorByFeatureGUIPanel(model, Arrays.asList(new Category[] { Category.TRACKS, Category.EDGES, Category.DEFAULT } ));
 		trackColorGUI.setPreferredSize(new java.awt.Dimension(265, 45));
 		trackColorGUI.addActionListener(new ActionListener() {
 			@Override
@@ -198,14 +201,19 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 				switch (category) {
 				case TRACKS:
 					newValue = trackColorGenerator;
+					newValue.setFeature(trackColorGUI.getColorFeature());
 					break;
 				case EDGES:
 					newValue = edgeColorGenerator;
+					newValue.setFeature(trackColorGUI.getColorFeature());
+					break;
+				case DEFAULT:
+					newValue = trackColorGenerator;
+					newValue.setFeature(null);
 					break;
 				default:
 					throw new IllegalArgumentException("Unknow track color generator category: " + category);
 				}
-				newValue.setFeature(trackColorGUI.getColorFeature());
 				displaySettings.put(KEY_TRACK_COLORING, newValue);
 				// new value vs old value does not really hold.
 				DisplaySettingsEvent event = new DisplaySettingsEvent(trackColorGUI, KEY_TRACK_COLORING, newValue, oldValue);
@@ -364,7 +372,7 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 			}
 			{
 				jPanelSpotOptions = new JPanel() {
-					private static final long serialVersionUID = 3259314983744108471L;
+					private static final long serialVersionUID = 1L;
 					public void setEnabled(boolean enabled) {
 						for(Component c : getComponents())
 							c.setEnabled(enabled);
@@ -430,15 +438,20 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 					});
 				}
 				{
-					jPanelSpotColor = new ColorByFeatureGUIPanel(model, Arrays.asList(new Category[] { Category.SPOTS } ));
+					jPanelSpotColor = new ColorByFeatureGUIPanel(model, Arrays.asList(new Category[] { Category.SPOTS, Category.DEFAULT } ));
 					jPanelSpotColor.addActionListener(new ActionListener() {
 						@Override
 						public void actionPerformed(ActionEvent e) {
+							if (null == spotColorGenerator) {
+								return;
+							}
 							spotColorGenerator.setFeature(jPanelSpotColor.getColorFeature());
 							DisplaySettingsEvent event = new DisplaySettingsEvent(ConfigureViewsPanel.this, KEY_SPOT_COLORING, spotColorGenerator, spotColorGenerator);
 							fireDisplaySettingsChange(event);
 						}
 					});
+					jPanelSpotColor.setColorFeature(ColorByFeatureGUIPanel.UNIFORM_KEY);
+					jPanelSpotOptions.add(jPanelSpotColor);
 				}
 			}
 			{
