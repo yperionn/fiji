@@ -1,8 +1,8 @@
 package fiji.plugin.mamut;
 
-import static fiji.plugin.trackmate.visualization.TrackMateModelView.DEFAULT_SPOT_COLOR;
 import static fiji.plugin.trackmate.visualization.TrackMateModelView.DEFAULT_COLOR_MAP;
 import static fiji.plugin.trackmate.visualization.TrackMateModelView.DEFAULT_HIGHLIGHT_COLOR;
+import static fiji.plugin.trackmate.visualization.TrackMateModelView.DEFAULT_SPOT_COLOR;
 import static fiji.plugin.trackmate.visualization.TrackMateModelView.DEFAULT_TRACK_DISPLAY_DEPTH;
 import static fiji.plugin.trackmate.visualization.TrackMateModelView.DEFAULT_TRACK_DISPLAY_MODE;
 import static fiji.plugin.trackmate.visualization.TrackMateModelView.KEY_COLOR;
@@ -217,6 +217,7 @@ public class MaMuT implements ModelChangeListener {
 		 */
 
 		model = reader.getModel();
+		MamutSpotFeatures.declareFeatures(model.getFeatureModel());
 		model.addModelChangeListener(this);
 
 		/*
@@ -284,12 +285,6 @@ public class MaMuT implements ModelChangeListener {
 		guimodel.setDisplaySettings(createDisplaySettings(model));
 
 		/*
-		 * Brightness
-		 */
-		
-		brightnessDialog = new NewBrightnessDialog( mamutPanelFrame, setupAssignments );
-		
-		/*
 		 * Read and render views
 		 */
 
@@ -334,6 +329,13 @@ public class MaMuT implements ModelChangeListener {
 		 */
 
 		launchPanel(); 
+
+		/*
+		 * Brightness
+		 */
+
+		brightnessDialog = new NewBrightnessDialog(mamutPanelFrame, setupAssignments);
+
 	}
 
 
@@ -355,6 +357,7 @@ public class MaMuT implements ModelChangeListener {
 		 */
 
 		model = new Model();
+		MamutSpotFeatures.declareFeatures(model.getFeatureModel());
 		model.addModelChangeListener(this);
 
 		/*
@@ -420,8 +423,12 @@ public class MaMuT implements ModelChangeListener {
 
 		launchPanel();
 
-		brightnessDialog = new NewBrightnessDialog( mamutPanelFrame, setupAssignments );
-	}		
+		/*
+		 * Brightness
+		 */
+
+		brightnessDialog = new NewBrightnessDialog(mamutPanelFrame, setupAssignments);
+	}
 	
 	@Override
 	public void modelChanged(ModelChangeEvent event) {
@@ -1020,16 +1027,17 @@ public class MaMuT implements ModelChangeListener {
 		}
 
 		int frame = viewer.getCurrentTimepoint();
+		int sourceId = viewer.getState().getCurrentSource();
 
 		// Ok, then create this spot, wherever it is.
-		final RealPoint gPos = new RealPoint( 3 );
-		viewer.getGlobalMouseCoordinates(gPos);
 		double[] coordinates = new double[3];
-		gPos.localize(coordinates);
+		viewer.getGlobalMouseCoordinates(RealPoint.wrap(coordinates));
 		Spot spot = new Spot(coordinates);
 		spot.putFeature(Spot.RADIUS, radius );
 		spot.putFeature(Spot.QUALITY, -1d);
 		spot.putFeature(Spot.POSITION_T, Double.valueOf(frame) );
+		spot.putFeature(MamutSpotFeatures.SOURCE_ID, Double.valueOf(sourceId));
+
 		model.beginUpdate();
 		try {
 			model.addSpotTo(spot, frame);
@@ -1073,7 +1081,7 @@ public class MaMuT implements ModelChangeListener {
 	}
 
 	/**
-	 * Adds a new spot at the mouse current location.
+	 * Remove spot at the mouse current location (if there is one).
 	 * @param viewer  the viewer in which the delete spot request was made.
 	 */
 	private void deleteSpot(final MamutViewer viewer) {
