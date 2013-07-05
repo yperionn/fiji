@@ -23,19 +23,15 @@ import com.mxgraph.swing.handler.mxRubberband;
 
 import fiji.plugin.trackmate.Logger;
 
-public class TrackSchemeFrame extends JFrame  {
+public class TrackSchemeFrame extends JFrame {
 
-	/*
-	 * CONSTANTS
-	 */
+	/* CONSTANTS */
 
-	private static final long 		serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-	/*
-	 * FIELDS
-	 */
+	/* FIELDS */
 
-	/** The side pane in which spot selection info will be displayed.	 */
+	/** The side pane in which spot selection info will be displayed. */
 	private InfoPane infoPane;
 	private JGraphXAdapter graph;
 	private final TrackScheme trackScheme;
@@ -45,12 +41,9 @@ public class TrackSchemeFrame extends JFrame  {
 	/** The {@link Logger} that sends messages to the TrackScheme status bar. */
 	final Logger logger;
 
+	/* CONSTRUCTORS */
 
-	/*
-	 * CONSTRUCTORS
-	 */
-
-	public TrackSchemeFrame(final TrackScheme trackScheme)  {
+	public TrackSchemeFrame(final TrackScheme trackScheme) {
 		this.trackScheme = trackScheme;
 		this.graph = trackScheme.getGraph();
 
@@ -85,17 +78,26 @@ public class TrackSchemeFrame extends JFrame  {
 				statusLabel.setText(message);
 				statusLabel.setForeground(color);
 			}
-			@Override public void error(String message) { log(message, Color.RED);}
-			@Override public void setProgress(double val) { progressBar.setValue( (int) (val * 100) ); }
-			@Override public void setStatus(String status) { log(status, Logger.BLUE_COLOR); }
+
+			@Override
+			public void error(String message) {
+				log(message, Color.RED);
+			}
+
+			@Override
+			public void setProgress(double val) {
+				progressBar.setValue((int) (val * 100));
+			}
+
+			@Override
+			public void setStatus(String status) {
+				log(status, Logger.BLUE_COLOR);
+			}
 		};
 
 	}
 
-
-	/*
-	 * PUBLIC METHODS
-	 */
+	/* PUBLIC METHODS */
 
 	public void init(JGraphXAdapter graph) {
 		this.graph = graph;
@@ -109,25 +111,33 @@ public class TrackSchemeFrame extends JFrame  {
 		getContentPane().add(splitPane, BorderLayout.CENTER);
 	}
 
-
-	/*
-	 * Selection management
-	 */
+	/* Selection management */
 
 	public void centerViewOn(mxICell cell) {
 		graphComponent.scrollCellToVisible(cell, true);
 	}
 
 	/**
-	 * Instantiate the graph component in charge of painting the graph.
-	 * Hook for sub-classers.
+	 * Instantiate the graph component in charge of painting the graph. Hook for
+	 * sub-classers.
 	 */
 	private TrackSchemeGraphComponent createGraphComponent() {
 		final TrackSchemeGraphComponent gc = new TrackSchemeGraphComponent(graph, trackScheme);
 		gc.getVerticalScrollBar().setUnitIncrement(16);
 		gc.getHorizontalScrollBar().setUnitIncrement(16);
-		//		gc.setExportEnabled(true); // Seems to be required to have a preview when we move cells. Also give the ability to export a cell as an image clipping 
-		gc.getConnectionHandler().setEnabled(TrackScheme.DEFAULT_LINKING_ENABLED); // By default, can be changed in the track scheme toolbar
+		// gc.setExportEnabled(true); // Seems to be required to have a preview
+		// when we move cells. Also give the ability to export a cell as an
+		// image clipping
+		gc.getConnectionHandler().setEnabled(TrackScheme.DEFAULT_LINKING_ENABLED); // By
+																					// default,
+																					// can
+																					// be
+																					// changed
+																					// in
+																					// the
+																					// track
+																					// scheme
+																					// toolbar
 
 		new mxRubberband(gc);
 		new mxKeyboardHandler(gc);
@@ -136,12 +146,13 @@ public class TrackSchemeFrame extends JFrame  {
 		gc.getGraphControl().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
-				if (e.isPopupTrigger()) 
+				if (e.isPopupTrigger())
 					displayPopupMenu(gc.getCellAt(e.getX(), e.getY(), false), e.getPoint());
 			}
+
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				if (e.isPopupTrigger()) 
+				if (e.isPopupTrigger())
 					displayPopupMenu(gc.getCellAt(e.getX(), e.getY(), false), e.getPoint());
 			}
 		});
@@ -149,21 +160,18 @@ public class TrackSchemeFrame extends JFrame  {
 	}
 
 	/**
-	 * Instantiate the toolbar of the track scheme. 
+	 * Instantiate the toolbar of the track scheme.
 	 */
 	private JToolBar createToolBar() {
 		return new TrackSchemeToolbar(trackScheme);
 	}
 
 	/**
-	 *  PopupMenu
+	 * PopupMenu
 	 */
 	private void displayPopupMenu(final Object cell, final Point point) {
 		TrackSchemePopupMenu menu = new TrackSchemePopupMenu(trackScheme, cell, point);
 		menu.show(graphComponent.getViewport().getView(), (int) point.getX(), (int) point.getY());
 	}
 
-
-
 }
-

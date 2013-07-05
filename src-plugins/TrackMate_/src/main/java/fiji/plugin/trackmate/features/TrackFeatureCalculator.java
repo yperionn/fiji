@@ -12,10 +12,11 @@ import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.features.track.TrackAnalyzer;
 
 /**
- * A class dedicated to centralizing the calculation of the numerical features of tracks,
- * through {@link TrackAnalyzer}s.  
+ * A class dedicated to centralizing the calculation of the numerical features
+ * of tracks, through {@link TrackAnalyzer}s.
+ * 
  * @author Jean-Yves Tinevez - 2013
- *
+ * 
  */
 public class TrackFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 
@@ -27,11 +28,9 @@ public class TrackFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 		this.settings = settings;
 		this.model = model;
 	}
-	
-	/*
-	 * METHODS
-	 */
-	
+
+	/* METHODS */
+
 	@Override
 	public boolean checkInput() {
 		if (null == model) {
@@ -44,15 +43,15 @@ public class TrackFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 		}
 		return true;
 	}
-	
+
 	/**
-	 * Calculates the track features configured in the {@link Settings} 
-	 * for all the tracks of this model.
+	 * Calculates the track features configured in the {@link Settings} for all
+	 * the tracks of this model.
 	 */
 	@Override
 	public boolean process() {
 		long start = System.currentTimeMillis();
-		
+
 		// Clean
 		model.getFeatureModel().clearTrackFeatures();
 
@@ -64,27 +63,25 @@ public class TrackFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 			Map<String, Dimension> featureDimensions = analyzer.getFeatureDimensions();
 			model.getFeatureModel().declareTrackFeatures(features, featureNames, featureShortNames, featureDimensions);
 		}
-		
+
 		// Do it.
 		computeTrackFeaturesAgent(model.getTrackModel().trackIDs(false), settings.getTrackAnalyzers(), true);
-		
+
 		long end = System.currentTimeMillis();
 		processingTime = end - start;
 		return true;
 	}
-	
+
 	/**
-	 * Calculates all the track features configured in the {@link Settings} object 
-	 * for the specified tracks. 
+	 * Calculates all the track features configured in the {@link Settings}
+	 * object for the specified tracks.
 	 */
 	public void computeTrackFeatures(final Collection<Integer> trackIDs, boolean doLogIt) {
 		List<TrackAnalyzer> trackFeatureAnalyzers = settings.getTrackAnalyzers();
 		computeTrackFeaturesAgent(trackIDs, trackFeatureAnalyzers, doLogIt);
 	}
 
-	/*
-	 * PRIVATE METHODS
-	 */
+	/* PRIVATE METHODS */
 
 	/**
 	 * Calculate all features for the tracks with the given IDs.
@@ -92,9 +89,9 @@ public class TrackFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 	private void computeTrackFeaturesAgent(final Collection<Integer> trackIDs, final List<TrackAnalyzer> analyzers, boolean doLogIt) {
 		final Logger logger = model.getLogger();
 		if (doLogIt) {
-			logger.log("Computing track features:\n", Logger.BLUE_COLOR);		
+			logger.log("Computing track features:\n", Logger.BLUE_COLOR);
 		}
-		
+
 		for (TrackAnalyzer analyzer : analyzers) {
 			analyzer.setNumThreads(numThreads);
 			if (analyzer.isLocal()) {

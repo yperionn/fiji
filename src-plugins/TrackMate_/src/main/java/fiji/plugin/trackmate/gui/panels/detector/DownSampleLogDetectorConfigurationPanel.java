@@ -23,25 +23,20 @@ public class DownSampleLogDetectorConfigurationPanel extends LogDetectorConfigur
 	private JLabel jLabelDownSample;
 	private JNumericTextField jTextFieldDownSample;
 
-	/*
-	 * CONSTRUCTOR
-	 */
-	
+	/* CONSTRUCTOR */
+
 	public DownSampleLogDetectorConfigurationPanel(ImagePlus imp, Model model) {
 		super(imp, DownsampleLogDetectorFactory.INFO_TEXT, DownsampleLogDetectorFactory.NAME, model);
 	}
 
-	/*
-	 * METHODS
-	 */
-	
+	/* METHODS */
+
 	@SuppressWarnings("rawtypes")
 	@Override
 	protected SpotDetectorFactory<?> getDetectorFactory() {
 		return new DownsampleLogDetectorFactory();
 	}
-	
-	
+
 	@Override
 	protected void initGUI() {
 		super.initGUI();
@@ -49,7 +44,7 @@ public class DownSampleLogDetectorConfigurationPanel extends LogDetectorConfigur
 		// Remove sub-pixel localization checkbox
 		remove(jCheckSubPixel);
 		remove(jCheckBoxMedianFilter);
-		
+
 		// Add down sampling text and textfield
 		{
 			jLabelDownSample = new JLabel();
@@ -69,13 +64,12 @@ public class DownSampleLogDetectorConfigurationPanel extends LogDetectorConfigur
 			add(jTextFieldDownSample);
 		}
 	}
-	
-	
+
 	@Override
 	public Map<String, Object> getSettings() {
 		Map<String, Object> settings = new HashMap<String, Object>(5);
 		int targetChannel = sliderChannel.getValue();
-		double expectedRadius = Double.parseDouble(jTextFieldBlobDiameter.getText())/2;
+		double expectedRadius = Double.parseDouble(jTextFieldBlobDiameter.getText()) / 2;
 		double threshold = Double.parseDouble(jTextFieldThreshold.getText());
 		int downsamplefactor = Integer.parseInt(jTextFieldDownSample.getText());
 		settings.put(KEY_TARGET_CHANNEL, targetChannel);
@@ -84,12 +78,12 @@ public class DownSampleLogDetectorConfigurationPanel extends LogDetectorConfigur
 		settings.put(KEY_DOWNSAMPLE_FACTOR, downsamplefactor);
 		return settings;
 	}
-	
+
 	@Override
 	public void setSettings(Map<String, Object> settings) {
 		sliderChannel.setValue((Integer) settings.get(KEY_TARGET_CHANNEL));
-		jTextFieldBlobDiameter.setText(""+( 2 * (Double) settings.get(KEY_RADIUS)));
+		jTextFieldBlobDiameter.setText("" + (2 * (Double) settings.get(KEY_RADIUS)));
 		jTextFieldThreshold.setText("" + settings.get(KEY_THRESHOLD));
-		jTextFieldDownSample.setText(""+settings.get(KEY_DOWNSAMPLE_FACTOR));
+		jTextFieldDownSample.setText("" + settings.get(KEY_DOWNSAMPLE_FACTOR));
 	}
 }

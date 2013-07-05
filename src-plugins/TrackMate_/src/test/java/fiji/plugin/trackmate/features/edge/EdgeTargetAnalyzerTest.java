@@ -20,7 +20,9 @@ import fiji.plugin.trackmate.features.edges.EdgeTargetAnalyzer;
 public class EdgeTargetAnalyzerTest {
 
 	private static final int N_TRACKS = 10;
-	private static final int DEPTH = 9; // must be at least 6 to avoid tracks too shorts - may make this test fail sometimes
+	private static final int DEPTH = 9; // must be at least 6 to avoid tracks
+										// too shorts - may make this test fail
+										// sometimes
 	private Model model;
 	private HashMap<DefaultWeightedEdge, Spot> edgeTarget;
 	private HashMap<DefaultWeightedEdge, Spot> edgeSource;
@@ -49,7 +51,6 @@ public class EdgeTargetAnalyzerTest {
 						edgeTarget.put(edge, spot);
 						edgeCost.put(edge, Double.valueOf(j));
 
-
 					}
 					previous = spot;
 				}
@@ -67,7 +68,7 @@ public class EdgeTargetAnalyzerTest {
 		analyzer.process(model.getTrackModel().edgeSet());
 
 		// Collect features
-		for (DefaultWeightedEdge edge :model.getTrackModel().edgeSet()) {
+		for (DefaultWeightedEdge edge : model.getTrackModel().edgeSet()) {
 			assertEquals(edgeSource.get(edge).ID(), model.getFeatureModel().getEdgeFeature(edge, EdgeTargetAnalyzer.SPOT_SOURCE_ID).intValue());
 			assertEquals(edgeTarget.get(edge).ID(), model.getFeatureModel().getEdgeFeature(edge, EdgeTargetAnalyzer.SPOT_TARGET_ID).intValue());
 			assertEquals(edgeCost.get(edge).doubleValue(), model.getFeatureModel().getEdgeFeature(edge, EdgeTargetAnalyzer.EDGE_COST).doubleValue(), Double.MIN_VALUE);
@@ -92,7 +93,7 @@ public class EdgeTargetAnalyzerTest {
 				}
 				if (analyzer.isLocal()) {
 
-					analyzer.process(edgesToUpdate );
+					analyzer.process(edgesToUpdate);
 
 				} else {
 
@@ -116,7 +117,7 @@ public class EdgeTargetAnalyzerTest {
 		} finally {
 			model.endUpdate();
 		}
-		
+
 		// We must have received only one edge to analyzer
 		assertTrue(analyzer.hasBeenRun);
 		assertEquals(1, analyzer.edges.size());
@@ -142,5 +143,5 @@ public class EdgeTargetAnalyzerTest {
 			super.process(edges);
 		}
 
-	}	
+	}
 }

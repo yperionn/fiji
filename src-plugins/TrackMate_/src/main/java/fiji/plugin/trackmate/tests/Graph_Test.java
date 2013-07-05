@@ -17,15 +17,13 @@ public class Graph_Test {
 	public static void main(String[] args) {
 
 		Model model = getExampleModel();
-//		TrackMateModel model = getComplicatedExample();
+		// TrackMateModel model = getComplicatedExample();
 		countOverallLeaves(model);
 		pickLeavesOfOneTrack(model);
 
 		System.out.println(GraphUtils.toString(model.getTrackModel()));
 
-
 	}
-
 
 	private static void pickLeavesOfOneTrack(final Model model) {
 		TimeDirectedNeighborIndex cache = model.getTrackModel().getDirectedNeighborIndex();
@@ -48,7 +46,7 @@ public class Graph_Test {
 				}
 			}
 		}
-	}	
+	}
 
 	private static void countOverallLeaves(final Model model) {
 		TimeDirectedNeighborIndex cache = model.getTrackModel().getDirectedNeighborIndex();
@@ -60,7 +58,7 @@ public class Graph_Test {
 			}
 		}
 		System.out.println("Iterated over " + spots.size() + " spots.");
-		System.out.println("Found " + nleaves +" leaves.");
+		System.out.println("Found " + nleaves + " leaves.");
 	}
 
 	public static final Model getExampleModel() {
@@ -69,22 +67,22 @@ public class Graph_Test {
 
 		// Create spots
 
-		Spot root 	= new Spot(new double[] { 	3d,  	0d, 	0d }, 	"Zygote");
+		Spot root = new Spot(new double[] { 3d, 0d, 0d }, "Zygote");
 
-		Spot AB 	= new Spot(new double[] { 	0d,  	1d, 	0d }, 	"AB");
-		Spot P1 	= new Spot(new double[] { 	3d,  	1d, 	0d }, 	"P1");
+		Spot AB = new Spot(new double[] { 0d, 1d, 0d }, "AB");
+		Spot P1 = new Spot(new double[] { 3d, 1d, 0d }, "P1");
 
-		Spot P2 	= new Spot(new double[] { 	4d,  	2d, 	0d }, 	"P2");
-		Spot EMS 	= new Spot(new double[] { 	2d,  	2d, 	0d }, 	"EMS");
+		Spot P2 = new Spot(new double[] { 4d, 2d, 0d }, "P2");
+		Spot EMS = new Spot(new double[] { 2d, 2d, 0d }, "EMS");
 
-		Spot P3 	= new Spot(new double[] { 	5d,  	3d, 	0d }, 	"P3");
-		Spot C 		= new Spot(new double[] { 	3d,  	3d, 	0d }, 	"C");
-		Spot E 		= new Spot(new double[] { 	1d,  	3d, 	0d }, 	"E");
-		Spot MS		= new Spot(new double[] { 	2d,  	3d, 	0d }, 	"MS");
-		Spot AB3 	= new Spot(new double[] { 	0d,  	3d, 	0d }, 	"AB");
+		Spot P3 = new Spot(new double[] { 5d, 3d, 0d }, "P3");
+		Spot C = new Spot(new double[] { 3d, 3d, 0d }, "C");
+		Spot E = new Spot(new double[] { 1d, 3d, 0d }, "E");
+		Spot MS = new Spot(new double[] { 2d, 3d, 0d }, "MS");
+		Spot AB3 = new Spot(new double[] { 0d, 3d, 0d }, "AB");
 
-		Spot D 		= new Spot(new double[] { 	4d,  	4d, 	0d }, 	"D");
-		Spot P4 	= new Spot(new double[] { 	5d,  	4d, 	0d }, 	"P4");
+		Spot D = new Spot(new double[] { 4d, 4d, 0d }, "D");
+		Spot P4 = new Spot(new double[] { 5d, 4d, 0d }, "P4");
 
 		// Add them to the graph
 
@@ -116,7 +114,7 @@ public class Graph_Test {
 			model.addEdge(P1, P2, 1);
 			model.addEdge(P1, EMS, 1);
 
-			model.addEdge(AB, AB3 , 1);
+			model.addEdge(AB, AB3, 1);
 
 			model.addEdge(EMS, E, 1);
 			model.addEdge(EMS, MS, 1);
@@ -148,7 +146,7 @@ public class Graph_Test {
 				break;
 			}
 		}
-		
+
 		// Update model
 		model.beginUpdate();
 		try {

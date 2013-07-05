@@ -13,7 +13,6 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 
-
 /**
  * A panel to let the user choose what displayer he wants to use.
  */
@@ -27,9 +26,7 @@ public class ListChooserPanel extends ActionListenablePanel {
 	protected JLabel jLabelHelpText;
 	protected String typeName;
 
-	/*
-	 * CONSTRUCTOR
-	 */
+	/* CONSTRUCTOR */
 
 	public ListChooserPanel(List<String> items, List<String> infoTexts, String typeName) {
 		super();
@@ -39,9 +36,7 @@ public class ListChooserPanel extends ActionListenablePanel {
 		initGUI();
 	}
 
-	/*
-	 * PUBLIC METHODS
-	 */
+	/* PUBLIC METHODS */
 
 	public int getChoice() {
 		return jComboBoxChoice.getSelectedIndex();
@@ -51,10 +46,7 @@ public class ListChooserPanel extends ActionListenablePanel {
 		jComboBoxChoice.setSelectedIndex(index);
 	}
 
-
-	/*
-	 * PRIVATE METHODS
-	 */
+	/* PRIVATE METHODS */
 
 	private void initGUI() {
 		try {
@@ -64,7 +56,7 @@ public class ListChooserPanel extends ActionListenablePanel {
 				jLabelHeader = new JLabel();
 				this.add(jLabelHeader);
 				jLabelHeader.setFont(BIG_FONT);
-				jLabelHeader.setText("Select a "+typeName);
+				jLabelHeader.setText("Select a " + typeName);
 				jLabelHeader.setBounds(20, 20, 270, 16);
 			}
 			{
@@ -95,11 +87,7 @@ public class ListChooserPanel extends ActionListenablePanel {
 	}
 
 	private void echo(int index) {
-		jLabelHelpText.setText(infoTexts.get(index)
-				.replace("<br>", "")
-				.replace("<p>", "<p align=\"justify\">")
-				.replace("<html>", "<html><p align=\"justify\">")
-				);
+		jLabelHelpText.setText(infoTexts.get(index).replace("<br>", "").replace("<p>", "<p align=\"justify\">").replace("<html>", "<html><p align=\"justify\">"));
 	}
 
 }

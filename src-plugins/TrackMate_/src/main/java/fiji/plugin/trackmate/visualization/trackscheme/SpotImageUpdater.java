@@ -11,7 +11,7 @@ import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.util.TMUtils;
 
 public class SpotImageUpdater {
-	
+
 	private Integer previousFrame;
 	private SpotIconGrabber<?> grabber;
 	private final Settings settings;
@@ -22,10 +22,11 @@ public class SpotImageUpdater {
 	}
 
 	/**
-	 * @return the image string of the given spot, based on the raw images contained in the given model.
-	 * For performance, the image at target frame is stored for subsequent calls of this method. 
-	 * So it is a good idea to group calls to this method for spots that belong to the
-	 * same frame.
+	 * @return the image string of the given spot, based on the raw images
+	 *         contained in the given model. For performance, the image at
+	 *         target frame is stored for subsequent calls of this method. So it
+	 *         is a good idea to group calls to this method for spots that
+	 *         belong to the same frame.
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public String getImageString(final Spot spot) {
@@ -46,12 +47,10 @@ public class SpotImageUpdater {
 					targetChannel = ((Integer) obj) - 1;
 				}
 			} // TODO: be more flexible about that
-			ImgPlus<?> imgCT = HyperSliceImgPlus.fixTimeAxis( 
-					HyperSliceImgPlus.fixChannelAxis(img, targetChannel), 
-					frame);
+			ImgPlus<?> imgCT = HyperSliceImgPlus.fixTimeAxis(HyperSliceImgPlus.fixChannelAxis(img, targetChannel), frame);
 			grabber = new SpotIconGrabber(imgCT);
 			previousFrame = frame;
 		}
-		return grabber.getImageString(spot);			
+		return grabber.getImageString(spot);
 	}
 }

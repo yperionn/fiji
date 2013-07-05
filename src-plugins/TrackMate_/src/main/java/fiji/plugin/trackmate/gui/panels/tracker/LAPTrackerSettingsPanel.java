@@ -9,7 +9,6 @@ import javax.swing.JScrollPane;
 
 import fiji.plugin.trackmate.gui.ConfigurationPanel;
 
-
 public class LAPTrackerSettingsPanel extends ConfigurationPanel {
 
 	private static final long serialVersionUID = 1L;
@@ -19,9 +18,7 @@ public class LAPTrackerSettingsPanel extends ConfigurationPanel {
 	private final Collection<String> features;
 	private final Map<String, String> featureNames;
 
-	/*
-	 * CONSTRUCTOR
-	 */
+	/* CONSTRUCTOR */
 
 	public LAPTrackerSettingsPanel(final String trackerName, final String spaceUnits, final Collection<String> features, final Map<String, String> featureNames) {
 		this.trackerName = trackerName;
@@ -31,9 +28,7 @@ public class LAPTrackerSettingsPanel extends ConfigurationPanel {
 		initGUI();
 	}
 
-	/*
-	 * PUBLIC METHODS
-	 */
+	/* PUBLIC METHODS */
 
 	@Override
 	public Map<String, Object> getSettings() {
@@ -45,9 +40,7 @@ public class LAPTrackerSettingsPanel extends ConfigurationPanel {
 		jPanelMain.echoSettings(settings);
 	}
 
-	/*
-	 * PRIVATE METHODS
-	 */
+	/* PRIVATE METHODS */
 
 	private void initGUI() {
 		try {

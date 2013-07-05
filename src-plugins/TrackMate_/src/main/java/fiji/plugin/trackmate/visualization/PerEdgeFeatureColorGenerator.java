@@ -33,23 +33,25 @@ public class PerEdgeFeatureColorGenerator implements ModelChangeListener, TrackC
 		this.feature = feature;
 		resetMinAndMax();
 	}
-	
+
 	@Override
 	public String getFeature() {
 		return feature;
 	}
-	
+
 	@Override
 	public Color color(DefaultWeightedEdge edge) {
 		double val = model.getFeatureModel().getEdgeFeature(edge, feature).doubleValue();
-		return colorMap.getPaint( (val-min)/(max-min) );
+		return colorMap.getPaint((val - min) / (max - min));
 	}
-	
+
 	@Override
-	public void setCurrentTrackID(Integer trackID) { } // ignored
+	public void setCurrentTrackID(Integer trackID) {
+	} // ignored
 
 	/**
-	 *  Monitor if the change induces some change in the colormap. Rescale it if so.
+	 * Monitor if the change induces some change in the colormap. Rescale it if
+	 * so.
 	 */
 	@Override
 	public void modelChanged(ModelChangeEvent event) {
@@ -58,32 +60,30 @@ public class PerEdgeFeatureColorGenerator implements ModelChangeListener, TrackC
 		}
 
 		for (DefaultWeightedEdge edge : event.getEdges()) {
-			
-			if (event.getEdgeFlag(edge) == ModelChangeEvent.FLAG_EDGE_ADDED 
-					|| event.getEdgeFlag(edge) == ModelChangeEvent.FLAG_EDGE_MODIFIED) {
-				
+
+			if (event.getEdgeFlag(edge) == ModelChangeEvent.FLAG_EDGE_ADDED || event.getEdgeFlag(edge) == ModelChangeEvent.FLAG_EDGE_MODIFIED) {
+
 				if (edge.equals(edgeMax) || edge.equals(edgeMin)) {
 					resetMinAndMax();
 					return;
 				}
-				
+
 				double val = model.getFeatureModel().getEdgeFeature(edge, feature).doubleValue();
 				if (val > max || val < min) {
 					resetMinAndMax();
 					return;
 				}
-				
+
 			} else if (event.getEdgeFlag(edge) == ModelChangeEvent.FLAG_EDGE_REMOVED) {
-				
+
 				if (edge.equals(edgeMax) || edge.equals(edgeMin)) {
 					resetMinAndMax();
 					return;
 				}
-				
+
 			}
 		}
 	}
-
 
 	private void resetMinAndMax() {
 		min = Double.POSITIVE_INFINITY;
@@ -104,7 +104,7 @@ public class PerEdgeFeatureColorGenerator implements ModelChangeListener, TrackC
 			}
 		}
 	}
-	
+
 	@Override
 	public void terminate() {
 		model.removeModelChangeListener(this);

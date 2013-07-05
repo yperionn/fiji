@@ -23,31 +23,32 @@ import fiji.plugin.trackmate.detection.SpotDetector;
 import fiji.plugin.trackmate.tracking.SpotTracker;
 
 /**
- * A class made to perform semi-automated tracking of spots in TrackMate & friends
+ * A class made to perform semi-automated tracking of spots in TrackMate &
+ * friends
  * <p>
- * The user has to select one spot, one a meaningful location.
- * The spot location and its radius are then used to extract a small rectangular
- * neighborhood in the next frame around the spot. The neighborhood is then
- * passed to a {@link SpotDetector} that returns the spot it found. If a spot
- * of {@link Spot#QUALITY} high enough is found near enough to the first spot
+ * The user has to select one spot, one a meaningful location. The spot location
+ * and its radius are then used to extract a small rectangular neighborhood in
+ * the next frame around the spot. The neighborhood is then passed to a
+ * {@link SpotDetector} that returns the spot it found. If a spot of
+ * {@link Spot#QUALITY} high enough is found near enough to the first spot
  * center, then it is added to the model and linked with the first spot.
- * <p> 
- * The process is then repeated, taking the newly found spot as a source 
- * for the next neighborhood.
- * The model is updated live for every spot found.
+ * <p>
+ * The process is then repeated, taking the newly found spot as a source for the
+ * next neighborhood. The model is updated live for every spot found.
  * <p>
  * The process halts when:
  * <ul>
- * 	<li> no spots of quality high enough are found;
- * 	<li> spots of high quality are found, but too far from the initial spot;
- * 	<li> the source has no time-point left. 
+ * <li>no spots of quality high enough are found;
+ * <li>spots of high quality are found, but too far from the initial spot;
+ * <li>the source has no time-point left.
  * </ul>
  * 
  * @author Jean-Yves Tinevez - 2013
- * @param <T> the type of the source. Must extend {@link RealType} and {@link NativeType}
- * to use with most TrackMate {@link SpotDetector}s.
+ * @param <T>
+ *        the type of the source. Must extend {@link RealType} and
+ *        {@link NativeType} to use with most TrackMate {@link SpotDetector}s.
  */
-public abstract class AbstractSemiAutoTracker<T extends RealType<T>  & NativeType<T>> implements Algorithm, MultiThreaded {
+public abstract class AbstractSemiAutoTracker<T extends RealType<T> & NativeType<T>> implements Algorithm, MultiThreaded {
 
 	/** Minimal size of neighborhoods, in spot diameter units. */
 	protected static final double NEIGHBORHOOD_FACTOR = 2d;
@@ -62,12 +63,13 @@ public abstract class AbstractSemiAutoTracker<T extends RealType<T>  & NativeTyp
 	protected final Logger logger;
 	/** How close must be the new spot found to be accepted, in radius units. */
 	protected double distanceTolerance = DISTANCE_TOLERANCE;
-	/** The fraction of the initial quality above which we keep new spots. The highest, the more intolerant. */
+	/**
+	 * The fraction of the initial quality above which we keep new spots. The
+	 * highest, the more intolerant.
+	 */
 	protected double qualityThreshold = QUALITY_THRESHOLD;
 
-	/*
-	 * CONSTRUCTOR 
-	 */
+	/* CONSTRUCTOR */
 
 	public AbstractSemiAutoTracker(Model model, SelectionModel selectionModel, Logger logger) {
 		this.model = model;
@@ -75,21 +77,23 @@ public abstract class AbstractSemiAutoTracker<T extends RealType<T>  & NativeTyp
 		this.logger = logger;
 	}
 
-	/*
-	 * METHODS
-	 */
-	
+	/* METHODS */
+
 	/**
-	 * Configures this semi-automatic tracker. 
-	 * @param qualityThreshold   the fraction of the initial quality above which we keep new spots. The highest, the more intolerant.
-	 * @param distanceTolerance  how close must be the new spot found to be accepted, in radius units.
+	 * Configures this semi-automatic tracker.
+	 * 
+	 * @param qualityThreshold
+	 *        the fraction of the initial quality above which we keep new spots.
+	 *        The highest, the more intolerant.
+	 * @param distanceTolerance
+	 *        how close must be the new spot found to be accepted, in radius
+	 *        units.
 	 */
 	public void setParameters(double qualityThreshold, double distanceTolerance) {
 		this.qualityThreshold = qualityThreshold;
 		this.distanceTolerance = distanceTolerance;
 	}
-	
-	
+
 	@Override
 	public boolean process() {
 		final Set<Spot> spots = new HashSet<Spot>(selectionModel.getSpotSelection());
@@ -98,16 +102,15 @@ public abstract class AbstractSemiAutoTracker<T extends RealType<T>  & NativeTyp
 			return false;
 		}
 		selectionModel.clearSelection();
-		
+
 		int nThreads = Math.min(numThreads, spots.size());
 		final ArrayBlockingQueue<Spot> queue = new ArrayBlockingQueue<Spot>(spots.size(), false, spots);
-		
-			
+
 		ok = true;
-		final ThreadGroup semiAutoTrackingThreadgroup = new ThreadGroup( "Semi-automatic tracking threads" );
+		final ThreadGroup semiAutoTrackingThreadgroup = new ThreadGroup("Semi-automatic tracking threads");
 		Thread[] threads = SimpleMultiThreading.newThreads(nThreads);
 		for (int i = 0; i < threads.length; i++) {
-			threads[i] = new Thread( semiAutoTrackingThreadgroup, new Runnable() {
+			threads[i] = new Thread(semiAutoTrackingThreadgroup, new Runnable() {
 				@Override
 				public void run() {
 					Spot spot;
@@ -123,39 +126,35 @@ public abstract class AbstractSemiAutoTracker<T extends RealType<T>  & NativeTyp
 
 	public void processSpot(final Spot initialSpot) {
 
-		/*
-		 * Initial spot
-		 */
+		/* Initial spot */
 		Spot spot = initialSpot;
 
 		while (true) {
 
-			/*
-			 * Extract spot & features
-			 */
+			/* Extract spot & features */
 
-			int frame = spot.getFeature(Spot.FRAME).intValue() + 1; // We want to segment in the next frame
+			int frame = spot.getFeature(Spot.FRAME).intValue() + 1; // We want
+																	// to
+																	// segment
+																	// in the
+																	// next
+																	// frame
 			double radius = spot.getFeature(Spot.RADIUS);
 			double quality = spot.getFeature(Spot.QUALITY);
-			
-			
-			/* 
-			 * Get neighborhood
-			 */
-			
+
+			/* Get neighborhood */
+
 			SpotNeighborhood<T> sn = getNeighborhood(spot, frame);
 			if (null == sn) {
 				return;
 			}
-			
+
 			ImgPlus<T> neighborhood = sn.neighborhood;
 			AffineTransform3D transform = sn.transform;
 
-			/*
-			 * Detect spots
-			 */
-			
-			SpotDetector<T> detector = createDetector(neighborhood , radius, quality * qualityThreshold);
+			/* Detect spots */
+
+			SpotDetector<T> detector = createDetector(neighborhood, radius, quality * qualityThreshold);
 
 			if (!detector.checkInput() || !detector.process()) {
 				ok = false;
@@ -163,21 +162,17 @@ public abstract class AbstractSemiAutoTracker<T extends RealType<T>  & NativeTyp
 				return;
 			}
 
-			/*
-			 * Get results
-			 */
+			/* Get results */
 
 			List<Spot> detectedSpots = detector.getResult();
 			if (detectedSpots.isEmpty()) {
 				logger.log("Spot: " + initialSpot + ": No suitable spot found.\n");
 				return;
 			}
-			
-			/*
-			 * Translate spots
-			 */
-			
-			String[] features = new String[] { Spot.POSITION_X, Spot.POSITION_Y, Spot.POSITION_Z }; 
+
+			/* Translate spots */
+
+			String[] features = new String[] { Spot.POSITION_X, Spot.POSITION_Y, Spot.POSITION_Z };
 			for (Spot ds : detectedSpots) {
 				double[] coords = new double[3];
 				ds.localize(coords);
@@ -187,7 +182,7 @@ public abstract class AbstractSemiAutoTracker<T extends RealType<T>  & NativeTyp
 					ds.putFeature(features[i], target[i]);
 				}
 			}
-			
+
 			// Sort then by ascending quality
 			TreeSet<Spot> sortedSpots = new TreeSet<Spot>(Spot.featureComparator(Spot.QUALITY));
 			sortedSpots.addAll(detectedSpots);
@@ -207,15 +202,13 @@ public abstract class AbstractSemiAutoTracker<T extends RealType<T>  & NativeTyp
 				logger.log("Spot: " + initialSpot + ": Suitable spot found, but outside the tolerance radius.\n");
 				return;
 			}
-			
-			/*
-			 * Update model
-			 */
+
+			/* Update model */
 
 			// spot
-			target.putFeature(Spot.RADIUS, radius );
-			target.putFeature(Spot.POSITION_T, Double.valueOf(frame) );
-			
+			target.putFeature(Spot.RADIUS, radius);
+			target.putFeature(Spot.POSITION_T, Double.valueOf(frame));
+
 			model.beginUpdate();
 			try {
 				model.addSpotTo(target, frame);
@@ -224,9 +217,7 @@ public abstract class AbstractSemiAutoTracker<T extends RealType<T>  & NativeTyp
 				model.endUpdate();
 			}
 
-			/*
-			 * Loop
-			 */
+			/* Loop */
 
 			spot = target;
 
@@ -234,27 +225,38 @@ public abstract class AbstractSemiAutoTracker<T extends RealType<T>  & NativeTyp
 	}
 
 	/**
-	 * Returns a small neighborhood around the specified spot, but taken at the specified frame.
-	 * Implementations have to decide what is the right size for the neighborhood, given the
-	 * specified spot radius and location.
+	 * Returns a small neighborhood around the specified spot, but taken at the
+	 * specified frame. Implementations have to decide what is the right size
+	 * for the neighborhood, given the specified spot radius and location.
 	 * <p>
-	 * Implementations can return <code>null</code> if for instance, the number of time 
-	 * frames in the raw source has been exhausted, or if the specified spot misses some information.
-	 * This will be dealt with gracefully in the {@link #process()} method.  
-	 * @param spot  the spot the desired neighborhood is centered on.
-	 * @param frame  the frame in the source image the desired neighborhood as to be taken.
-	 * @return  the neighborhood, as a {@link SpotNeighborhood}. Concrete implementations
-	 * have to specify the neighborhood location and calibration, so that the found spots
-	 * can have their coordinates put back in the raw source coordinate system.
+	 * Implementations can return <code>null</code> if for instance, the number
+	 * of time frames in the raw source has been exhausted, or if the specified
+	 * spot misses some information. This will be dealt with gracefully in the
+	 * {@link #process()} method.
+	 * 
+	 * @param spot
+	 *        the spot the desired neighborhood is centered on.
+	 * @param frame
+	 *        the frame in the source image the desired neighborhood as to be
+	 *        taken.
+	 * @return the neighborhood, as a {@link SpotNeighborhood}. Concrete
+	 *         implementations have to specify the neighborhood location and
+	 *         calibration, so that the found spots can have their coordinates
+	 *         put back in the raw source coordinate system.
 	 */
 	protected abstract SpotNeighborhood<T> getNeighborhood(Spot spot, int frame);
 
 	/**
-	 * Returns a new instance of a {@link SpotDetector} that will inspect the neighborhood.
-	 * @param img  the neighborhood to inspect.
-	 * @param radius  the expected spot radius. 
-	 * @param quality  the quality threshold below which found spots will be discarded.
-	 * @return  a new {@link SpotTracker}.
+	 * Returns a new instance of a {@link SpotDetector} that will inspect the
+	 * neighborhood.
+	 * 
+	 * @param img
+	 *        the neighborhood to inspect.
+	 * @param radius
+	 *        the expected spot radius.
+	 * @param quality
+	 *        the quality threshold below which found spots will be discarded.
+	 * @return a new {@link SpotTracker}.
 	 */
 	protected SpotDetector<T> createDetector(ImgPlus<T> img, double radius, double quality) {
 		LogDetector<T> detector = new LogDetector<T>(img, radius, quality, true, false);
@@ -274,7 +276,6 @@ public abstract class AbstractSemiAutoTracker<T extends RealType<T>  & NativeTyp
 		}
 		return true;
 	}
-
 
 	@Override
 	public String getErrorMessage() {
@@ -296,16 +297,17 @@ public abstract class AbstractSemiAutoTracker<T extends RealType<T>  & NativeTyp
 		return numThreads;
 	}
 
-	
 	/**
-	 * A utility class made to return the information on a neighborhood generated
-	 * from a source around a {@link Spot}.
+	 * A utility class made to return the information on a neighborhood
+	 * generated from a source around a {@link Spot}.
 	 */
-	public static class SpotNeighborhood <R> {
+	public static class SpotNeighborhood<R> {
 		/** The neighborhood, as a calibrated {@link ImgPlus}. */
 		public ImgPlus<R> neighborhood;
-		/**  Affine transform that will convert the spot coordinates in the neighborhood reference
-		 * to the global coordinate system. */ 
+		/**
+		 * Affine transform that will convert the spot coordinates in the
+		 * neighborhood reference to the global coordinate system.
+		 */
 		public AffineTransform3D transform;
 	}
 

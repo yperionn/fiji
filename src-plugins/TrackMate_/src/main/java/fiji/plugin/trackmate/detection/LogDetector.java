@@ -22,11 +22,9 @@ import fiji.plugin.trackmate.detection.subpixel.SubPixelLocalization.LocationTyp
 import fiji.plugin.trackmate.detection.util.MedianFilter3x3;
 import fiji.plugin.trackmate.util.TMUtils;
 
-public class LogDetector <T extends RealType<T>  & NativeType<T>> implements SpotDetector<T>, MultiThreaded {
+public class LogDetector<T extends RealType<T> & NativeType<T>> implements SpotDetector<T>, MultiThreaded {
 
-	/*
-	 * FIELDS
-	 */
+	/* FIELDS */
 
 	private final static String BASE_ERROR_MESSAGE = "LogDetector: ";
 	/** The image to segment. Will not modified. */
@@ -38,14 +36,16 @@ public class LogDetector <T extends RealType<T>  & NativeType<T>> implements Spo
 	protected String baseErrorMessage;
 	protected String errorMessage;
 	/** The list of {@link Spot} that will be populated by this detector. */
-	protected List<Spot> spots = new ArrayList<Spot>(); // because this implementation is fast to add elements at the end of the list
+	protected List<Spot> spots = new ArrayList<Spot>(); // because this
+														// implementation is
+														// fast to add elements
+														// at the end of the
+														// list
 	/** The processing time in ms. */
 	protected long processingTime;
 	private int numThreads;
 
-	/*
-	 * CONSTRUCTORS
-	 */
+	/* CONSTRUCTORS */
 
 	public LogDetector(final ImgPlus<T> img, final double radius, final double threshold, final boolean doSubPixelLocalization, final boolean doMedianFilter) {
 		this.img = img;
@@ -57,10 +57,8 @@ public class LogDetector <T extends RealType<T>  & NativeType<T>> implements Spo
 		setNumThreads();
 	}
 
-	/*
-	 * METHODS
-	 */
-	
+	/* METHODS */
+
 	@Override
 	public boolean checkInput() {
 		if (null == img) {
@@ -68,16 +66,15 @@ public class LogDetector <T extends RealType<T>  & NativeType<T>> implements Spo
 			return false;
 		}
 		if (!(img.numDimensions() == 2 || img.numDimensions() == 3)) {
-			errorMessage = baseErrorMessage + "Image must be 2D or 3D, got " + img.numDimensions() +"D.";
+			errorMessage = baseErrorMessage + "Image must be 2D or 3D, got " + img.numDimensions() + "D.";
 			return false;
 		}
 		return true;
 	};
-	
-	
+
 	@Override
 	public boolean process() {
-		
+
 		long start = System.currentTimeMillis();
 
 		// Deal with median filter:
@@ -89,27 +86,30 @@ public class LogDetector <T extends RealType<T>  & NativeType<T>> implements Spo
 			}
 		}
 
-		double sigma = radius / Math.sqrt(img.numDimensions()); // optimal sigma for LoG approach and dimensionality
+		double sigma = radius / Math.sqrt(img.numDimensions()); // optimal sigma
+																// for LoG
+																// approach and
+																// dimensionality
 		// Turn it in pixel coordinates
 		final double[] calibration = TMUtils.getSpatialCalibration(img);
 		double[] sigmas = new double[img.numDimensions()];
 		for (int i = 0; i < sigmas.length; i++) {
 			sigmas[i] = sigma / calibration[i];
 		}
-		
+
 		ImgFactory<FloatType> factory = new ArrayImgFactory<FloatType>();
 		Img<FloatType> gaussianKernel = FourierConvolution.createGaussianKernel(factory, sigmas);
 		FourierConvolution<T, FloatType> fConvGauss;
 		try {
 			fConvGauss = new FourierConvolution<T, FloatType>(intermediateImage, gaussianKernel);
 		} catch (IncompatibleTypeException e) {
-			errorMessage = baseErrorMessage + "Fourier convolution failed: "+e.getMessage();
+			errorMessage = baseErrorMessage + "Fourier convolution failed: " + e.getMessage();
 			return false;
 		}
 
 		fConvGauss.setNumThreads(numThreads);
 		if (!fConvGauss.checkInput() || !fConvGauss.process()) {
-			errorMessage = baseErrorMessage + "Fourier convolution with Gaussian failed:\n" + fConvGauss.getErrorMessage() ;
+			errorMessage = baseErrorMessage + "Fourier convolution with Gaussian failed:\n" + fConvGauss.getErrorMessage();
 			return false;
 		}
 		intermediateImage = fConvGauss.getResult();
@@ -119,26 +119,26 @@ public class LogDetector <T extends RealType<T>  & NativeType<T>> implements Spo
 		try {
 			fConvLaplacian = new FourierConvolution<T, FloatType>(intermediateImage, laplacianKernel);
 		} catch (IncompatibleTypeException e) {
-			errorMessage = baseErrorMessage + "Fourier convolution failed: "+e.getMessage();
+			errorMessage = baseErrorMessage + "Fourier convolution failed: " + e.getMessage();
 			return false;
 		}
-		
+
 		fConvLaplacian.setNumThreads(numThreads);
 		if (!fConvLaplacian.checkInput() || !fConvLaplacian.process()) {
-			errorMessage = baseErrorMessage + "Fourier Convolution with Laplacian failed:\n" + fConvLaplacian.getErrorMessage() ;
+			errorMessage = baseErrorMessage + "Fourier Convolution with Laplacian failed:\n" + fConvLaplacian.getErrorMessage();
 			return false;
 		}
-		intermediateImage = fConvLaplacian.getResult();	
+		intermediateImage = fConvLaplacian.getResult();
 
 		PickImagePeaks<T> peakPicker = new PickImagePeaks<T>(intermediateImage);
 		double[] suppressionRadiuses = new double[img.numDimensions()];
-		for (int i = 0; i < img.numDimensions(); i++) 
-			suppressionRadiuses[i] = radius / calibration [i];
+		for (int i = 0; i < img.numDimensions(); i++)
+			suppressionRadiuses[i] = radius / calibration[i];
 		peakPicker.setSuppression(suppressionRadiuses); // in pixels
 		peakPicker.setAllowBorderPeak(true);
 
 		if (!peakPicker.checkInput() || !peakPicker.process()) {
-			errorMessage = baseErrorMessage +"Could not run the peak picker algorithm:\n" + peakPicker.getErrorMessage();
+			errorMessage = baseErrorMessage + "Could not run the peak picker algorithm:\n" + peakPicker.getErrorMessage();
 			return false;
 		}
 
@@ -169,11 +169,12 @@ public class LogDetector <T extends RealType<T>  & NativeType<T>> implements Spo
 
 		// Do sub-pixel localization
 		if (doSubPixelLocalization && !peaks.isEmpty()) {
-			// Create localizer and apply it to the list. The list object will be updated
+			// Create localizer and apply it to the list. The list object will
+			// be updated
 			final QuadraticSubpixelLocalization<T> locator = new QuadraticSubpixelLocalization<T>(intermediateImage, peaks);
 			locator.setNumThreads(numThreads);
 			locator.setCanMoveOutside(true);
-			if ( !locator.checkInput() || !locator.process() )	{
+			if (!locator.checkInput() || !locator.process()) {
 				errorMessage = baseErrorMessage + locator.getErrorMessage();
 				return false;
 			}
@@ -183,7 +184,7 @@ public class LogDetector <T extends RealType<T>  & NativeType<T>> implements Spo
 		spots.clear();
 		for (int j = 0; j < peaks.size(); j++) {
 
-			SubPixelLocalization<T> peak = peaks.get(j); 
+			SubPixelLocalization<T> peak = peaks.get(j);
 			double[] coords = new double[3];
 			for (int i = 0; i < img.numDimensions(); i++) {
 				coords[i] = peak.getDoublePosition(i) * calibration[i];
@@ -196,54 +197,55 @@ public class LogDetector <T extends RealType<T>  & NativeType<T>> implements Spo
 
 		long end = System.currentTimeMillis();
 		processingTime = end - start;
-		
+
 		return true;
 	}
 
-
-	/*
-	 * PRIVATE METHODS
-	 */
-
+	/* PRIVATE METHODS */
 
 	private Img<FloatType> createLaplacianKernel() {
 		final ImgFactory<FloatType> factory = new ArrayImgFactory<FloatType>();
 		int numDim = img.numDimensions();
 		Img<FloatType> laplacianKernel = null;
 		if (numDim == 3) {
-			final float laplacianArray[][][] = new float[][][]{ { {0,-1/18,0},{-1/18,-1/18,-1/18},{0,-1/18,0} }, { {-1/18,-1/18,-1/18}, {-1/18,1,-1/18}, {-1/18,-1/18,-1/18} }, { {0,-1/18,0},{-1/18,-1/18,-1/18},{0,-1/18,0} } }; // laplace kernel found here: http://en.wikipedia.org/wiki/Discrete_Laplace_operator
-			laplacianKernel = factory.create(new int[]{3, 3, 3}, new FloatType());
+			final float laplacianArray[][][] = new float[][][] { { { 0, -1 / 18, 0 }, { -1 / 18, -1 / 18, -1 / 18 }, { 0, -1 / 18, 0 } }, { { -1 / 18, -1 / 18, -1 / 18 }, { -1 / 18, 1, -1 / 18 }, { -1 / 18, -1 / 18, -1 / 18 } }, { { 0, -1 / 18, 0 }, { -1 / 18, -1 / 18, -1 / 18 }, { 0, -1 / 18, 0 } } }; // laplace
+																																																																												// kernel
+																																																																												// found
+																																																																												// here:
+																																																																												// http://en.wikipedia.org/wiki/Discrete_Laplace_operator
+			laplacianKernel = factory.create(new int[] { 3, 3, 3 }, new FloatType());
 			quickKernel3D(laplacianArray, laplacianKernel);
 		} else if (numDim == 2) {
-			final float laplacianArray[][] = new float[][]{ {-1/8,-1/8,-1/8},{-1/8,1,-1/8},{-1/8,-1/8,-1/8} }; // laplace kernel found here: http://en.wikipedia.org/wiki/Discrete_Laplace_operator
-			laplacianKernel = factory.create(new int[]{3, 3}, new FloatType());
+			final float laplacianArray[][] = new float[][] { { -1 / 8, -1 / 8, -1 / 8 }, { -1 / 8, 1, -1 / 8 }, { -1 / 8, -1 / 8, -1 / 8 } }; // laplace
+																																				// kernel
+																																				// found
+																																				// here:
+																																				// http://en.wikipedia.org/wiki/Discrete_Laplace_operator
+			laplacianKernel = factory.create(new int[] { 3, 3 }, new FloatType());
 			quickKernel2D(laplacianArray, laplacianKernel);
-		} 
+		}
 		return laplacianKernel;
 	}
-	
+
 	/**
 	 * Apply a simple 3x3 median filter to the target image.
 	 */
 	protected Img<T> applyMedianFilter(final Img<T> image) {
-		final MedianFilter3x3<T> medFilt = new MedianFilter3x3<T>(image); 
+		final MedianFilter3x3<T> medFilt = new MedianFilter3x3<T>(image);
 		if (!medFilt.checkInput() || !medFilt.process()) {
 			errorMessage = baseErrorMessage + "Failed in applying median filter";
 			return null;
 		}
-		return medFilt.getResult(); 
+		return medFilt.getResult();
 	}
 
-	/*
-	 * STATIC METHODS
-	 */
+	/* STATIC METHODS */
 
-
-	private static void quickKernel2D(float[][] vals, Img<FloatType> kern)	{
+	private static void quickKernel2D(float[][] vals, Img<FloatType> kern) {
 		final RandomAccess<FloatType> cursor = kern.randomAccess();
 		final int[] pos = new int[2];
 
-		for (int i = 0; i < vals.length; ++i) 
+		for (int i = 0; i < vals.length; ++i)
 			for (int j = 0; j < vals[i].length; ++j) {
 				pos[0] = i;
 				pos[1] = j;
@@ -252,12 +254,12 @@ public class LogDetector <T extends RealType<T>  & NativeType<T>> implements Spo
 			}
 	}
 
-	private static void quickKernel3D(float[][][] vals, Img<FloatType> kern)	{
+	private static void quickKernel3D(float[][][] vals, Img<FloatType> kern) {
 		final RandomAccess<FloatType> cursor = kern.randomAccess();
 		final int[] pos = new int[3];
 
-		for (int i = 0; i < vals.length; ++i) 
-			for (int j = 0; j < vals[i].length; ++j) 
+		for (int i = 0; i < vals.length; ++i)
+			for (int j = 0; j < vals[i].length; ++j)
 				for (int k = 0; k < vals[j].length; ++k) {
 					pos[0] = i;
 					pos[1] = j;
@@ -271,12 +273,11 @@ public class LogDetector <T extends RealType<T>  & NativeType<T>> implements Spo
 	public List<Spot> getResult() {
 		return spots;
 	}
-		
+
 	@Override
 	public String getErrorMessage() {
-		return errorMessage ;
+		return errorMessage;
 	}
-	
 
 	@Override
 	public long getProcessingTime() {
@@ -297,6 +298,5 @@ public class LogDetector <T extends RealType<T>  & NativeType<T>> implements Spo
 	public int getNumThreads() {
 		return numThreads;
 	}
-
 
 }

@@ -20,20 +20,11 @@ import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.util.OnRequestUpdater;
 import fiji.plugin.trackmate.util.OnRequestUpdater.Refreshable;
 
-public class InitFilterPanel extends ActionListenablePanel  {
+public class InitFilterPanel extends ActionListenablePanel {
 
 	private static final long serialVersionUID = 1L;
-	private static final String EXPLANATION_TEXT = "<html><p align=\"justify\">" +
-			"Set here a threshold on the quality feature to restrict the number of spots " +
-			"before calculating other features and rendering. This step can help save " +
-			"time in the case of a very large number of spots. " +
-			"<br/> " +
-			"Warning: the spot filtered here will be discarded: they will not be saved " +
-			"and cannot be retrieved by any other means than re-doing the detection " +
-			"step." +
-			"</html>";
+	private static final String EXPLANATION_TEXT = "<html><p align=\"justify\">" + "Set here a threshold on the quality feature to restrict the number of spots " + "before calculating other features and rendering. This step can help save " + "time in the case of a very large number of spots. " + "<br/> " + "Warning: the spot filtered here will be discarded: they will not be saved " + "and cannot be retrieved by any other means than re-doing the detection " + "step." + "</html>";
 	private static final String SELECTED_SPOT_STRING = "Selected spots: %d out of %d";
-
 
 	private FilterPanel jPanelThreshold;
 	private JPanel jPanelFields;
@@ -44,9 +35,8 @@ public class InitFilterPanel extends ActionListenablePanel  {
 	private double[] values;
 	OnRequestUpdater updater;
 
-
 	/**
-	 * Default constructor, initialize component. 
+	 * Default constructor, initialize component.
 	 */
 	public InitFilterPanel() {
 		this.updater = new OnRequestUpdater(new Refreshable() {
@@ -58,18 +48,15 @@ public class InitFilterPanel extends ActionListenablePanel  {
 		initGUI();
 	}
 
+	/* PUBLIC METHOD */
 
-	/*
-	 * PUBLIC METHOD
-	 */
-	
 	public void setValues(double[] values) {
 		this.values = values;
-		
+
 		if (null != jPanelThreshold) {
 			this.remove(jPanelThreshold);
 		}
-		
+
 		ArrayList<String> keys = new ArrayList<String>(1);
 		keys.add(Spot.QUALITY);
 		HashMap<String, String> keyNames = new HashMap<String, String>(1);
@@ -77,8 +64,8 @@ public class InitFilterPanel extends ActionListenablePanel  {
 
 		Map<String, double[]> features = new HashMap<String, double[]>(1);
 		features.put(Spot.QUALITY, values);
-		
-		jPanelThreshold = new FilterPanel(features , keys, keyNames);
+
+		jPanelThreshold = new FilterPanel(features, keys, keyNames);
 		jPanelThreshold.jComboBoxFeature.setEnabled(false);
 		jPanelThreshold.jRadioButtonAbove.setEnabled(false);
 		jPanelThreshold.jRadioButtonBelow.setEnabled(false);
@@ -90,7 +77,6 @@ public class InitFilterPanel extends ActionListenablePanel  {
 			}
 		});
 
-		
 	}
 
 	public void setInitialFilterValue(Double initialFilterValue) {
@@ -103,37 +89,34 @@ public class InitFilterPanel extends ActionListenablePanel  {
 	}
 
 	/**
-	 * Return the feature threshold on quality set by this panel. 
+	 * Return the feature threshold on quality set by this panel.
 	 */
 	public FeatureFilter getFeatureThreshold() {
 		return new FeatureFilter(jPanelThreshold.getKey(), new Double(jPanelThreshold.getThreshold()), jPanelThreshold.isAboveThreshold());
 	}
 
-	/*
-	 * PRIVATE METHODS
-	 */
+	/* PRIVATE METHODS */
 
 	private void thresholdChanged() {
-		double threshold  = jPanelThreshold.getThreshold();
+		double threshold = jPanelThreshold.getThreshold();
 		boolean isAbove = jPanelThreshold.isAboveThreshold();
 		if (null == values)
 			return;
 		int nspots = values.length;
 		int nselected = 0;
 		if (isAbove) {
-			for (double val : values) 
+			for (double val : values)
 				if (val >= threshold)
 					nselected++;
 		} else {
-			for (double val : values) 
+			for (double val : values)
 				if (val <= threshold)
 					nselected++;
 		}
 		jLabelSelectedSpots.setText(String.format(SELECTED_SPOT_STRING, nselected, nspots));
 	}
 
-
-	private void initGUI() { 
+	private void initGUI() {
 		try {
 			BorderLayout thisLayout = new BorderLayout();
 			this.setLayout(thisLayout);

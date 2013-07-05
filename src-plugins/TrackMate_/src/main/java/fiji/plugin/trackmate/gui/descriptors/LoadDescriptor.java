@@ -36,14 +36,13 @@ public class LoadDescriptor extends SomeDialogDescriptor {
 		this.trackmate = controller.getPlugin();
 	}
 
-
 	@Override
 	public void displayingPanel() {
 
 		if (null == file) {
 			try {
 				File folder = new File(trackmate.getSettings().imp.getOriginalFileInfo().directory);
-				file = new File(folder.getPath() + File.separator + trackmate.getSettings().imp.getShortTitle() +".xml");
+				file = new File(folder.getPath() + File.separator + trackmate.getSettings().imp.getShortTitle() + ".xml");
 			} catch (NullPointerException npe) {
 				File folder = new File(System.getProperty("user.dir")).getParentFile().getParentFile();
 				file = new File(folder.getPath() + File.separator + "TrackMateData.xml");
@@ -51,7 +50,7 @@ public class LoadDescriptor extends SomeDialogDescriptor {
 		}
 
 		Logger logger = logPanel.getLogger();
-		File tmpFile = IOUtils.askForFileForLoading(file, "Load a TrackMate XML file", controller.getGUI(), logger );
+		File tmpFile = IOUtils.askForFileForLoading(file, "Load a TrackMate XML file", controller.getGUI(), logger);
 		if (null == tmpFile) {
 			return;
 		}
@@ -61,36 +60,37 @@ public class LoadDescriptor extends SomeDialogDescriptor {
 		TmXmlReader reader = new TmXmlReader(file);
 		if (!reader.isReadingOk()) {
 			logger.error(reader.getErrorMessage());
-			logger.error("Aborting.\n"); // If I cannot even open the xml file, it is not work going on.
+			logger.error("Aborting.\n"); // If I cannot even open the xml file,
+											// it is not work going on.
 			return;
 		}
-		
+
 		// Log
 		String logText = reader.getLog() + '\n';
 		// Model
 		Model model = reader.getModel();
 		// Settings -> empty for now.
 		Settings settings = new Settings();
-		
+
 		// With this we can create a new controller from the provided one:
 		TrackMate trackmate = new TrackMate(model, settings);
 		TrackMateGUIController newcontroller = controller.createOn(trackmate);
-		
-		// We feed then the reader with the providers taken from the NEW controller.
+
+		// We feed then the reader with the providers taken from the NEW
+		// controller.
 		DetectorProvider detectorProvider = newcontroller.getDetectorProvider();
 		TrackerProvider trackerProvider = newcontroller.getTrackerProvider();
 		SpotAnalyzerProvider spotAnalyzerProvider = newcontroller.getSpotAnalyzerProvider();
 		EdgeAnalyzerProvider edgeAnalyzerProvider = newcontroller.getEdgeAnalyzerProvider();
 		TrackAnalyzerProvider trackAnalyzerProvider = newcontroller.getTrackAnalyzerProvider();
-		reader.readSettings(settings, detectorProvider, trackerProvider, 
-				spotAnalyzerProvider, edgeAnalyzerProvider, trackAnalyzerProvider);
-		
+		reader.readSettings(settings, detectorProvider, trackerProvider, spotAnalyzerProvider, edgeAnalyzerProvider, trackAnalyzerProvider);
+
 		// GUI position
 		GuiUtils.positionWindow(newcontroller.getGUI(), settings.imp.getWindow());
-		
+
 		// GUI state
 		String guiState = reader.getGUIState();
-		
+
 		// Views
 		ViewProvider viewProvider = newcontroller.getViewProvider();
 		Collection<TrackMateModelView> views = reader.getViews(viewProvider);
@@ -100,7 +100,7 @@ public class LoadDescriptor extends SomeDialogDescriptor {
 				trackscheme.setSpotImageUpdater(new SpotImageUpdater(settings));
 			}
 		}
-		
+
 		if (!reader.isReadingOk()) {
 			Logger newlogger = newcontroller.getGUI().getLogger();
 			newlogger.error("Some errors occured while reading file:\n");

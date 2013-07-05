@@ -15,28 +15,23 @@ import javax.swing.text.Document;
 
 public class JNumericTextField extends JTextField {
 
-	/*
-	 * FIELDS
-	 */
-	
+	/* FIELDS */
+
 	private static final long serialVersionUID = 5967459761896269716L;
-	private static final Border BORDER_FOCUSED = new LineBorder(new Color(252, 117, 0), 1, true); 
-	private static final Border BORDER_UNFOCUSED = new LineBorder(new Color(150, 150, 150), 1, true); 
+	private static final Border BORDER_FOCUSED = new LineBorder(new Color(252, 117, 0), 1, true);
+	private static final Border BORDER_UNFOCUSED = new LineBorder(new Color(150, 150, 150), 1, true);
 	private final ActionListener al = new ActionListener() {
-		
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			checkInput();
 		}
 	};
 	private double value = 0;
-	private double oldValue = 0; 
-	
-	
-	/*
-	 * CONSTRUCTORS
-	 */
-	
+	private double oldValue = 0;
+
+	/* CONSTRUCTORS */
+
 	public JNumericTextField(Document doc, String text, int columns) {
 		super(doc, text, columns);
 		setBorder(BORDER_UNFOCUSED);
@@ -56,7 +51,7 @@ public class JNumericTextField extends JTextField {
 				checkInput();
 				setBorder(BORDER_UNFOCUSED);
 			}
-			
+
 			@Override
 			public void focusGained(FocusEvent e) {
 				setBorder(BORDER_FOCUSED);
@@ -64,38 +59,33 @@ public class JNumericTextField extends JTextField {
 		});
 	}
 
-
 	public JNumericTextField(int columns) {
 		this(null, null, columns);
 	}
-
 
 	public JNumericTextField(String text, int columns) {
 		this(null, text, columns);
 	}
 
-
 	public JNumericTextField(String text) {
 		this(null, text, 0);
 	}
-	
+
 	public JNumericTextField() {
 		this(null, null, 0);
 	}
-	
+
 	public JNumericTextField(double value) {
 		this(NumberFormat.getNumberInstance(Locale.US).format(value));
 	}
-	
+
 	public double getValue() {
 		checkInput();
 		return value;
 	}
-	
-	/*
-	 * METHODS
-	 */
-	
+
+	/* METHODS */
+
 	private void checkInput() {
 		String str = getText();
 		try {
@@ -105,8 +95,7 @@ public class JNumericTextField extends JTextField {
 			value = oldValue;
 			setText(NumberFormat.getNumberInstance(Locale.US).format(value));
 		}
-		
+
 	}
-	
-	
+
 }

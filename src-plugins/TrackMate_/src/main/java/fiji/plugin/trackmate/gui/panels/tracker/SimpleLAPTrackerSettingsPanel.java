@@ -63,10 +63,7 @@ public class SimpleLAPTrackerSettingsPanel extends ConfigurationPanel {
 	private String trackerName;
 	private String spaceUnits;
 
-	/*
-	 * CONSTRUCTOR
-	 */
-
+	/* CONSTRUCTOR */
 
 	public SimpleLAPTrackerSettingsPanel(String trackerName, String infoText, String spaceUnits) {
 		this.trackerName = trackerName;
@@ -75,9 +72,7 @@ public class SimpleLAPTrackerSettingsPanel extends ConfigurationPanel {
 		initGUI();
 	}
 
-	/*
-	 * PUBLIC METHODS
-	 */
+	/* PUBLIC METHODS */
 
 	@Override
 	public void setSettings(final Map<String, Object> settings) {
@@ -112,9 +107,7 @@ public class SimpleLAPTrackerSettingsPanel extends ConfigurationPanel {
 		return settings;
 	}
 
-	/*
-	 * PRIVATE METHODS
-	 */
+	/* PRIVATE METHODS */
 
 	private void echoSettings(final Map<String, Object> settings) {
 		jTextFieldLinkingDistance.setText(String.format("%.1f", (Double) settings.get(KEY_LINKING_MAX_DISTANCE)));
@@ -126,10 +119,10 @@ public class SimpleLAPTrackerSettingsPanel extends ConfigurationPanel {
 		try {
 			this.setPreferredSize(new java.awt.Dimension(300, 500));
 			GridBagLayout thisLayout = new GridBagLayout();
-			thisLayout.rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0};
-			thisLayout.rowHeights = new int[] {31, 50, 119, 7, 50, 50, 50, 50};
-			thisLayout.columnWeights = new double[] {0.0, 0.0, 0.1};
-			thisLayout.columnWidths = new int[] {203, 42, 7};
+			thisLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 };
+			thisLayout.rowHeights = new int[] { 31, 50, 119, 7, 50, 50, 50, 50 };
+			thisLayout.columnWeights = new double[] { 0.0, 0.0, 0.1 };
+			thisLayout.columnWidths = new int[] { 203, 42, 7 };
 			this.setLayout(thisLayout);
 			{
 				JLabel jLabel1 = new JLabel();
@@ -149,10 +142,7 @@ public class SimpleLAPTrackerSettingsPanel extends ConfigurationPanel {
 				jLabelTrackerDescription = new JLabel();
 				this.add(jLabelTrackerDescription, new GridBagConstraints(0, 2, 3, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(10, 10, 10, 10), 0, 0));
 				jLabelTrackerDescription.setFont(FONT.deriveFont(Font.ITALIC));
-				jLabelTrackerDescription.setText(infoText
-						.replace("<br>", "")
-						.replace("<p>", "<p align=\"justify\">")
-						.replace("<html>", "<html><p align=\"justify\">"));
+				jLabelTrackerDescription.setText(infoText.replace("<br>", "").replace("<p>", "<p align=\"justify\">").replace("<html>", "<html><p align=\"justify\">"));
 			}
 			{
 				JLabel jLabel2 = new JLabel();

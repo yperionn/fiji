@@ -34,25 +34,21 @@ public class LoadTrackMatePlugIn_ extends SomeDialogDescriptor implements PlugIn
 	private JFrame frame;
 	private static final String KEY = "LoadPlugin";
 
-
 	public LoadTrackMatePlugIn_() {
 		super(new LogPanel());
 	}
 
-
-
-
 	@Override
 	public void run(String arg0) {
 		displayingPanel();
-		
+
 		if (null == file) {
 			File folder = new File(System.getProperty("user.dir")).getParentFile().getParentFile();
 			file = new File(folder.getPath() + File.separator + "TrackMateData.xml");
 		}
 
 		Logger logger = logPanel.getLogger();
-		File tmpFile = IOUtils.askForFileForLoading(file, "Load a TrackMate XML file", frame, logger );
+		File tmpFile = IOUtils.askForFileForLoading(file, "Load a TrackMate XML file", frame, logger);
 		if (null == tmpFile) {
 			return;
 		}
@@ -62,36 +58,37 @@ public class LoadTrackMatePlugIn_ extends SomeDialogDescriptor implements PlugIn
 		TmXmlReader reader = new TmXmlReader(file);
 		if (!reader.isReadingOk()) {
 			logger.error(reader.getErrorMessage());
-			logger.error("Aborting.\n"); // If I cannot even open the xml file, it is not work going on.
+			logger.error("Aborting.\n"); // If I cannot even open the xml file,
+											// it is not work going on.
 			return;
 		}
-		
+
 		// Log
 		String logText = reader.getLog() + '\n';
 		// Model
 		Model model = reader.getModel();
 		// Settings -> empty for now.
 		Settings settings = new Settings();
-		
+
 		// With this we can create a new controller from the provided one:
 		TrackMate trackmate = new TrackMate(model, settings);
 		TrackMateGUIController controller = new TrackMateGUIController(trackmate);
-		
-		// We feed then the reader with the providers taken from the NEW controller.
+
+		// We feed then the reader with the providers taken from the NEW
+		// controller.
 		DetectorProvider detectorProvider = controller.getDetectorProvider();
 		TrackerProvider trackerProvider = controller.getTrackerProvider();
 		SpotAnalyzerProvider spotAnalyzerProvider = controller.getSpotAnalyzerProvider();
 		EdgeAnalyzerProvider edgeAnalyzerProvider = controller.getEdgeAnalyzerProvider();
 		TrackAnalyzerProvider trackAnalyzerProvider = controller.getTrackAnalyzerProvider();
-		reader.readSettings(settings, detectorProvider, trackerProvider, 
-				spotAnalyzerProvider, edgeAnalyzerProvider, trackAnalyzerProvider);
-		
+		reader.readSettings(settings, detectorProvider, trackerProvider, spotAnalyzerProvider, edgeAnalyzerProvider, trackAnalyzerProvider);
+
 		// GUI position
 		GuiUtils.positionWindow(controller.getGUI(), settings.imp.getWindow());
-		
+
 		// GUI state
 		String guiState = reader.getGUIState();
-		
+
 		// Views
 		ViewProvider viewProvider = controller.getViewProvider();
 		Collection<TrackMateModelView> views = reader.getViews(viewProvider);
@@ -101,7 +98,7 @@ public class LoadTrackMatePlugIn_ extends SomeDialogDescriptor implements PlugIn
 				trackscheme.setSpotImageUpdater(new SpotImageUpdater(settings));
 			}
 		}
-		
+
 		if (!reader.isReadingOk()) {
 			Logger newlogger = controller.getGUI().getLogger();
 			newlogger.error("Some errors occured while reading file:\n");
@@ -121,15 +118,14 @@ public class LoadTrackMatePlugIn_ extends SomeDialogDescriptor implements PlugIn
 			}
 			view.render();
 		}
-		
+
 		// Text
 		controller.getGUI().getLogPanel().setTextContent(logText);
 		model.getLogger().log("File loaded on " + TMUtils.getCurrentTimeString() + '\n', Logger.BLUE_COLOR);
-		
+
 		// Close log
 		frame.dispose();
 	}
-
 
 	@Override
 	public void displayingPanel() {
@@ -144,20 +140,17 @@ public class LoadTrackMatePlugIn_ extends SomeDialogDescriptor implements PlugIn
 	public String getKey() {
 		return KEY;
 	}
-	
-	/*
-	 * MAIN METHOD
-	 */
-	
+
+	/* MAIN METHOD */
+
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		ImageJ.main(args);
-		SomeDialogDescriptor.file =  new File(AppUtils.getBaseDirectory(TrackMate.class), "samples/FakeTracks.xml");
+		SomeDialogDescriptor.file = new File(AppUtils.getBaseDirectory(TrackMate.class), "samples/FakeTracks.xml");
 		LoadTrackMatePlugIn_ plugIn = new LoadTrackMatePlugIn_();
 		plugIn.run(null);
 	}
-
 
 }

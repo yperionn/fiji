@@ -21,19 +21,9 @@ import fiji.plugin.trackmate.visualization.trackscheme.TrackSchemeFrame;
 
 public class CaptureOverlayAction extends AbstractTMAction {
 
-
 	public static final ImageIcon ICON = new ImageIcon(TrackSchemeFrame.class.getResource("resources/camera_go.png"));
 	public static final String NAME = "Capture overlay";
-	public static final String INFO_TEXT = "<html>" +
-			"If the current displayer is the HyperstackDisplayer, this action <br>" +
-			"will capture the TrackMate overlay with current display settings. <br>" +
-			"That is: a new RGB stack will be created (careful with large data) where <br>" +
-			"each frame contains a RGB snapshot of the TrackMate display. " +
-			"<p>" +
-			"It can take long since we pause between each frame to ensure the whole <br>" +
-			"overlay is redrawn. The current zoom is taken into account. <br>" +
-			"Also, make sure nothing is moved over the image while capturing. "+
-			"</html>";
+	public static final String INFO_TEXT = "<html>" + "If the current displayer is the HyperstackDisplayer, this action <br>" + "will capture the TrackMate overlay with current display settings. <br>" + "That is: a new RGB stack will be created (careful with large data) where <br>" + "each frame contains a RGB snapshot of the TrackMate display. " + "<p>" + "It can take long since we pause between each frame to ensure the whole <br>" + "overlay is redrawn. The current zoom is taken into account. <br>" + "Also, make sure nothing is moved over the image while capturing. " + "</html>";
 
 	public CaptureOverlayAction(TrackMate trackmate, TrackMateGUIController controller) {
 		super(trackmate, controller);
@@ -45,7 +35,7 @@ public class CaptureOverlayAction extends AbstractTMAction {
 		logger.log("Capturing TrackMate overlay.\n");
 		logger.log("  Preparing and allocating memory...");
 		try {
-			final ImagePlus imp =  trackmate.getSettings().imp;
+			final ImagePlus imp = trackmate.getSettings().imp;
 			final ImageWindow win = imp.getWindow();
 			win.toFront();
 			final Point loc = win.getLocation();
@@ -59,7 +49,7 @@ public class CaptureOverlayAction extends AbstractTMAction {
 			try {
 				robot = new Robot();
 			} catch (AWTException e) {
-				logger.error("Problem creating the image grabber:\n"+e.getLocalizedMessage());
+				logger.error("Problem creating the image grabber:\n" + e.getLocalizedMessage());
 				return;
 			}
 			logger.log(" done.\n");
@@ -67,7 +57,7 @@ public class CaptureOverlayAction extends AbstractTMAction {
 			logger.log("  Performing capture...");
 			for (int i = 0; i < imp.getStackSize(); i++) {
 				logger.setProgress((float) i / imp.getStackSize());
-				imp.setPosition(i+1);
+				imp.setPosition(i + 1);
 				IJ.wait(200);
 				final Image image = robot.createScreenCapture(r);
 				final ColorProcessor cp = new ColorProcessor(image);

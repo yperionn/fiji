@@ -30,17 +30,17 @@ public class TrackModelTest {
 				previous = spot;
 			}
 		}
-		
+
 		// The must be N_TRACKS visible tracks in total
 		assertEquals(N_TRACKS, model.nTracks(false));
 		assertEquals(N_TRACKS, model.nTracks(true));
 		// They must be made of DEPTH spots and DEPTH-1 edges
 		for (Integer id : model.trackIDs(true)) {
 			assertEquals(DEPTH, model.trackSpots(id).size());
-			assertEquals(DEPTH-1, model.trackEdges(id).size());
+			assertEquals(DEPTH - 1, model.trackEdges(id).size());
 		}
 	}
-	
+
 	@Test
 	public void testConnectingTracks() {
 		// Build segments
@@ -63,12 +63,12 @@ public class TrackModelTest {
 			trackEnds.add(spot);
 		}
 		// Connect segments
-		for (int i = 0; i < trackStarts.size()-1; i++) {
+		for (int i = 0; i < trackStarts.size() - 1; i++) {
 			Spot end = trackEnds.get(i);
-			Spot start = trackStarts.get(i+1);
+			Spot start = trackStarts.get(i + 1);
 			model.addEdge(end, start, 2);
 		}
-		
+
 		// There must be one visible track in total
 		assertEquals(1, model.nTracks(false));
 		assertEquals(1, model.nTracks(true));
@@ -77,7 +77,7 @@ public class TrackModelTest {
 		assertEquals(N_TRACKS * DEPTH, model.trackSpots(id).size());
 		assertEquals(N_TRACKS * DEPTH - 1, model.trackEdges(id).size());
 	}
-	
+
 	@Test
 	public void testBreakingTracksBySpots() {
 		// Build 1 long track
@@ -105,11 +105,11 @@ public class TrackModelTest {
 		assertEquals(N_TRACKS, model.nTracks(true));
 		// They must be DEPTH-1 long in spots
 		for (Integer id : model.trackIDs(false)) {
-			assertEquals(DEPTH-1, model.trackSpots(id).size());
-			assertEquals(DEPTH-2, model.trackEdges(id).size());
+			assertEquals(DEPTH - 1, model.trackSpots(id).size());
+			assertEquals(DEPTH - 2, model.trackEdges(id).size());
 		}
 	}
-	
+
 	@Test
 	public void testBreakingTracksByEdges() {
 		// Build 1 long track
@@ -138,10 +138,10 @@ public class TrackModelTest {
 		// They must be DEPTH long in spots
 		for (Integer id : model.trackIDs(false)) {
 			assertEquals(DEPTH, model.trackSpots(id).size());
-			assertEquals(DEPTH-1, model.trackEdges(id).size());
+			assertEquals(DEPTH - 1, model.trackEdges(id).size());
 		}
 	}
-	
+
 	@Test
 	public void testVisibility() {
 		TrackModel model = new TrackModel();
@@ -166,7 +166,7 @@ public class TrackModelTest {
 		for (Integer id : toHide) {
 			model.setVisibility(id, false);
 		}
-		
+
 		// Test if visibility is reported correctly
 		assertEquals(N_TRACKS - toHide.size(), model.nTracks(true));
 		for (Integer id : model.trackIDs(false)) {
@@ -177,7 +177,7 @@ public class TrackModelTest {
 			}
 		}
 	}
-	
+
 	@Test
 	public void testVisibilityMerge() {
 		TrackModel model = new TrackModel();
@@ -195,17 +195,17 @@ public class TrackModelTest {
 		// Make one of them invisible
 		Integer toHide = model.trackIDs(true).iterator().next();
 		model.setVisibility(toHide, false);
-		
+
 		// Get the id of the other one
 		Set<Integer> ids = new HashSet<Integer>(model.trackIDs(false));
 		ids.remove(toHide);
 		Integer shown = ids.iterator().next();
-		
+
 		// Connect the two
 		Spot source = model.trackSpots(shown).iterator().next();
 		Spot target = model.trackSpots(toHide).iterator().next();
 		model.addEdge(source, target, 1);
-		
+
 		// Test if visibility is reported correctly
 		assertEquals(1, model.nTracks(false));
 		Integer id = model.trackIDs(false).iterator().next();

@@ -23,8 +23,10 @@ import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.util.TMUtils;
 
 /**
- * This class is used to take a snapshot of a {@link Spot} object (or collection) from 
- * its coordinates and an {@link ImagePlus} that contain the pixel data.
+ * This class is used to take a snapshot of a {@link Spot} object (or
+ * collection) from its coordinates and an {@link ImagePlus} that contain the
+ * pixel data.
+ * 
  * @author Jean-Yves Tinevez <jeanyves.tinevez@gmail.com> - Dec 2010 - 2012
  */
 public class SpotIconGrabber<T extends RealType<T>> {
@@ -36,15 +38,18 @@ public class SpotIconGrabber<T extends RealType<T>> {
 	}
 
 	/**
-	 * @return the image string for the specified spot. The spot x,y,z and radius coordinates
-	 * are used to get a location on the image given at construction. Physical coordinates
-	 * are transformed in pixel coordinates thanks to the calibration stored in the {@link ImgPlus}.
+	 * @return the image string for the specified spot. The spot x,y,z and
+	 *         radius coordinates are used to get a location on the image given
+	 *         at construction. Physical coordinates are transformed in pixel
+	 *         coordinates thanks to the calibration stored in the
+	 *         {@link ImgPlus}.
 	 */
 	public String getImageString(Spot spot) {
 		// Get crop coordinates
 		final double[] calibration = TMUtils.getSpatialCalibration(img);
-		final double radius = spot.getFeature(Spot.RADIUS); // physical units, REQUIRED!
-		long x = Math.round((spot.getFeature(Spot.POSITION_X) - radius) / calibration[0]); 
+		final double radius = spot.getFeature(Spot.RADIUS); // physical units,
+															// REQUIRED!
+		long x = Math.round((spot.getFeature(Spot.POSITION_X) - radius) / calibration[0]);
 		long y = Math.round((spot.getFeature(Spot.POSITION_Y) - radius) / calibration[1]);
 		long width = Math.round(2 * radius / calibration[0]);
 		long height = Math.round(2 * radius / calibration[1]);
@@ -57,7 +62,7 @@ public class SpotIconGrabber<T extends RealType<T>> {
 				slice = 0;
 			}
 			if (slice >= img.dimension(2)) {
-				slice = img.dimension(2) -1;
+				slice = img.dimension(2) - 1;
 			}
 		}
 
@@ -88,8 +93,7 @@ public class SpotIconGrabber<T extends RealType<T>> {
 		T zeroType = img.firstElement().createVariable();
 		zeroType.setZero();
 
-		OutOfBoundsConstantValueFactory<T, Img<T>> oobf 
-		= new OutOfBoundsConstantValueFactory<T, Img<T>>(zeroType);
+		OutOfBoundsConstantValueFactory<T, Img<T>> oobf = new OutOfBoundsConstantValueFactory<T, Img<T>>(zeroType);
 		RandomAccess<T> sourceCursor = Views.extend(img, oobf).randomAccess();
 		RandomAccess<T> targetCursor = crop.randomAccess();
 

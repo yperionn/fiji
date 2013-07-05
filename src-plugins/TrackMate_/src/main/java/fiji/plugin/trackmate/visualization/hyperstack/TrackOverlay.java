@@ -26,6 +26,7 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 
 /**
  * The overlay class in charge of drawing the tracks on the hyperstack window.
+ * 
  * @author Jean-Yves Tinevez <jeanyves.tinevez@gmail.com> 2010 - 2011
  */
 public class TrackOverlay extends Roi {
@@ -36,9 +37,7 @@ public class TrackOverlay extends Roi {
 	protected final Model model;
 	private TrackColorGenerator colorGenerator;
 
-	/*
-	 * CONSTRUCTOR
-	 */
+	/* CONSTRUCTOR */
 
 	public TrackOverlay(final Model model, final ImagePlus imp, final Map<String, Object> displaySettings) {
 		super(0, 0, imp);
@@ -48,9 +47,7 @@ public class TrackOverlay extends Roi {
 		this.displaySettings = displaySettings;
 	}
 
-	/*
-	 * PUBLIC METHODS
-	 */
+	/* PUBLIC METHODS */
 
 	public void setHighlight(Collection<DefaultWeightedEdge> edges) {
 		this.highlight = edges;
@@ -63,19 +60,19 @@ public class TrackOverlay extends Roi {
 		double magnification = getMagnification();
 
 		boolean tracksVisible = (Boolean) displaySettings.get(TrackMateModelView.KEY_TRACKS_VISIBLE);
-		if (!tracksVisible  || model.getTrackModel().nTracks(true) == 0)
+		if (!tracksVisible || model.getTrackModel().nTracks(true) == 0)
 			return;
 
-		final Graphics2D g2d = (Graphics2D)g;
+		final Graphics2D g2d = (Graphics2D) g;
 		// Save graphic device original settings
 		final AffineTransform originalTransform = g2d.getTransform();
 		final Composite originalComposite = g2d.getComposite();
 		final Stroke originalStroke = g2d.getStroke();
-		final Color originalColor = g2d.getColor();	
+		final Color originalColor = g2d.getColor();
 		Spot source, target;
 
 		// Deal with highlighted edges first: brute and thick display
-		g2d.setStroke(new BasicStroke(4.0f,  BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+		g2d.setStroke(new BasicStroke(4.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 		g2d.setColor(TrackMateModelView.DEFAULT_HIGHLIGHT_COLOR);
 		for (DefaultWeightedEdge edge : highlight) {
 			source = model.getTrackModel().getEdgeSource(edge);
@@ -88,9 +85,9 @@ public class TrackOverlay extends Roi {
 		final int trackDisplayMode = (Integer) displaySettings.get(TrackMateModelView.KEY_TRACK_DISPLAY_MODE);
 		final int trackDisplayDepth = (Integer) displaySettings.get(TrackMateModelView.KEY_TRACK_DISPLAY_DEPTH);
 		final Set<Integer> filteredTrackKeys = model.getTrackModel().trackIDs(true);
-		
-		g2d.setStroke(new BasicStroke(2.0f,  BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-		if (trackDisplayMode == TrackMateModelView.TRACK_DISPLAY_MODE_LOCAL || trackDisplayMode == TrackMateModelView.TRACK_DISPLAY_MODE_LOCAL_QUICK) 
+
+		g2d.setStroke(new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+		if (trackDisplayMode == TrackMateModelView.TRACK_DISPLAY_MODE_LOCAL || trackDisplayMode == TrackMateModelView.TRACK_DISPLAY_MODE_LOCAL_QUICK)
 			g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
 
 		// Determine bounds for limited view modes
@@ -137,8 +134,8 @@ public class TrackOverlay extends Roi {
 			break;
 		}
 
-		case TrackMateModelView.TRACK_DISPLAY_MODE_LOCAL_QUICK: 
-		case TrackMateModelView.TRACK_DISPLAY_MODE_LOCAL_FORWARD_QUICK: 
+		case TrackMateModelView.TRACK_DISPLAY_MODE_LOCAL_QUICK:
+		case TrackMateModelView.TRACK_DISPLAY_MODE_LOCAL_FORWARD_QUICK:
 		case TrackMateModelView.TRACK_DISPLAY_MODE_LOCAL_BACKWARD_QUICK: {
 
 			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
@@ -187,7 +184,7 @@ public class TrackOverlay extends Roi {
 					if (sourceFrame < minT || sourceFrame >= maxT)
 						continue;
 
-					transparency = (float) (1 - Math.abs((double)sourceFrame-currentFrame) / trackDisplayDepth);
+					transparency = (float) (1 - Math.abs((double) sourceFrame - currentFrame) / trackDisplayDepth);
 					target = model.getTrackModel().getEdgeTarget(edge);
 					g2d.setColor(colorGenerator.color(edge));
 					drawEdge(g2d, source, target, xcorner, ycorner, magnification, transparency);
@@ -197,24 +194,19 @@ public class TrackOverlay extends Roi {
 
 		}
 
-
 		}
 
 		// Restore graphic device original settings
-		g2d.setTransform( originalTransform );
+		g2d.setTransform(originalTransform);
 		g2d.setComposite(originalComposite);
 		g2d.setStroke(originalStroke);
 		g2d.setColor(originalColor);
 
-
 	}
 
-	/* 
-	 * PROTECTED METHODS
-	 */
+	/* PROTECTED METHODS */
 
-	protected void drawEdge(final Graphics2D g2d, final Spot source, final Spot target,
-			final int xcorner, final int ycorner, final double magnification, final float transparency) {
+	protected void drawEdge(final Graphics2D g2d, final Spot source, final Spot target, final int xcorner, final int ycorner, final double magnification, final float transparency) {
 		// Find x & y in physical coordinates
 		final double x0i = source.getFeature(Spot.POSITION_X);
 		final double y0i = source.getFeature(Spot.POSITION_Y);
@@ -226,10 +218,10 @@ public class TrackOverlay extends Roi {
 		final double x1p = x1i / calibration[0] + 0.5f;
 		final double y1p = y1i / calibration[1] + 0.5f;
 		// Scale to image zoom
-		final double x0s = (x0p - xcorner) * magnification ;
-		final double y0s = (y0p - ycorner) * magnification ;
-		final double x1s = (x1p - xcorner) * magnification ;
-		final double y1s = (y1p - ycorner) * magnification ;
+		final double x0s = (x0p - xcorner) * magnification;
+		final double y0s = (y0p - ycorner) * magnification;
+		final double x1s = (x1p - xcorner) * magnification;
+		final double y1s = (y1p - ycorner) * magnification;
 		// Round
 		final int x0 = (int) Math.round(x0s);
 		final int y0 = (int) Math.round(y0s);
@@ -241,8 +233,7 @@ public class TrackOverlay extends Roi {
 
 	}
 
-	protected void drawEdge(final Graphics2D g2d, final Spot source, final Spot target,
-			final int xcorner, final int ycorner, final double magnification) {
+	protected void drawEdge(final Graphics2D g2d, final Spot source, final Spot target, final int xcorner, final int ycorner, final double magnification) {
 		// Find x & y in physical coordinates
 		final double x0i = source.getFeature(Spot.POSITION_X);
 		final double y0i = source.getFeature(Spot.POSITION_Y);
@@ -252,12 +243,14 @@ public class TrackOverlay extends Roi {
 		final double x0p = x0i / calibration[0] + 0.5f;
 		final double y0p = y0i / calibration[1] + 0.5f;
 		final double x1p = x1i / calibration[0] + 0.5f;
-		final double y1p = y1i / calibration[1] + 0.5f; // so that spot centers are displayed on the pixel centers
+		final double y1p = y1i / calibration[1] + 0.5f; // so that spot centers
+														// are displayed on the
+														// pixel centers
 		// Scale to image zoom
-		final double x0s = (x0p - xcorner) * magnification ;
-		final double y0s = (y0p - ycorner) * magnification ;
-		final double x1s = (x1p - xcorner) * magnification ;
-		final double y1s = (y1p - ycorner) * magnification ;
+		final double x0s = (x0p - xcorner) * magnification;
+		final double y0s = (y0p - ycorner) * magnification;
+		final double x1s = (x1p - xcorner) * magnification;
+		final double y1s = (y1p - ycorner) * magnification;
 		// Round
 		final int x0 = (int) Math.round(x0s);
 		final int y0 = (int) Math.round(y0s);

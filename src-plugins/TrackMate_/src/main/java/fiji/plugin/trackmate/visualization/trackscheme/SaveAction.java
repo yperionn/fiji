@@ -63,7 +63,7 @@ public class SaveAction extends AbstractAction {
 		final mxGraph graph = trackScheme.getGraph();
 
 		// Creates the image for the PNG file
-		BufferedImage image = mxCellRenderer.createBufferedImage(graph,	null, 1, bg, graphComponent.isAntiAlias(), null, graphComponent.getCanvas());
+		BufferedImage image = mxCellRenderer.createBufferedImage(graph, null, 1, bg, graphComponent.isAntiAlias(), null, graphComponent.getCanvas());
 
 		// Creates the URL-encoded XML data
 		mxCodec codec = new mxCodec();
@@ -74,7 +74,7 @@ public class SaveAction extends AbstractAction {
 		// Saves as a PNG file
 		FileOutputStream outputStream = new FileOutputStream(new File(filename));
 		try {
-			mxPngImageEncoder encoder = new mxPngImageEncoder(outputStream,	param);
+			mxPngImageEncoder encoder = new mxPngImageEncoder(outputStream, param);
 
 			if (image != null) {
 				encoder.encode(image);
@@ -136,13 +136,13 @@ public class SaveAction extends AbstractAction {
 
 		for (int i = 0; i < imageFormats.length; i++) {
 			String ext = imageFormats[i].toString();
-			fc.addChoosableFileFilter(new DefaultFileFilter("."	+ ext, ext.toUpperCase() + " File  (." + ext + ")"));
+			fc.addChoosableFileFilter(new DefaultFileFilter("." + ext, ext.toUpperCase() + " File  (." + ext + ")"));
 		}
 
 		// Adds filter that accepts all supported image formats
 		fc.addChoosableFileFilter(new DefaultFileFilter.ImageFileFilter("All Images"));
 		fc.setFileFilter(defaultFilter);
-		int rc = fc.showDialog(null,"Save");
+		int rc = fc.showDialog(null, "Save");
 		dialogShown = true;
 
 		if (rc != JFileChooser.APPROVE_OPTION) {
@@ -165,7 +165,6 @@ public class SaveAction extends AbstractAction {
 		if (new File(filename).exists() && JOptionPane.showConfirmDialog(graphComponent, "Overwrite existing file?") != JOptionPane.YES_OPTION) {
 			return;
 		}
-
 
 		try {
 			String ext = filename.substring(filename.lastIndexOf('.') + 1);
@@ -199,12 +198,10 @@ public class SaveAction extends AbstractAction {
 			} else if (ext.equalsIgnoreCase("pdf")) {
 				exportGraphToPdf(graph, filename);
 
-
 			} else {
 				Color bg = null;
 
-				if ((!ext.equalsIgnoreCase("gif") && !ext.equalsIgnoreCase("png"))
-						|| JOptionPane.showConfirmDialog(graphComponent,"Transparent Background?") != JOptionPane.YES_OPTION) {
+				if ((!ext.equalsIgnoreCase("gif") && !ext.equalsIgnoreCase("png")) || JOptionPane.showConfirmDialog(graphComponent, "Transparent Background?") != JOptionPane.YES_OPTION) {
 					bg = graphComponent.getBackground();
 				}
 

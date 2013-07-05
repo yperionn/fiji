@@ -20,12 +20,15 @@ import fiji.plugin.trackmate.tracking.LAPTracker;
 import fiji.plugin.trackmate.tracking.LAPUtils;
 
 /**
- * <p>Splitting cost function used with {@link LAPTracker}.
+ * <p>
+ * Splitting cost function used with {@link LAPTracker}.
  * 
- * <p>The <b>cost function</b> is determined by the default equation in the
+ * <p>
+ * The <b>cost function</b> is determined by the default equation in the
  * TrackMate trackmate, see below.
- * <p>  
- *  It slightly differs from the Jaqaman article, see equation (5) and (6) in the paper.
+ * <p>
+ * It slightly differs from the Jaqaman article, see equation (5) and (6) in the
+ * paper.
  * <p>
  * The <b>thresholds</b> used are:
  * <ul>
@@ -36,7 +39,7 @@ import fiji.plugin.trackmate.tracking.LAPUtils;
  * @see LAPUtils#computeLinkingCostFor(Spot, Spot, double, double, Map)
  * @author Nicholas Perry
  * @author Jean-Yves Tinevez
- *
+ * 
  */
 public class SplittingCostFunction extends MultiThreadedBenchmarkAlgorithm implements OutputAlgorithm<Matrix> {
 
@@ -53,26 +56,19 @@ public class SplittingCostFunction extends MultiThreadedBenchmarkAlgorithm imple
 	protected final List<Spot> middlePoints;
 	protected Matrix m;
 
-
-	/*
-	 * CONSTRUCTOR
-	 */
-
+	/* CONSTRUCTOR */
 
 	@SuppressWarnings("unchecked")
 	public SplittingCostFunction(final Map<String, Object> settings, List<SortedSet<Spot>> trackSegments, List<Spot> middlePoints) {
-		this.maxDist 			= (Double) settings.get(KEY_SPLITTING_MAX_DISTANCE);
-		this.blockingValue		= (Double) settings.get(KEY_BLOCKING_VALUE);
-		this.featurePenalties	= (Map<String, Double>) settings.get(KEY_SPLITTING_FEATURE_PENALTIES);
-		this.allowSplitting		= (Boolean) settings.get(KEY_ALLOW_TRACK_SPLITTING);
-		this.trackSegments 		= trackSegments;
-		this.middlePoints		= middlePoints;
+		this.maxDist = (Double) settings.get(KEY_SPLITTING_MAX_DISTANCE);
+		this.blockingValue = (Double) settings.get(KEY_BLOCKING_VALUE);
+		this.featurePenalties = (Map<String, Double>) settings.get(KEY_SPLITTING_FEATURE_PENALTIES);
+		this.allowSplitting = (Boolean) settings.get(KEY_ALLOW_TRACK_SPLITTING);
+		this.trackSegments = trackSegments;
+		this.middlePoints = middlePoints;
 	}
 
-	/*
-	 * METHODS
-	 */
-
+	/* METHODS */
 
 	@Override
 	public boolean process() {
@@ -81,9 +77,9 @@ public class SplittingCostFunction extends MultiThreadedBenchmarkAlgorithm imple
 			System.out.println("-- DEBUG information from SplittingCostFunction --");
 
 		if (!allowSplitting) {
-			
+
 			m = new Matrix(middlePoints.size(), trackSegments.size(), blockingValue);
-			
+
 		} else {
 
 			// Prepare threads
@@ -95,7 +91,7 @@ public class SplittingCostFunction extends MultiThreadedBenchmarkAlgorithm imple
 			final AtomicInteger ai = new AtomicInteger(0);
 			for (int ithread = 0; ithread < threads.length; ithread++) {
 
-				threads[ithread] = new Thread("LAPTracker splitting cost thread "+(1+ithread)+"/"+threads.length) {  
+				threads[ithread] = new Thread("LAPTracker splitting cost thread " + (1 + ithread) + "/" + threads.length) {
 
 					public void run() {
 
@@ -109,16 +105,17 @@ public class SplittingCostFunction extends MultiThreadedBenchmarkAlgorithm imple
 								Spot start = track.first();
 
 								if (DEBUG)
-									System.out.println("Segment "+j);
-								if (track.contains(middle)) {	
+									System.out.println("Segment " + j);
+								if (track.contains(middle)) {
 									m.set(i, j, blockingValue);
 									continue;
 								}
 
-								// Frame threshold - middle Spot must be one frame behind of the start Spot
+								// Frame threshold - middle Spot must be one
+								// frame behind of the start Spot
 								int startFrame = start.getFeature(Spot.FRAME).intValue();
 								int middleFrame = middle.getFeature(Spot.FRAME).intValue();
-								if (startFrame - middleFrame != 1 ) {
+								if (startFrame - middleFrame != 1) {
 									m.set(i, j, blockingValue);
 									continue;
 								}

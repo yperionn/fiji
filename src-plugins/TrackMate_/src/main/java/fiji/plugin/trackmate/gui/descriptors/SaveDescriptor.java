@@ -28,23 +28,24 @@ public class SaveDescriptor extends SomeDialogDescriptor {
 		this.trackerProvider = trackerProvider;
 	}
 
-
 	@Override
 	public void displayingPanel() {
 
 		Logger logger = logPanel.getLogger();
 		logger.log("Saving data...\n", Logger.BLUE_COLOR);
-		if (null == file ) {
-			//	File folder = new File(System.getProperty("user.dir")).getParentFile().getParentFile();
+		if (null == file) {
+			// File folder = new
+			// File(System.getProperty("user.dir")).getParentFile().getParentFile();
 			File folder = new File(trackmate.getSettings().imp.getOriginalFileInfo().directory);
 			try {
-				file = new File(folder.getPath() + File.separator + trackmate.getSettings().imp.getShortTitle() +".xml");
+				file = new File(folder.getPath() + File.separator + trackmate.getSettings().imp.getShortTitle() + ".xml");
 			} catch (NullPointerException npe) {
 				file = new File(folder.getPath() + File.separator + "TrackMateData.xml");
 			}
 		}
 
-		// If we are to save tracks, we better ensures that track and edge features are there, even if we have to enforce it
+		// If we are to save tracks, we better ensures that track and edge
+		// features are there, even if we have to enforce it
 		if (trackmate.getModel().getTrackModel().nTracks(false) > 0) {
 			trackmate.computeEdgeFeatures(true);
 			trackmate.computeTrackFeatures(true);
@@ -55,10 +56,8 @@ public class SaveDescriptor extends SomeDialogDescriptor {
 			return;
 		}
 		file = tmpFile;
-		
-		/*
-		 * Write model, settings and GUI state
-		 */
+
+		/* Write model, settings and GUI state */
 
 		TmXmlWriter writer = new TmXmlWriter(file);
 
@@ -69,17 +68,17 @@ public class SaveDescriptor extends SomeDialogDescriptor {
 
 		try {
 			writer.writeToFile();
-			logger.log("Data saved to: "+file.toString()+'\n');
+			logger.log("Data saved to: " + file.toString() + '\n');
 		} catch (FileNotFoundException e) {
-			logger.error("File not found:\n"+e.getMessage()+'\n');
+			logger.error("File not found:\n" + e.getMessage() + '\n');
 			return;
 		} catch (IOException e) {
-			logger.error("Input/Output error:\n"+e.getMessage()+'\n');
+			logger.error("Input/Output error:\n" + e.getMessage() + '\n');
 			return;
 		}
-				
+
 	}
-	
+
 	@Override
 	public String getKey() {
 		return KEY;

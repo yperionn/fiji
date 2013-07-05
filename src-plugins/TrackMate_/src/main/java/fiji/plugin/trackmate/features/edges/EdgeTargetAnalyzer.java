@@ -20,9 +20,7 @@ import fiji.plugin.trackmate.Model;
 public class EdgeTargetAnalyzer implements EdgeAnalyzer, MultiThreaded {
 
 	public static final String KEY = "Edge target";
-	/*
-	 * FEATURE NAMES 
-	 */
+	/* FEATURE NAMES */
 	public static final String SPOT_SOURCE_ID = "SPOT_SOURCE_ID";
 	public static final String SPOT_TARGET_ID = "SPOT_TARGET_ID";
 	public static final String EDGE_COST = "LINK_COST";
@@ -55,9 +53,7 @@ public class EdgeTargetAnalyzer implements EdgeAnalyzer, MultiThreaded {
 	private final FeatureModel featureModel;
 	private final Model model;
 
-	/*
-	 * CONSTRUCTOR
-	 */
+	/* CONSTRUCTOR */
 
 	public EdgeTargetAnalyzer(final Model model) {
 		this.model = model;
@@ -105,7 +101,6 @@ public class EdgeTargetAnalyzer implements EdgeAnalyzer, MultiThreaded {
 		processingTime = end - start;
 	}
 
-
 	@Override
 	public String getKey() {
 		return KEY;
@@ -118,7 +113,7 @@ public class EdgeTargetAnalyzer implements EdgeAnalyzer, MultiThreaded {
 
 	@Override
 	public void setNumThreads() {
-		this.numThreads = Runtime.getRuntime().availableProcessors();  
+		this.numThreads = Runtime.getRuntime().availableProcessors();
 	}
 
 	@Override

@@ -21,7 +21,6 @@ import fiji.plugin.trackmate.visualization.TrackMateModelView;
 import fiji.plugin.trackmate.visualization.hyperstack.HyperStackDisplayer;
 import fiji.plugin.trackmate.visualization.trackscheme.TrackScheme;
 
-
 public class HyperStackDisplayerTestDrive {
 
 	public static void main(String[] args) throws JDOMException, IOException {
@@ -33,10 +32,9 @@ public class HyperStackDisplayerTestDrive {
 
 		Model model = reader.getModel();
 		Settings settings = new Settings();
-		reader.readSettings(settings, null, null, 
-				new SpotAnalyzerProvider(model), new EdgeAnalyzerProvider(model), new TrackAnalyzerProvider(model));
+		reader.readSettings(settings, null, null, new SpotAnalyzerProvider(model), new EdgeAnalyzerProvider(model), new TrackAnalyzerProvider(model));
 		ImagePlus imp = settings.imp;
-		
+
 		new ModelFeatureUpdater(model, settings);
 		SelectionModel selectionModel = new SelectionModel(model);
 		HyperStackDisplayer displayer = new HyperStackDisplayer(model, selectionModel, imp);
@@ -44,10 +42,10 @@ public class HyperStackDisplayerTestDrive {
 		displayer.setDisplaySettings(TrackMateModelView.KEY_TRACK_DISPLAY_MODE, TrackMateModelView.TRACK_DISPLAY_MODE_LOCAL_BACKWARD);
 		displayer.setDisplaySettings(TrackMateModelView.KEY_DISPLAY_SPOT_NAMES, true);
 		displayer.setDisplaySettings(TrackMateModelView.KEY_SPOTS_VISIBLE, true);
-		
+
 		TrackScheme trackScheme = new TrackScheme(model, selectionModel);
 		trackScheme.render();
-		
+
 	}
-	
+
 }

@@ -16,24 +16,20 @@ import fiji.plugin.trackmate.Spot;
 
 public class SpotNeighborhood<T extends RealType<T>> implements Neighborhood<T> {
 
-	/*
-	 * FIELDS
-	 */
-	
+	/* FIELDS */
+
 	protected final double[] calibration;
 	protected final AbstractNeighborhood<T, ImgPlus<T>> neighborhood;
 	protected final long[] center;
-	
-	/*
-	 * CONSTRUCTOR
-	 */
-	
+
+	/* CONSTRUCTOR */
+
 	public SpotNeighborhood(final Spot spot, final ImgPlus<T> img) {
 		this.calibration = TMUtils.getSpatialCalibration(img);
 		// Center
 		this.center = new long[img.numDimensions()];
 		for (int d = 0; d < center.length; d++) {
-			center[d] = Math.round( spot.getFeature(Spot.POSITION_FEATURES[d]).doubleValue() / calibration[d]);
+			center[d] = Math.round(spot.getFeature(Spot.POSITION_FEATURES[d]).doubleValue() / calibration[d]);
 		}
 		// Span
 		final long[] span = new long[img.numDimensions()];
@@ -47,15 +43,12 @@ public class SpotNeighborhood<T extends RealType<T>> implements Neighborhood<T> 
 		} else if (img.numDimensions() == 3) {
 			this.neighborhood = new EllipsoidNeighborhood<T, ImgPlus<T>>(img, center, span, oob);
 		} else {
-			throw new IllegalArgumentException("Source input must be 2D or 3D, got nDims = "+img.numDimensions());
+			throw new IllegalArgumentException("Source input must be 2D or 3D, got nDims = " + img.numDimensions());
 		}
-		
+
 	}
-	
-	/*
-	 * METHODS
-	 * We delegate everything to the wrapped neighborhood
-	 */
+
+	/* METHODS We delegate everything to the wrapped neighborhood */
 
 	@Override
 	public final SpotNeighborhoodCursor<T> cursor() {
@@ -96,13 +89,13 @@ public class SpotNeighborhood<T extends RealType<T>> implements Neighborhood<T> 
 	@Override
 	public void realMin(double[] min) {
 		neighborhood.realMin(min);
-		
+
 	}
 
 	@Override
 	public void realMin(RealPositionable min) {
 		neighborhood.realMin(min);
-		
+
 	}
 
 	@Override
@@ -224,7 +217,7 @@ public class SpotNeighborhood<T extends RealType<T>> implements Neighborhood<T> 
 		long[] max = new long[numDimensions()];
 		min(min);
 		max(max);
-		FinalInterval interval = new FinalInterval(min , max );
+		FinalInterval interval = new FinalInterval(min, max);
 		return interval;
 	}
 

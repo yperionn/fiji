@@ -28,13 +28,12 @@ public class SpotFilterDescriptor implements WizardPanelDescriptor {
 	private FilterGuiPanel component;
 	private final TrackMate trackmate;
 	private final FeatureColorGenerator<Spot> spotColorGenerator;
-	
-	
+
 	public SpotFilterDescriptor(TrackMate trackmate, FeatureColorGenerator<Spot> spotColorGenerator) {
 		this.trackmate = trackmate;
 		this.spotColorGenerator = spotColorGenerator;
 	}
-	
+
 	@Override
 	public FilterGuiPanel getComponent() {
 		return component;
@@ -64,13 +63,14 @@ public class SpotFilterDescriptor implements WizardPanelDescriptor {
 	@Override
 	public void displayingPanel() {
 		if (null == component) {
-			// This happens when we load data: the component gets initialized only in another method
+			// This happens when we load data: the component gets initialized
+			// only in another method
 			aboutToDisplayPanel();
 		}
 		trackmate.getSettings().setSpotFilters(component.getFeatureFilters());
 		trackmate.execSpotFiltering(false);
 	}
-	
+
 	@Override
 	public void aboutToHidePanel() {
 		Logger logger = trackmate.getModel().getLogger();
@@ -85,8 +85,8 @@ public class SpotFilterDescriptor implements WizardPanelDescriptor {
 			logger.log("No feature threshold set, kept the " + ntotal + " spots.\n");
 		} else {
 			for (FeatureFilter ft : featureFilters) {
-				String str = "  - on "+trackmate.getModel().getFeatureModel().getSpotFeatureNames().get(ft.feature);
-				if (ft.isAbove) 
+				String str = "  - on " + trackmate.getModel().getFeatureModel().getSpotFeatureNames().get(ft.feature);
+				if (ft.isAbove)
 					str += " above ";
 				else
 					str += " below ";
@@ -95,8 +95,8 @@ public class SpotFilterDescriptor implements WizardPanelDescriptor {
 				logger.log(str);
 			}
 			int nselected = model.getSpots().getNSpots(true);
-			logger.log("Kept "+nselected+" spots out of " + ntotal + ".\n");
-		}		
+			logger.log("Kept " + nselected + " spots out of " + ntotal + ".\n");
+		}
 	}
 
 	@Override
@@ -104,48 +104,50 @@ public class SpotFilterDescriptor implements WizardPanelDescriptor {
 		return KEY;
 	}
 
-	
 	/**
-	 * Adds an {@link ActionListener} to this panel. These listeners will be notified when
-	 * a button is pushed or when the feature to color is changed.
+	 * Adds an {@link ActionListener} to this panel. These listeners will be
+	 * notified when a button is pushed or when the feature to color is changed.
 	 */
 	public void addActionListener(ActionListener listener) {
 		actionListeners.add(listener);
 	}
-	
+
 	/**
-	 * Removes an ActionListener from this panel. 
-	 * @return true if the listener was in the ActionListener collection of this instance.
+	 * Removes an ActionListener from this panel.
+	 * 
+	 * @return true if the listener was in the ActionListener collection of this
+	 *         instance.
 	 */
 	public boolean removeActionListener(ActionListener listener) {
 		return actionListeners.remove(listener);
 	}
-	
+
 	public Collection<ActionListener> getActionListeners() {
 		return actionListeners;
 	}
-	
 
-	/** 
-	 * Forwards the given {@link ActionEvent} to all the {@link ActionListener} of this panel.
+	/**
+	 * Forwards the given {@link ActionEvent} to all the {@link ActionListener}
+	 * of this panel.
 	 */
 	private void fireAction(ActionEvent e) {
 		for (ActionListener l : actionListeners)
 			l.actionPerformed(e);
 	}
-	
+
 	/**
-	 * Add an {@link ChangeListener} to this panel. The {@link ChangeListener} will
-	 * be notified when a change happens to the thresholds displayed by this panel, whether
-	 * due to the slider being move, the auto-threshold button being pressed, or
-	 * the combo-box selection being changed.
+	 * Add an {@link ChangeListener} to this panel. The {@link ChangeListener}
+	 * will be notified when a change happens to the thresholds displayed by
+	 * this panel, whether due to the slider being move, the auto-threshold
+	 * button being pressed, or the combo-box selection being changed.
 	 */
 	public void addChangeListener(ChangeListener listener) {
 		changeListeners.add(listener);
 	}
 
 	/**
-	 * Remove a ChangeListener from this panel. 
+	 * Remove a ChangeListener from this panel.
+	 * 
 	 * @return true if the listener was in listener collection of this instance.
 	 */
 	public boolean removeChangeListener(ChangeListener listener) {
@@ -155,9 +157,9 @@ public class SpotFilterDescriptor implements WizardPanelDescriptor {
 	public Collection<ChangeListener> getChangeListeners() {
 		return changeListeners;
 	}
-	
+
 	private void fireThresholdChanged(ChangeEvent e) {
-		for (ChangeListener cl : changeListeners)  {
+		for (ChangeListener cl : changeListeners) {
 			cl.stateChanged(e);
 		}
 	}

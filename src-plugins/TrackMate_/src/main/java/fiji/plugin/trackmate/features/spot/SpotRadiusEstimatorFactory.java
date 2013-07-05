@@ -14,18 +14,16 @@ import fiji.plugin.trackmate.Dimension;
 import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.Model;
 
-public class SpotRadiusEstimatorFactory<T extends RealType<T> & NativeType<T>>  implements SpotAnalyzerFactory<T> {
-	
-	/*
-	 * CONSTANT
-	 */
-	
+public class SpotRadiusEstimatorFactory<T extends RealType<T> & NativeType<T>> implements SpotAnalyzerFactory<T> {
+
+	/* CONSTANT */
+
 	/** The single feature key name that this analyzer computes. */
-	public static final String						ESTIMATED_DIAMETER = "ESTIMATED_DIAMETER";
-	public static final ArrayList<String> 			FEATURES = new ArrayList<String>(1);
-	public static final HashMap<String, String> 	FEATURE_NAMES = new HashMap<String, String>(1);
-	public static final HashMap<String, String> 	FEATURE_SHORT_NAMES = new HashMap<String, String>(1);
-	public static final HashMap<String, Dimension> 	FEATURE_DIMENSIONS = new HashMap<String, Dimension>(1);
+	public static final String ESTIMATED_DIAMETER = "ESTIMATED_DIAMETER";
+	public static final ArrayList<String> FEATURES = new ArrayList<String>(1);
+	public static final HashMap<String, String> FEATURE_NAMES = new HashMap<String, String>(1);
+	public static final HashMap<String, String> FEATURE_SHORT_NAMES = new HashMap<String, String>(1);
+	public static final HashMap<String, Dimension> FEATURE_DIMENSIONS = new HashMap<String, Dimension>(1);
 	static {
 		FEATURES.add(ESTIMATED_DIAMETER);
 		FEATURE_NAMES.put(ESTIMATED_DIAMETER, "Estimated diameter");
@@ -35,19 +33,15 @@ public class SpotRadiusEstimatorFactory<T extends RealType<T> & NativeType<T>>  
 	public static final String KEY = "Spot radius estimator";
 	private final Model model;
 	private final ImgPlus<T> img;
-	
-	/*
-	 * CONSTRUCTOR
-	 */
-	
+
+	/* CONSTRUCTOR */
+
 	public SpotRadiusEstimatorFactory(final Model model, final ImgPlus<T> img) {
 		this.model = model;
 		this.img = img;
 	}
-	
-	/*
-	 * METHODS
-	 */
+
+	/* METHODS */
 	@Override
 	public SpotRadiusEstimator<T> getAnalyzer(int frame, int channel) {
 		final ImgPlus<T> imgC = HyperSliceImgPlus.fixChannelAxis(img, channel);
@@ -80,5 +74,5 @@ public class SpotRadiusEstimatorFactory<T extends RealType<T> & NativeType<T>>  
 	public Map<String, Dimension> getFeatureDimensions() {
 		return FEATURE_DIMENSIONS;
 	}
-	
+
 }

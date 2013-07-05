@@ -20,15 +20,16 @@ import fiji.plugin.trackmate.TrackModel;
 import fiji.plugin.trackmate.features.track.TrackIndexAnalyzer;
 
 /**
- * A {@link TrackColorGenerator} that generate colors based on the whole
- * track feature.
+ * A {@link TrackColorGenerator} that generate colors based on the whole track
+ * feature.
+ * 
  * @author Jean-Yves Tinevez
- *
+ * 
  */
 public class PerTrackFeatureColorGenerator implements TrackColorGenerator, ModelChangeListener {
 
 	private static final InterpolatePaintScale generator = InterpolatePaintScale.Jet;
-	private HashMap<Integer,Color> colorMap;
+	private HashMap<Integer, Color> colorMap;
 	private final Model model;
 	private String feature;
 	private Integer trackID;
@@ -40,14 +41,17 @@ public class PerTrackFeatureColorGenerator implements TrackColorGenerator, Model
 	}
 
 	/**
-	 * Set the track feature to set the color with. 
+	 * Set the track feature to set the color with.
 	 * <p>
-	 * First, the track features are <b>re-calculated</b> for the target
-	 * feature values to be accurate. We rely on the {@link #model} instance 
-	 * for that. Then colors are calculated for all
-	 * tracks when this method is called, and cached. 
-	 * @param feature  the track feature that will control coloring.
-	 * @throws IllegalArgumentException if the specified feature is unknown to the feature model.
+	 * First, the track features are <b>re-calculated</b> for the target feature
+	 * values to be accurate. We rely on the {@link #model} instance for that.
+	 * Then colors are calculated for all tracks when this method is called, and
+	 * cached.
+	 * 
+	 * @param feature
+	 *        the track feature that will control coloring.
+	 * @throws IllegalArgumentException
+	 *         if the specified feature is unknown to the feature model.
 	 */
 	@Override
 	public void setFeature(String feature) {
@@ -57,16 +61,17 @@ public class PerTrackFeatureColorGenerator implements TrackColorGenerator, Model
 			refreshNull();
 			return;
 		}
-		
+
 		this.feature = feature;
-		// A hack if we are asked for track index, which is the default and should never get caught to be null
+		// A hack if we are asked for track index, which is the default and
+		// should never get caught to be null
 		if (feature.equals(TrackIndexAnalyzer.TRACK_INDEX)) {
 			refreshIndex();
 		} else {
 			refresh();
 		}
 	}
-	
+
 	@Override
 	public String getFeature() {
 		return feature;
@@ -94,7 +99,7 @@ public class PerTrackFeatureColorGenerator implements TrackColorGenerator, Model
 		colorMap = new HashMap<Integer, Color>(trackIDs.size());
 		int index = 0;
 		for (Integer trackID : trackIDs) {
-			Color color = generator.getPaint( (double) index++ / (trackIDs.size()-1) );
+			Color color = generator.getPaint((double) index++ / (trackIDs.size() - 1));
 			colorMap.put(trackID, color);
 		}
 	}
@@ -104,7 +109,7 @@ public class PerTrackFeatureColorGenerator implements TrackColorGenerator, Model
 		Set<Integer> trackIDs = trackModel.trackIDs(true);
 
 		// Get min & max & all values
-		FeatureModel fm = model .getFeatureModel();
+		FeatureModel fm = model.getFeatureModel();
 		double min = Double.POSITIVE_INFINITY;
 		double max = Double.NEGATIVE_INFINITY;
 		HashMap<Integer, Double> values = new HashMap<Integer, Double>(trackIDs.size());
@@ -127,16 +132,15 @@ public class PerTrackFeatureColorGenerator implements TrackColorGenerator, Model
 			if (null == val) {
 				color = DEFAULT_TRACK_COLOR;
 			} else {
-				color = generator.getPaint( (val-min)/(max-min) );
+				color = generator.getPaint((val - min) / (max - min));
 			}
 			colorMap.put(trackID, color);
 		}
 	}
 
-
 	@Override
 	public void modelChanged(ModelChangeEvent event) {
-		if (event.getEventID() ==  ModelChangeEvent.MODEL_MODIFIED) {
+		if (event.getEventID() == ModelChangeEvent.MODEL_MODIFIED) {
 			Set<DefaultWeightedEdge> edges = event.getEdges();
 			if (edges.size() > 0) {
 				if (null == feature) {
@@ -146,7 +150,7 @@ public class PerTrackFeatureColorGenerator implements TrackColorGenerator, Model
 				} else {
 					refresh();
 				}
-			} 
+			}
 		}
 	}
 
@@ -164,5 +168,5 @@ public class PerTrackFeatureColorGenerator implements TrackColorGenerator, Model
 	public void terminate() {
 		model.removeModelChangeListener(this);
 	}
-	
+
 }

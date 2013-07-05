@@ -20,22 +20,22 @@ public class SpotDisplayer3DModel_TestDrive {
 	 */
 	public static void main(String[] args) {
 		System.out.println(Install_J3D.getJava3DVersion());
-		
+
 		File file = new File(AppUtils.getBaseDirectory(TrackMate.class), "samples/FakeTracks.xml");
 		ij.ImageJ.main(args);
-		
+
 		TmXmlReader reader = new TmXmlReader(file);
 		Model model = reader.getModel();
-		
+
 		Image3DUniverse universe = new Image3DUniverse();
 		universe.show();
 
 		SpotDisplayer3D displayer = new SpotDisplayer3D(model, new SelectionModel(model), universe);
 		displayer.render();
-		
+
 		displayer.setDisplaySettings(TrackMateModelView.KEY_TRACK_DISPLAY_MODE, TrackMateModelView.TRACK_DISPLAY_MODE_LOCAL);
 		displayer.refresh();
-		
+
 		System.out.println(universe.getContents());
 	}
 

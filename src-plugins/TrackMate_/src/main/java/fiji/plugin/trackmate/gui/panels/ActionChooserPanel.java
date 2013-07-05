@@ -25,7 +25,7 @@ import fiji.plugin.trackmate.providers.ActionProvider;
 public class ActionChooserPanel {
 
 	private static final Icon EXECUTE_ICON = new ImageIcon(TrackMateWizard.class.getResource("images/control_play_blue.png"));
-	
+
 	public final ActionEvent ACTION_STARTED = new ActionEvent(this, 0, "ActionStarted");
 	public final ActionEvent ACTION_FINISHED = new ActionEvent(this, 1, "ActionFinished");
 	private LogPanel logPanel;
@@ -34,49 +34,42 @@ public class ActionChooserPanel {
 	private final ListChooserPanel panel;
 	private final ActionProvider actionProvider;
 
-	/*
-	 * CONSTRUCTORS
-	 */
-	
+	/* CONSTRUCTORS */
+
 	public ActionChooserPanel(final ActionProvider actionProvider) {
-		
+
 		List<String> actions = actionProvider.getAvailableActions();
 		List<String> infoTexts = new ArrayList<String>(actions.size());
 		icons = new ArrayList<ImageIcon>(actions.size());
-		for(String key : actions) {
-			infoTexts.add( actionProvider.getInfoText(key) );
-			icons.add( actionProvider.getIcon(key) );
+		for (String key : actions) {
+			infoTexts.add(actionProvider.getInfoText(key));
+			icons.add(actionProvider.getIcon(key));
 		}
-		
+
 		this.panel = new ListChooserPanel(actions, infoTexts, "action");
 		this.logPanel = new LogPanel();
 		this.logger = logPanel.getLogger();
 		this.actionProvider = actionProvider;
 		init();
 	}
-	
-	
-	/*
-	 * PUBLIC METHODS
-	 */
-	
+
+	/* PUBLIC METHODS */
+
 	public ListChooserPanel getPanel() {
 		return panel;
 	}
-	
-	/*
-	 * PRIVATE METHODS
-	 */
-	
+
+	/* PRIVATE METHODS */
+
 	private void init() {
-		
+
 		logPanel.setBounds(8, 260, 276, 200);
 		panel.add(logPanel);
-		
+
 		final JButton executeButton = new JButton("Execute", EXECUTE_ICON);
 		executeButton.setBounds(6, 220, 100, 30);
 		executeButton.setFont(FONT);
-		executeButton.addActionListener(new ActionListener() {			
+		executeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				new Thread("TrackMate action thread") {
@@ -99,9 +92,9 @@ public class ActionChooserPanel {
 			}
 		});
 		panel.add(executeButton);
-		
+
 		HashMap<String, ImageIcon> iconMap = new HashMap<String, ImageIcon>();
-		for (int i = 0; i < icons.size(); i++) { 
+		for (int i = 0; i < icons.size(); i++) {
 			iconMap.put(panel.items.get(i), icons.get(i));
 		}
 		IconListRenderer renderer = new IconListRenderer(iconMap);
@@ -109,11 +102,8 @@ public class ActionChooserPanel {
 		panel.jLabelHelpText.setSize(270, 150);
 
 	}
-	
-	
-	/*
-	 * INNER CLASS
-	 */
+
+	/* INNER CLASS */
 
 	private class IconListRenderer extends DefaultListCellRenderer {
 		private static final long serialVersionUID = 1L;

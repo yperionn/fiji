@@ -21,59 +21,54 @@ import fiji.plugin.trackmate.visualization.hyperstack.HyperStackDisplayer;
 
 public class NNTrackerTest {
 
-	/*
-	 * MAIN METHOD
-	 */
-	
+	/* MAIN METHOD */
+
 	public static void main(String args[]) {
-		
 
 		File file = new File(AppUtils.getBaseDirectory(TrackMate.class), "samples/FakeTracks.xml");
-		
+
 		// 1 - Load test spots
-		System.out.println("Opening file: "+file.getAbsolutePath());		
+		System.out.println("Opening file: " + file.getAbsolutePath());
 		TmXmlReader reader = new TmXmlReader(file);
 		Model model = reader.getModel();
 		Settings gs = new Settings();
 		reader.readSettings(gs, null, null, null, null, null);
-		
-		System.out.println("Spots: "+ model.getSpots());
-		System.out.println("Found "+model.getTrackModel().nTracks(false)+" tracks in the file:");
+
+		System.out.println("Spots: " + model.getSpots());
+		System.out.println("Found " + model.getTrackModel().nTracks(false) + " tracks in the file:");
 		System.out.println("Track features: ");
 		System.out.println();
-		
+
 		// 2 - Track the test spots
 		long start = System.currentTimeMillis();
 		NearestNeighborTracker tracker = new NearestNeighborTracker(model.getSpots(), Logger.DEFAULT_LOGGER);
 		Map<String, Object> settings = new HashMap<String, Object>();
 		settings.put(KEY_LINKING_MAX_DISTANCE, 15d);
-		tracker.setSettings(settings );
+		tracker.setSettings(settings);
 
 		if (!tracker.checkInput())
-			System.err.println("Error checking input: "+tracker.getErrorMessage());
+			System.err.println("Error checking input: " + tracker.getErrorMessage());
 		if (!tracker.process())
-			System.err.println("Error in process: "+tracker.getErrorMessage());
+			System.err.println("Error in process: " + tracker.getErrorMessage());
 		long end = System.currentTimeMillis();
 		model.getTrackModel().setGraph(tracker.getResult());
-		
-		// 3 - Print out results for testing		
+
+		// 3 - Print out results for testing
 		System.out.println();
 		System.out.println();
 		System.out.println();
 		System.out.println("Found " + model.getTrackModel().nTracks(false) + " final tracks.");
-		System.out.println("Whole tracking done in "+(end-start)+" ms.");
+		System.out.println("Whole tracking done in " + (end - start) + " ms.");
 		System.out.println();
 
-		
 		// 5 - Display tracks
 		// Load Image
 		ij.ImageJ.main(args);
-		
+
 		ImagePlus imp = gs.imp;
 		TrackMateModelView sd2d = new HyperStackDisplayer(model, new SelectionModel(model), imp);
 		sd2d.render();
 		sd2d.setDisplaySettings(TrackMateModelView.KEY_TRACK_DISPLAY_MODE, TrackMateModelView.TRACK_DISPLAY_MODE_WHOLE);
 	}
 
-	
 }

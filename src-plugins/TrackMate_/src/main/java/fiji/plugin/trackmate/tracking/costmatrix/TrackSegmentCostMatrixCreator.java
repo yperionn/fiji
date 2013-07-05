@@ -21,78 +21,91 @@ import fiji.plugin.trackmate.tracking.costfunction.SplittingCostFunction;
 import fiji.plugin.trackmate.util.TMUtils;
 
 /**
- * <p>Creates the cost matrix <b><u>roughly</u></b> described in Figure 1c in the paper:
+ * <p>
+ * Creates the cost matrix <b><u>roughly</u></b> described in Figure 1c in the
+ * paper:
  * 
- * <p>Jaqaman, K. et al. "Robust single-particle tracking in live-cell time-lapse sequences."
- * Nature Methods, 2008.
+ * <p>
+ * Jaqaman, K. et al.
+ * "Robust single-particle tracking in live-cell time-lapse sequences." Nature
+ * Methods, 2008.
  * 
- * <p>This matrix is notably <u>different</u> than the one described in the paper. This is because
- * the cost matrix described in 1c in the paper <b>is not</b> the cost matrix they use in their
- * matlab implementation.
+ * <p>
+ * This matrix is notably <u>different</u> than the one described in the paper.
+ * This is because the cost matrix described in 1c in the paper <b>is not</b>
+ * the cost matrix they use in their matlab implementation.
  * 
- * <p>The cost matrix used in the matlab implementation by the authors, and used here, is described
- * as follows:
+ * <p>
+ * The cost matrix used in the matlab implementation by the authors, and used
+ * here, is described as follows:
  * 
- * <p> The overall matrix can be divided into <u>four quadrants</u>, outlined below. Each 
- * quadrant has dimensions <code>(number of track segments + number of M/S candidate points) x 
- * (number of track segments + number of M/S candidate points)</code>.
- * A merging or splitting (M/S) candidate point is defined as a Spot in a track segment 
+ * <p>
+ * The overall matrix can be divided into <u>four quadrants</u>, outlined below.
+ * Each quadrant has dimensions
+ * <code>(number of track segments + number of M/S candidate points) x 
+ * (number of track segments + number of M/S candidate points)</code>. A merging
+ * or splitting (M/S) candidate point is defined as a Spot in a track segment
  * with at least two spots.
  * 
  * <ul>
  * <li>
- * <p><b>Top left</b>: Contains scores for gap closing, merging, splitting, and "blank" region.
- * <br><br>
- * <p>This quadrant can also be further subdivided into four smaller sub-matrices:
- *
+ * <p>
+ * <b>Top left</b>: Contains scores for gap closing, merging, splitting, and
+ * "blank" region. <br>
+ * <br>
+ * <p>
+ * This quadrant can also be further subdivided into four smaller sub-matrices:
+ * 
  * <ul>
- * <li><i>Gap closing (top left)</i>: has dimensions <code>(number of track segments) x (number of track segments)</code>, 
- * and contains the scores for linking the ends of track segments to the starts of other track segments
- * as described in the paper.</li>
+ * <li><i>Gap closing (top left)</i>: has dimensions
+ * <code>(number of track segments) x (number of track segments)</code>, and
+ * contains the scores for linking the ends of track segments to the starts of
+ * other track segments as described in the paper.</li>
  * 
- * <li><i>Merging (top right)</i>: has (number of track segment) rows and (number of M/S candidate points)
- * columns. Contains scores for linking the end of a track segment into the
- * middle of another (a merge).</li>
+ * <li><i>Merging (top right)</i>: has (number of track segment) rows and
+ * (number of M/S candidate points) columns. Contains scores for linking the end
+ * of a track segment into the middle of another (a merge).</li>
  * 
- * <li><i>Splitting (bottom left)</i>: has (number of M/S candidate points) rows and (number of track
- * segments columns). Contains scores for linking the start of a track segment into the
- * middle of another (a split).</li>
+ * <li><i>Splitting (bottom left)</i>: has (number of M/S candidate points) rows
+ * and (number of track segments columns). Contains scores for linking the start
+ * of a track segment into the middle of another (a split).</li>
  * 
- * <li><i>Empty (bottom right)</i>: has dimensions (number of middle points) x (number of middle points), and is blocked, 
- * so no solutions lie in this region.</li>
+ * <li><i>Empty (bottom right)</i>: has dimensions (number of middle points) x
+ * (number of middle points), and is blocked, so no solutions lie in this
+ * region.</li>
  * </ul>
  * <br>
  * 
  * </li>
- * <li>Top right: Terminating and splitting alternatives.
- * <br><br>
- * <p>This quadrant contains alternative scores, and the scores are arranged along the
- * diagonal (top left to bottom right). The score is a cutoff value, and is the same cutoff
- * value used in the bottom left and bottom right quadrants.
- * <br><br>
- * </li>
- * <li>Bottom left: Initiating and merging alternatives.
- * <br><br>
- * <p>This quadrant contains alternative scores, and the scores are arranged along the
- * diagonal (top left to bottom right). The score is a cutoff value, and is the same cutoff
- * value used in the top right and bottom right quadrants.
- * <br><br>
- * </li>
- * <li>Bottom right: Mathematically required to solve LAP problems.
- * <br><br>
- * <p>This quadrant requires special formatting to allow the LAP to be solved. Essentially,
- * the top left quadrant is transposed, and all non-blocked values are replaced with the cutoff
- * value used in the bottom left and top right quadrants.
- * <br><br>
- * </li>
+ * <li>Top right: Terminating and splitting alternatives. <br>
+ * <br>
+ * <p>
+ * This quadrant contains alternative scores, and the scores are arranged along
+ * the diagonal (top left to bottom right). The score is a cutoff value, and is
+ * the same cutoff value used in the bottom left and bottom right quadrants. <br>
+ * <br></li>
+ * <li>Bottom left: Initiating and merging alternatives. <br>
+ * <br>
+ * <p>
+ * This quadrant contains alternative scores, and the scores are arranged along
+ * the diagonal (top left to bottom right). The score is a cutoff value, and is
+ * the same cutoff value used in the top right and bottom right quadrants. <br>
+ * <br></li>
+ * <li>Bottom right: Mathematically required to solve LAP problems. <br>
+ * <br>
+ * <p>
+ * This quadrant requires special formatting to allow the LAP to be solved.
+ * Essentially, the top left quadrant is transposed, and all non-blocked values
+ * are replaced with the cutoff value used in the bottom left and top right
+ * quadrants. <br>
+ * <br></li>
  * </ul>
- *
+ * 
  * @author Nicholas Perry
- *
+ * 
  */
 
 public class TrackSegmentCostMatrixCreator extends LAPTrackerCostMatrixCreator {
-
 
 	private static final boolean PRUNING_OPTIMIZATION = true;
 
@@ -108,14 +121,13 @@ public class TrackSegmentCostMatrixCreator extends LAPTrackerCostMatrixCreator {
 
 	private Logger logger = Logger.VOID_LOGGER;
 
-	/*
-	 * CONSTRUCTOR
-	 */
+	/* CONSTRUCTOR */
 
 	/**
 	 * 
-	 * @param trackSegments A list of track segments (each track segment is 
-	 * an <code>ArrayList</code> of <code>Spots</code>.
+	 * @param trackSegments
+	 *        A list of track segments (each track segment is an
+	 *        <code>ArrayList</code> of <code>Spots</code>.
 	 */
 
 	public TrackSegmentCostMatrixCreator(final List<SortedSet<Spot>> trackSegments, final Map<String, Object> settings) {
@@ -123,12 +135,10 @@ public class TrackSegmentCostMatrixCreator extends LAPTrackerCostMatrixCreator {
 		this.trackSegments = trackSegments;
 	}
 
-	/*
-	 * METHODS
-	 */
+	/* METHODS */
 
 	public void setLogger(Logger logger) {
-		this.logger  = logger;
+		this.logger = logger;
 	}
 
 	@Override
@@ -137,63 +147,65 @@ public class TrackSegmentCostMatrixCreator extends LAPTrackerCostMatrixCreator {
 			errorMessage = "There are no track segments.";
 			return false;
 		}
-		StringBuilder errorHolder = new StringBuilder();;
-		if (!LAPUtils.checkSettingsValidity(settings, errorHolder )) {
+		StringBuilder errorHolder = new StringBuilder();
+		;
+		if (!LAPUtils.checkSettingsValidity(settings, errorHolder)) {
 			errorMessage = errorHolder.toString();
 			return false;
 		}
 		return true;
 	}
 
-
 	/**
 	 * Returns a list which holds references to all the splitting middle points
 	 * within all the track segments. Notably, these middle points are in the
-	 * same order here as they are referenced in the cost matrix (so, the 
-	 * first column index in the merging section, index 0, corresponds to
-	 * the Spot at index 0 in this ArrayList.
-	 * @return 
+	 * same order here as they are referenced in the cost matrix (so, the first
+	 * column index in the merging section, index 0, corresponds to the Spot at
+	 * index 0 in this ArrayList.
+	 * 
+	 * @return
 	 * @return The <code>List</code> of middle <code>Spots</code>
 	 */
 	public List<Spot> getSplittingMiddlePoints() {
 		return splittingMiddlePoints;
 	}
 
-
 	/**
 	 * Returns a list which holds references to all the merging middle points
 	 * within all the track segments. Notably, these middle points are in the
-	 * same order here as they are referenced in the cost matrix (so, the 
-	 * first column index in the merging section, index 0, corresponds to
-	 * the Spot at index 0 in this ArrayList.
+	 * same order here as they are referenced in the cost matrix (so, the first
+	 * column index in the merging section, index 0, corresponds to the Spot at
+	 * index 0 in this ArrayList.
+	 * 
 	 * @return The <code>List</code> of middle <code>Spots</code>
 	 */
 	public List<Spot> getMergingMiddlePoints() {
 		return mergingMiddlePoints;
 	}
 
-
 	@Override
 	public boolean process() {
-		
+
 		long start = System.currentTimeMillis();
-		
+
 		// 1 - Get parameter values
 		final boolean allowSplitting = (Boolean) settings.get(KEY_ALLOW_TRACK_SPLITTING);
 		final boolean allowMerging = (Boolean) settings.get(KEY_ALLOW_TRACK_MERGING);
 
 		try {
-			// 2 - Get a list of the middle points that can participate in merging and splitting
+			// 2 - Get a list of the middle points that can participate in
+			// merging and splitting
 
 			if (allowMerging || allowSplitting) {
-				middlePoints = getTrackSegmentMiddlePoints(trackSegments); 
+				middlePoints = getTrackSegmentMiddlePoints(trackSegments);
 			} else {
-				// If we can skip matrix creation for merging and splitting, 
-				// we will not try to keep a list of merging and splitting candidates.
+				// If we can skip matrix creation for merging and splitting,
+				// we will not try to keep a list of merging and splitting
+				// candidates.
 				middlePoints = new ArrayList<Spot>(0);
 				splittingMiddlePoints = middlePoints;
-				mergingMiddlePoints   = middlePoints;
-				
+				mergingMiddlePoints = middlePoints;
+
 			}
 
 			// 3 - Create cost matrices by quadrant
@@ -203,7 +215,7 @@ public class TrackSegmentCostMatrixCreator extends LAPTrackerCostMatrixCreator {
 			if (null == topLeft) {
 				return false;
 			}
-			
+
 			logger.setStatus("Completing cost matrix...");
 			logger.setProgress(0.7f);
 			double cutoff = getCutoff(topLeft);
@@ -216,10 +228,26 @@ public class TrackSegmentCostMatrixCreator extends LAPTrackerCostMatrixCreator {
 			final int numRows = 2 * trackSegments.size() + splittingMiddlePoints.size() + mergingMiddlePoints.size();
 			costs = new Matrix(numRows, numCols, 0);
 
-			costs.setMatrix(0, topLeft.getRowDimension() - 1, 0, topLeft.getColumnDimension() - 1, topLeft);						// Gap closing
-			costs.setMatrix(topLeft.getRowDimension(), numRows - 1, 0, topLeft.getColumnDimension() - 1, bottomLeft);				// Initiating and merging alternative
-			costs.setMatrix(0, topLeft.getRowDimension() - 1, topLeft.getColumnDimension(), numCols - 1, topRight);					// Terminating and splitting alternative
-			costs.setMatrix(topLeft.getRowDimension(), numRows - 1, topLeft.getColumnDimension(), numCols - 1, bottomRight);		// Lower right (transpose of gap closing, mathematically required for LAP)		
+			costs.setMatrix(0, topLeft.getRowDimension() - 1, 0, topLeft.getColumnDimension() - 1, topLeft); // Gap
+																												// closing
+			costs.setMatrix(topLeft.getRowDimension(), numRows - 1, 0, topLeft.getColumnDimension() - 1, bottomLeft); // Initiating
+																														// and
+																														// merging
+																														// alternative
+			costs.setMatrix(0, topLeft.getRowDimension() - 1, topLeft.getColumnDimension(), numCols - 1, topRight); // Terminating
+																													// and
+																													// splitting
+																													// alternative
+			costs.setMatrix(topLeft.getRowDimension(), numRows - 1, topLeft.getColumnDimension(), numCols - 1, bottomRight); // Lower
+																																// right
+																																// (transpose
+																																// of
+																																// gap
+																																// closing,
+																																// mathematically
+																																// required
+																																// for
+																																// LAP)
 
 			long end = System.currentTimeMillis();
 			processingTime = end - start;
@@ -230,17 +258,18 @@ public class TrackSegmentCostMatrixCreator extends LAPTrackerCostMatrixCreator {
 			costs = null;
 			return false;
 		}
-		
 
 	}
 
-
 	/**
-	 * Create a List of candidate spots for splitting or merging events. 
-	 * A desirable candidate is a spot belonging to a track with at least 2 spots.
+	 * Create a List of candidate spots for splitting or merging events. A
+	 * desirable candidate is a spot belonging to a track with at least 2 spots.
 	 * 
-	 * @param trackSegments A List of track segments, where each segment is its own List of Spots.
-	 * @return A List containing references to all suitable candidate Spots in the track segments.
+	 * @param trackSegments
+	 *        A List of track segments, where each segment is its own List of
+	 *        Spots.
+	 * @return A List containing references to all suitable candidate Spots in
+	 *         the track segments.
 	 */
 	public List<Spot> getTrackSegmentMiddlePoints(List<SortedSet<Spot>> trackSegments) {
 		int n_spots = 0;
@@ -249,7 +278,7 @@ public class TrackSegmentCostMatrixCreator extends LAPTrackerCostMatrixCreator {
 		}
 		List<Spot> middlePoints = new ArrayList<Spot>(n_spots);
 		for (SortedSet<Spot> trackSegment : trackSegments) {
-			
+
 			if (trackSegment.size() > 1) {
 				middlePoints.addAll(trackSegment);
 			}
@@ -257,15 +286,16 @@ public class TrackSegmentCostMatrixCreator extends LAPTrackerCostMatrixCreator {
 		return middlePoints;
 	}
 
-
 	/**
-	 * Creates the top left quadrant of the overall cost matrix, which contains the costs 
-	 * for gap closing, merging, and splitting (as well as the empty middle section).
+	 * Creates the top left quadrant of the overall cost matrix, which contains
+	 * the costs for gap closing, merging, and splitting (as well as the empty
+	 * middle section).
 	 */
 	private Matrix createTopLeftQuadrant() {
 		Matrix topLeft, mergingScores, splittingScores, middle;
 
-		// Create sub-matrices of top left quadrant (gap closing, merging, splitting, and empty middle
+		// Create sub-matrices of top left quadrant (gap closing, merging,
+		// splitting, and empty middle
 
 		logger.setStatus("Computing gap-closing costs...");
 		logger.setProgress(0.55f);
@@ -278,14 +308,14 @@ public class TrackSegmentCostMatrixCreator extends LAPTrackerCostMatrixCreator {
 		final boolean allowSplitting = (Boolean) settings.get(KEY_ALLOW_TRACK_SPLITTING);
 		final boolean allowMerging = (Boolean) settings.get(KEY_ALLOW_TRACK_MERGING);
 		final double blockingValue = (Double) settings.get(KEY_BLOCKING_VALUE);
-		
+
 		if (!allowMerging && !allowSplitting) {
 
 			// We skip the rest and only keep this modest matrix.
 			topLeft = gapClosingScores;
-			mergingScores 	= new Matrix(0, 0);
+			mergingScores = new Matrix(0, 0);
 			splittingScores = new Matrix(0, 0);
-			middle 			= new Matrix(0, 0);
+			middle = new Matrix(0, 0);
 
 		} else {
 
@@ -316,14 +346,14 @@ public class TrackSegmentCostMatrixCreator extends LAPTrackerCostMatrixCreator {
 			topLeft.setMatrix(0, trackSegments.size() - 1, trackSegments.size(), numCols - 1, mergingScores);
 			topLeft.setMatrix(trackSegments.size(), numRows - 1, trackSegments.size(), numCols - 1, middle);
 		}
-		
-		if(DEBUG) {
+
+		if (DEBUG) {
 			System.out.println("-- DEBUG information from TrackSegmentCostMatrixCreator --");
-			System.out.println("Gap closing scores for "+trackSegments.size()+" segments:");
+			System.out.println("Gap closing scores for " + trackSegments.size() + " segments:");
 			LAPUtils.echoMatrix(gapClosingScores.getArray());
-			System.out.println("Merging scores for "+trackSegments.size()+" segments and "+mergingMiddlePoints.size() +" merging points:");
+			System.out.println("Merging scores for " + trackSegments.size() + " segments and " + mergingMiddlePoints.size() + " merging points:");
 			LAPUtils.echoMatrix(mergingScores.getArray());
-			System.out.println("Splitting scores for "+splittingMiddlePoints.size()+" splitting points and "+trackSegments.size()+" segments:");
+			System.out.println("Splitting scores for " + splittingMiddlePoints.size() + " splitting points and " + trackSegments.size() + " segments:");
 			LAPUtils.echoMatrix(splittingScores.getArray());
 			System.out.println("Middle block:");
 			LAPUtils.echoMatrix(middle.getArray());
@@ -333,7 +363,8 @@ public class TrackSegmentCostMatrixCreator extends LAPTrackerCostMatrixCreator {
 	}
 
 	/**
-	 * Uses a gap closing cost function to fill in the gap closing costs sub-matrix.
+	 * Uses a gap closing cost function to fill in the gap closing costs
+	 * sub-matrix.
 	 */
 	private Matrix getGapClosingCostSubMatrix() {
 		GapClosingCostFunction gapClosing = new GapClosingCostFunction(settings, trackSegments);
@@ -346,21 +377,20 @@ public class TrackSegmentCostMatrixCreator extends LAPTrackerCostMatrixCreator {
 		}
 	}
 
-
 	/**
 	 * Uses a merging cost function to fill in the merging costs sub-matrix.
 	 */
 	private Matrix getMergingCostSubMatrix() {
 		MergingCostFunction merging = new MergingCostFunction(settings, trackSegments, middlePoints);
 		merging.setNumThreads(numThreads);
-		Matrix mergingScores ;
+		Matrix mergingScores;
 		if (!merging.checkInput() || !merging.process()) {
 			errorMessage = "Error in merging cost sub-matrix creation: " + merging.getErrorMessage();
 			return null;
 		} else {
 			mergingScores = merging.getResult();
 		}
-		
+
 		if (PRUNING_OPTIMIZATION) {
 			mergingMiddlePoints = new ArrayList<Spot>();
 			return pruneColumns(mergingScores, mergingMiddlePoints);
@@ -369,15 +399,14 @@ public class TrackSegmentCostMatrixCreator extends LAPTrackerCostMatrixCreator {
 			return mergingScores;
 		}
 	}
-	
 
 	/**
 	 * Uses a splitting cost function to fill in the splitting costs submatrix.
 	 */
 	private Matrix getSplittingCostSubMatrix() {
-		SplittingCostFunction splitting = new SplittingCostFunction(settings, trackSegments, middlePoints); 
+		SplittingCostFunction splitting = new SplittingCostFunction(settings, trackSegments, middlePoints);
 		splitting.setNumThreads(numThreads);
-		
+
 		Matrix splittingScores;
 		if (!splitting.checkInput() || !splitting.process()) {
 			errorMessage = "Error in splitting cost sub-matrix creation: " + splitting.getErrorMessage();
@@ -385,7 +414,7 @@ public class TrackSegmentCostMatrixCreator extends LAPTrackerCostMatrixCreator {
 		} else {
 			splittingScores = splitting.getResult();
 		}
-		
+
 		if (PRUNING_OPTIMIZATION) {
 			splittingMiddlePoints = new ArrayList<Spot>();
 			return pruneRows(splittingScores, splittingMiddlePoints);
@@ -395,13 +424,12 @@ public class TrackSegmentCostMatrixCreator extends LAPTrackerCostMatrixCreator {
 		}
 	}
 
-
 	/**
-	 * Iterates through the complete cost matrix, and removes any columns
-	 * that only contain BLOCKED (there are no useful columns with non-BLOCKED
+	 * Iterates through the complete cost matrix, and removes any columns that
+	 * only contain BLOCKED (there are no useful columns with non-BLOCKED
 	 * values). Returns the pruned matrix with the empty columns.
 	 */
-	private Matrix pruneColumns (Matrix m, List<Spot> keptMiddleSpots) {
+	private Matrix pruneColumns(Matrix m, List<Spot> keptMiddleSpots) {
 		final double blockingValue = (Double) settings.get(KEY_BLOCKING_VALUE);
 		// Find all columns that contain a cost (a value != BLOCKED)
 		double[][] full = m.copy().getArray();
@@ -436,11 +464,11 @@ public class TrackSegmentCostMatrixCreator extends LAPTrackerCostMatrixCreator {
 	}
 
 	/**
-	 * Iterates through the complete cost matrix, and removes any rows
-	 * that only contain BLOCKED (there are no useful rows with non-BLOCKED
-	 * values). Returns the pruned matrix with the empty rows.
+	 * Iterates through the complete cost matrix, and removes any rows that only
+	 * contain BLOCKED (there are no useful rows with non-BLOCKED values).
+	 * Returns the pruned matrix with the empty rows.
 	 */
-	private Matrix pruneRows (Matrix m, List<Spot> keptMiddleSpots) {
+	private Matrix pruneRows(Matrix m, List<Spot> keptMiddleSpots) {
 		final double blockingValue = (Double) settings.get(KEY_BLOCKING_VALUE);
 		// Find all rows that contain a cost (a value != BLOCKED)
 		double[][] full = m.copy().getArray();
@@ -467,21 +495,21 @@ public class TrackSegmentCostMatrixCreator extends LAPTrackerCostMatrixCreator {
 		}
 
 		if (pruned.length == 0) {
-			return new Matrix(0,0);
+			return new Matrix(0, 0);
 		}
 		return new Matrix(pruned);
 	}
 
-
 	/**
-	 * Calculates the CUTOFF_PERCENTILE cost of all costs in gap closing, merging, and
-	 * splitting matrices to assign the top right and bottom left score matrices.
+	 * Calculates the CUTOFF_PERCENTILE cost of all costs in gap closing,
+	 * merging, and splitting matrices to assign the top right and bottom left
+	 * score matrices.
 	 */
 	private double getCutoff(Matrix m) {
 		final double blockingValue = (Double) settings.get(KEY_BLOCKING_VALUE);
 		final double cutoffPercentile = (Double) settings.get(KEY_CUTOFF_PERCENTILE);
 		final double alternativeLinkingCostFactor = (Double) settings.get(KEY_ALTERNATIVE_LINKING_COST_FACTOR);
-		
+
 		// Get a list of all non-BLOCKED cost
 		ArrayList<Double> scores = new ArrayList<Double>();
 		for (int i = 0; i < m.getRowDimension(); i++) {
@@ -497,9 +525,11 @@ public class TrackSegmentCostMatrixCreator extends LAPTrackerCostMatrixCreator {
 		for (int i = 0; i < scores.size(); i++) {
 			scoreArr[i] = scores.get(i);
 		}
-		double cutoff = TMUtils.getPercentile(scoreArr, cutoffPercentile); 
+		double cutoff = TMUtils.getPercentile(scoreArr, cutoffPercentile);
 		if (!(cutoff < blockingValue)) {
-			cutoff = 10.0d; // TODO how to fix this? In this case, there are no costs in the matrix, so nothing to calculate the cutoff values from
+			cutoff = 10.0d; // TODO how to fix this? In this case, there are no
+							// costs in the matrix, so nothing to calculate the
+							// cutoff values from
 		}
 		return alternativeLinkingCostFactor * cutoff;
 	}

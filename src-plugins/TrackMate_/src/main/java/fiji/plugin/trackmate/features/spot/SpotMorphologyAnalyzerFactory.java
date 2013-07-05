@@ -17,27 +17,24 @@ import fiji.plugin.trackmate.Model;
 
 public class SpotMorphologyAnalyzerFactory<T extends RealType<T> & NativeType<T>> implements SpotAnalyzerFactory<T> {
 
+	/* CONSTANTS */
 
-	/*
-	 * CONSTANTS
-	 */
-
-	public final static String[] featurelist_sa 	= { "ELLIPSOIDFIT_SEMIAXISLENGTH_C", "ELLIPSOIDFIT_SEMIAXISLENGTH_B", 	"ELLIPSOIDFIT_SEMIAXISLENGTH_A" };
-	public final static String[] featurelist_phi 	= { "ELLIPSOIDFIT_AXISPHI_C", 		"ELLIPSOIDFIT_AXISPHI_B", 			"ELLIPSOIDFIT_AXISPHI_A" };
-	public final static String[] featurelist_theta = { "ELLIPSOIDFIT_AXISTHETA_C", 	"ELLIPSOIDFIT_AXISTHETA_B", 		"ELLIPSOIDFIT_AXISTHETA_A" }; 
+	public final static String[] featurelist_sa = { "ELLIPSOIDFIT_SEMIAXISLENGTH_C", "ELLIPSOIDFIT_SEMIAXISLENGTH_B", "ELLIPSOIDFIT_SEMIAXISLENGTH_A" };
+	public final static String[] featurelist_phi = { "ELLIPSOIDFIT_AXISPHI_C", "ELLIPSOIDFIT_AXISPHI_B", "ELLIPSOIDFIT_AXISPHI_A" };
+	public final static String[] featurelist_theta = { "ELLIPSOIDFIT_AXISTHETA_C", "ELLIPSOIDFIT_AXISTHETA_B", "ELLIPSOIDFIT_AXISTHETA_A" };
 	/** The key name of the morphology feature this analyzer computes. */
 	public final static String MORPHOLOGY = "MORPHOLOGY";
-	
-	public static final ArrayList<String> 			FEATURES = new ArrayList<String>(10);
-	public static final HashMap<String, String> 	FEATURE_NAMES = new HashMap<String, String>(10);
-	public static final HashMap<String, String> 	FEATURE_SHORT_NAMES = new HashMap<String, String>(10);
+
+	public static final ArrayList<String> FEATURES = new ArrayList<String>(10);
+	public static final HashMap<String, String> FEATURE_NAMES = new HashMap<String, String>(10);
+	public static final HashMap<String, String> FEATURE_SHORT_NAMES = new HashMap<String, String>(10);
 	public static final HashMap<String, Dimension> FEATURE_DIMENSIONS = new HashMap<String, Dimension>(10);
 	static {
 		FEATURES.add(MORPHOLOGY);
 		FEATURES.addAll(Arrays.asList(featurelist_sa));
 		FEATURES.addAll(Arrays.asList(featurelist_phi));
 		FEATURES.addAll(Arrays.asList(featurelist_theta));
-		
+
 		FEATURE_NAMES.put(MORPHOLOGY, "Morphology");
 		FEATURE_NAMES.put(featurelist_sa[0], "Ellipsoid C semi-axis length");
 		FEATURE_NAMES.put(featurelist_sa[1], "Ellipsoid B semi-axis length");
@@ -59,7 +56,7 @@ public class SpotMorphologyAnalyzerFactory<T extends RealType<T> & NativeType<T>
 		FEATURE_SHORT_NAMES.put(featurelist_theta[0], "θc");
 		FEATURE_SHORT_NAMES.put(featurelist_theta[1], "θb");
 		FEATURE_SHORT_NAMES.put(featurelist_theta[2], "θa");
-		
+
 		FEATURE_DIMENSIONS.put(MORPHOLOGY, Dimension.NONE);
 		FEATURE_DIMENSIONS.put(featurelist_sa[0], Dimension.LENGTH);
 		FEATURE_DIMENSIONS.put(featurelist_sa[1], Dimension.LENGTH);
@@ -81,23 +78,18 @@ public class SpotMorphologyAnalyzerFactory<T extends RealType<T> & NativeType<T>
 	public static final Double PROLATE = Double.valueOf(2);
 	/** Scalene shape, nothing particular, a > b > c. */
 	public static final Double SCALENE = Double.valueOf(3);
-	
 
 	private final Model model;
 	private final ImgPlus<T> img;
 
-	/*
-	 * CONSTRUCTOR
-	 */
-	
+	/* CONSTRUCTOR */
+
 	public SpotMorphologyAnalyzerFactory(final Model model, final ImgPlus<T> img) {
 		this.model = model;
 		this.img = img;
 	}
-	
-	/*
-	 * METHODS
-	 */
+
+	/* METHODS */
 
 	@Override
 	public SpotMorphologyAnalyzer<T> getAnalyzer(int frame, int channel) {

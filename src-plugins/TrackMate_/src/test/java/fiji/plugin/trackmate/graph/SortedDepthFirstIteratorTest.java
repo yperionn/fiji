@@ -24,26 +24,19 @@ public class SortedDepthFirstIteratorTest {
 	private static String[] names;
 	private static Comparator<Spot> spotNameComparator;
 
-
-
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 
-		/*
-		 * The comparator
-		 */
+		/* The comparator */
 		spotNameComparator = new Comparator<Spot>() {
 			@Override
 			public int compare(Spot o1, Spot o2) {
 				return o1.getName().compareTo(o2.getName());
 			}
 		};
-		
-		
-		/*
-		 * The graph
-		 */
-		
+
+		/* The graph */
+
 		model = new Model();
 		model.beginUpdate();
 		try {
@@ -51,24 +44,24 @@ public class SortedDepthFirstIteratorTest {
 			// Root
 			root = new Spot(new double[3], "Root");
 			model.addSpotTo(root, 0);
-			
+
 			// First level
 			names = new String[N_CHILDREN];
 			Spot[][] spots = new Spot[N_LEVELS][N_CHILDREN];
 			for (int i = 0; i < names.length; i++) {
-				
+
 				names[i] = randomString(5);
 				Spot spotChild = new Spot(new double[3], names[i]);
 				model.addSpotTo(spotChild, 1);
 				model.addEdge(root, spotChild, -1);
 				spots[0][i] = spotChild;
-				
+
 				spots[0][i] = spotChild;
 				for (int j = 1; j < spots.length; j++) {
-					Spot spot = new Spot(new double[3], "  "+j+"_"+randomString(3));
+					Spot spot = new Spot(new double[3], "  " + j + "_" + randomString(3));
 					spots[j][i] = spot;
-					model.addSpotTo(spot, j+1);
-					model.addEdge(spots[j-1][i], spots[j][i], -1);
+					model.addSpotTo(spot, j + 1);
+					model.addEdge(spots[j - 1][i], spots[j][i], -1);
 				}
 			}
 		} finally {
@@ -76,11 +69,9 @@ public class SortedDepthFirstIteratorTest {
 		}
 	}
 
-
-
 	@Test
 	public final void testBehavior() {
-		
+
 		// Sort names
 		String[] expectedSortedNames = names.clone();
 		Comparator<String> alphabeticalOrder = new Comparator<String>() {
@@ -90,14 +81,14 @@ public class SortedDepthFirstIteratorTest {
 			}
 		};
 		Arrays.sort(expectedSortedNames, 0, expectedSortedNames.length, alphabeticalOrder);
-		
+
 		// Collect names in the tree
 		SortedDepthFirstIterator<Spot, DefaultWeightedEdge> iterator = model.getTrackModel().getSortedDepthFirstIterator(root, spotNameComparator, true);
 		String[] actualNames = new String[N_CHILDREN];
 		int index = 0;
 		while (iterator.hasNext()) {
 			Spot spot = iterator.next();
-			if (model.getTrackModel().getEdge(root, spot) != null){
+			if (model.getTrackModel().getEdge(root, spot) != null) {
 				actualNames[index++] = spot.getName();
 			}
 		}
@@ -105,11 +96,10 @@ public class SortedDepthFirstIteratorTest {
 		assertArrayEquals(expectedSortedNames, actualNames);
 	}
 
-
-	private final static String randomString( int len )	{
-		StringBuilder sb = new StringBuilder( len );
-		for( int i = 0; i < len; i++ ) 
-			sb.append( AB.charAt( rnd.nextInt(AB.length()) ) );
+	private final static String randomString(int len) {
+		StringBuilder sb = new StringBuilder(len);
+		for (int i = 0; i < len; i++)
+			sb.append(AB.charAt(rnd.nextInt(AB.length())));
 		return sb.toString();
 	}
 

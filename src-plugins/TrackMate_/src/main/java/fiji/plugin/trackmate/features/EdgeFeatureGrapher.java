@@ -46,13 +46,13 @@ public class EdgeFeatureGrapher extends AbstractFeatureGrapher {
 	public void render() {
 
 		// Check x units
-		String xdim= TMUtils.getUnitsFor(xDimension, model.getSpaceUnits(), model.getTimeUnits());
+		String xdim = TMUtils.getUnitsFor(xDimension, model.getSpaceUnits(), model.getTimeUnits());
 		if (null == xdim) { // not a number feature
-			return; 
+			return;
 		}
 
 		// X label
-		String xAxisLabel = xFeature + " (" + xdim +")";
+		String xAxisLabel = xFeature + " (" + xdim + ")";
 
 		// Find how many different dimensions
 		Set<Dimension> dimensions = getUniqueValues(yFeatures, yDimensions);
@@ -63,10 +63,10 @@ public class EdgeFeatureGrapher extends AbstractFeatureGrapher {
 
 			// Y label
 			String yAxisLabel = TMUtils.getUnitsFor(dimension, model.getSpaceUnits(), model.getTimeUnits());
-			
+
 			// Check y units
 			if (null == yAxisLabel) { // not a number feature
-				continue; 
+				continue;
 			}
 
 			// Collect suitable feature for this dimension
@@ -74,7 +74,7 @@ public class EdgeFeatureGrapher extends AbstractFeatureGrapher {
 
 			// Title
 			String title = buildPlotTitle(featuresThisDimension, featureNames);
-			
+
 			// Data-set for points (easy)
 			XYSeriesCollection pointDataset = buildEdgeDataSet(featuresThisDimension, edges);
 
@@ -109,8 +109,8 @@ public class EdgeFeatureGrapher extends AbstractFeatureGrapher {
 				pointRenderer.setSeriesOutlinePaint(i, Color.black);
 				pointRenderer.setSeriesLinesVisible(i, false);
 				pointRenderer.setSeriesShape(i, DEFAULT_SHAPE, false);
-				pointRenderer.setSeriesPaint(i, paints.getPaint((double)i/nseries), false);
-				edgeRenderer.setSeriesPaint(i, paints.getPaint((double)i/nseries), false);
+				pointRenderer.setSeriesPaint(i, paints.getPaint((double) i / nseries), false);
+				edgeRenderer.setSeriesPaint(i, paints.getPaint((double) i / nseries), false);
 			}
 
 			// The panel
@@ -122,27 +122,28 @@ public class EdgeFeatureGrapher extends AbstractFeatureGrapher {
 		renderCharts(chartPanels);
 	}
 
-
-
 	private XYEdgeSeriesCollection buildConnectionDataSet(List<String> targetYFeatures, List<DefaultWeightedEdge> edges) {
 		XYEdgeSeriesCollection edgeDataset = new XYEdgeSeriesCollection();
-		// First create series per y features. At this stage, we assume that they are all numeric 
-		for(String yFeature : targetYFeatures) {
+		// First create series per y features. At this stage, we assume that
+		// they are all numeric
+		for (String yFeature : targetYFeatures) {
 			XYEdgeSeries edgeSeries = new XYEdgeSeries(featureNames.get(yFeature));
 			edgeDataset.addSeries(edgeSeries);
 		}
 
-		// Build dataset. We look for edges that have a spot in common, one for the target one for the source
+		// Build dataset. We look for edges that have a spot in common, one for
+		// the target one for the source
 		final FeatureModel fm = model.getFeatureModel();
-		for(DefaultWeightedEdge	edge0 : edges) {
-			for(DefaultWeightedEdge	edge1 : edges) {
+		for (DefaultWeightedEdge edge0 : edges) {
+			for (DefaultWeightedEdge edge1 : edges) {
 
 				if (model.getTrackModel().getEdgeSource(edge0).equals(model.getTrackModel().getEdgeTarget(edge1))) {
-					for(String yFeature : targetYFeatures) {
+					for (String yFeature : targetYFeatures) {
 						XYEdgeSeries edgeSeries = edgeDataset.getSeries(featureNames.get(yFeature));
 						Number x0 = (Number) fm.getEdgeFeature(edge0, xFeature);
 						Number y0 = (Number) fm.getEdgeFeature(edge0, yFeature);
-						Number x1 = (Number) fm.getEdgeFeature(edge1, xFeature);;
+						Number x1 = (Number) fm.getEdgeFeature(edge1, xFeature);
+						;
 						Number y1 = (Number) fm.getEdgeFeature(edge1, yFeature);
 						edgeSeries.addEdge(x0.doubleValue(), y0.doubleValue(), x1.doubleValue(), y1.doubleValue());
 					}
@@ -153,15 +154,15 @@ public class EdgeFeatureGrapher extends AbstractFeatureGrapher {
 	}
 
 	/**
-	 * @return a new dataset that contains the values, specified from the given feature, and  extracted from all
-	 * the given edges.
+	 * @return a new dataset that contains the values, specified from the given
+	 *         feature, and extracted from all the given edges.
 	 */
 	private XYSeriesCollection buildEdgeDataSet(final Iterable<String> targetYFeatures, final Iterable<DefaultWeightedEdge> edges) {
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		final FeatureModel fm = model.getFeatureModel();
-		for(String feature : targetYFeatures) {
+		for (String feature : targetYFeatures) {
 			XYSeries series = new XYSeries(featureNames.get(feature));
-			for(DefaultWeightedEdge edge : edges) {
+			for (DefaultWeightedEdge edge : edges) {
 				Number x = (Number) fm.getEdgeFeature(edge, xFeature);
 				Number y = (Number) fm.getEdgeFeature(edge, feature);
 				if (null == x || null == y) {

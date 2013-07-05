@@ -55,21 +55,21 @@ import fiji.plugin.trackmate.visualization.TrackColorGenerator;
 import fiji.plugin.trackmate.visualization.TrackMateModelView;
 
 /**
- * A configuration panel used to tune the aspect of spots and tracks in multiple {@link AbstractTrackMateModelView}.
- * This GUI takes the role of a controller.
- * @author Jean-Yves Tinevez <tinevez@pasteur.fr>   -  2010 - 2011
+ * A configuration panel used to tune the aspect of spots and tracks in multiple
+ * {@link AbstractTrackMateModelView}. This GUI takes the role of a controller.
+ * 
+ * @author Jean-Yves Tinevez <tinevez@pasteur.fr> - 2010 - 2011
  */
 public class ConfigureViewsPanel extends ActionListenablePanel {
 
 	private static final long serialVersionUID = 1L;
 
 	private static final Icon DO_ANALYSIS_ICON = new ImageIcon(TrackMateWizard.class.getResource("images/calculator.png"));
-	public ActionEvent TRACK_SCHEME_BUTTON_PRESSED 	= new ActionEvent(this, 0, "TrackSchemeButtonPushed");
-	public ActionEvent DO_ANALYSIS_BUTTON_PRESSED 	= new ActionEvent(this, 1, "DoAnalysisButtonPushed");
+	public ActionEvent TRACK_SCHEME_BUTTON_PRESSED = new ActionEvent(this, 0, "TrackSchemeButtonPushed");
+	public ActionEvent DO_ANALYSIS_BUTTON_PRESSED = new ActionEvent(this, 1, "DoAnalysisButtonPushed");
 
-	/** A map of String/Object that configures the look and feel of the views.	 */
+	/** A map of String/Object that configures the look and feel of the views. */
 	protected Map<String, Object> displaySettings = new HashMap<String, Object>();
-
 
 	protected JButton jButtonShowTrackScheme;
 	protected JButton jButtonDoAnalysis;
@@ -95,10 +95,7 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 	private PerEdgeFeatureColorGenerator edgeColorGenerator;
 	private FeatureColorGenerator<Spot> spotColorGenerator;
 
-
-	/*
-	 * CONSTRUCTOR 
-	 */
+	/* CONSTRUCTOR */
 
 	public ConfigureViewsPanel(Model model) {
 		this.model = model;
@@ -106,49 +103,58 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 		refreshGUI();
 	}
 
-	/*
-	 * PUBLIC METHODS
-	 */
-	
+	/* PUBLIC METHODS */
+
 	/**
-	 * Adds the specified {@link DisplaySettingsListener} to the collection of listeners
-	 * that will be notified when a display settings change is made on this GUI.
-	 * @param listener the listener to add.
+	 * Adds the specified {@link DisplaySettingsListener} to the collection of
+	 * listeners that will be notified when a display settings change is made on
+	 * this GUI.
+	 * 
+	 * @param listener
+	 *        the listener to add.
 	 */
 	public void addDisplaySettingsChangeListener(DisplaySettingsListener listener) {
 		listeners.add(listener);
 	}
-	
+
 	/**
-	 * Removes the specified {@link DisplaySettingsListener} from the collection of listeners
-	 * of this GUI.
-	 * @param listener the listener to remove.
-	 * @return <code>true</code> if the listener belonged to the list of registered listener
-	 * and was successfully removed.
+	 * Removes the specified {@link DisplaySettingsListener} from the collection
+	 * of listeners of this GUI.
+	 * 
+	 * @param listener
+	 *        the listener to remove.
+	 * @return <code>true</code> if the listener belonged to the list of
+	 *         registered listener and was successfully removed.
 	 */
 	public boolean removeDisplaySettingsChangeListener(DisplaySettingsListener listener) {
 		return listeners.remove(listener);
 	}
 
 	/**
-	 * Exposes the {@link JButton} that should trigger the launch of TrackScheme.
+	 * Exposes the {@link JButton} that should trigger the launch of
+	 * TrackScheme.
+	 * 
 	 * @return the TrackScheme {@link JButton}.
 	 */
 	public JButton getTrackSchemeButton() {
 		return jButtonShowTrackScheme;
 	}
-	
+
 	/**
 	 * Exposes the {@link JButton} that should trigger the launch of analysis.
+	 * 
 	 * @return the analysis {@link JButton}.
 	 */
 	public JButton getDoAnalysisButton() {
 		return jButtonDoAnalysis;
 	}
-	
+
 	/**
-	 * Overrides the track color generator configured in this panel, allowing to share instances.
-	 * @param trackColorGenerator the new color generator. The previous one will be terminated.
+	 * Overrides the track color generator configured in this panel, allowing to
+	 * share instances.
+	 * 
+	 * @param trackColorGenerator
+	 *        the new color generator. The previous one will be terminated.
 	 */
 	public void setTrackColorGenerator(PerTrackFeatureColorGenerator trackColorGenerator) {
 		if (null != this.trackColorGenerator) {
@@ -158,8 +164,11 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 	}
 
 	/**
-	 * Overrides the edge color generator configured in this panel, allowing to share instances.
-	 * @param edgeColorGenerator the new color generator. The previous one will be terminated.
+	 * Overrides the edge color generator configured in this panel, allowing to
+	 * share instances.
+	 * 
+	 * @param edgeColorGenerator
+	 *        the new color generator. The previous one will be terminated.
 	 */
 	public void setEdgeColorGenerator(PerEdgeFeatureColorGenerator edgeColorGenerator) {
 		if (null != this.edgeColorGenerator) {
@@ -167,13 +176,16 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 		}
 		this.edgeColorGenerator = edgeColorGenerator;
 	}
-	
+
 	/**
-	 * Overrides the spot color generator configured in this panel, allowing to share instances.
-	 * @param spotColorGenerator the new color generator.
+	 * Overrides the spot color generator configured in this panel, allowing to
+	 * share instances.
+	 * 
+	 * @param spotColorGenerator
+	 *        the new color generator.
 	 */
 	public void setSpotColorGenerator(FeatureColorGenerator<Spot> spotColorGenerator) {
-		if (null != this.spotColorGenerator) { 
+		if (null != this.spotColorGenerator) {
 			this.spotColorGenerator.terminate();
 		}
 		this.spotColorGenerator = spotColorGenerator;
@@ -183,21 +195,18 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 		jPanelSpotColor.setColorFeature(spotColorGenerator.getFeature());
 		trackColorGUI.setColorFeature(trackColorGenerator.getFeature());
 	}
-	
-	
+
 	/**
 	 * Refreshes some components of this GUI with current values of the model.
 	 */
 	public void refreshGUI() {
-		
-		/*
-		 * Spot coloring
-		 */
-		
+
+		/* Spot coloring */
+
 		if (null != jPanelSpotColor) {
 			jPanelSpotOptions.remove(jPanelSpotColor);
 		}
-		jPanelSpotColor = new ColorByFeatureGUIPanel(model, Arrays.asList(new Category[] { Category.SPOTS, Category.DEFAULT } ));
+		jPanelSpotColor = new ColorByFeatureGUIPanel(model, Arrays.asList(new Category[] { Category.SPOTS, Category.DEFAULT }));
 		jPanelSpotColor.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -209,16 +218,14 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 				fireDisplaySettingsChange(event);
 			}
 		});
-		
-		/*
-		 * Track coloring
-		 */
-		
+
+		/* Track coloring */
+
 		if (null != trackColorGUI) {
 			jPanelTrackOptions.remove(trackColorGUI);
 		}
-		
-		trackColorGUI = new ColorByFeatureGUIPanel(model, Arrays.asList(new Category[] { Category.TRACKS, Category.EDGES, Category.DEFAULT } ));
+
+		trackColorGUI = new ColorByFeatureGUIPanel(model, Arrays.asList(new Category[] { Category.TRACKS, Category.EDGES, Category.DEFAULT }));
 		trackColorGUI.setPreferredSize(new java.awt.Dimension(265, 45));
 		trackColorGUI.addActionListener(new ActionListener() {
 			@Override
@@ -251,10 +258,8 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 		jPanelTrackOptions.add(trackColorGUI);
 	}
 
-	/*
-	 * PRIVATE METHODS
-	 */
-	
+	/* PRIVATE METHODS */
+
 	private void fireDisplaySettingsChange(DisplaySettingsEvent event) {
 		for (DisplaySettingsListener listener : listeners) {
 			listener.displaySettingsChanged(event);
@@ -269,8 +274,9 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 			{
 				jPanelTrackOptions = new JPanel() {
 					private static final long serialVersionUID = -1805693239189343720L;
+
 					public void setEnabled(boolean enabled) {
-						for(Component c : getComponents())
+						for (Component c : getComponents())
 							c.setEnabled(enabled);
 					};
 				};
@@ -279,7 +285,7 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 				jPanelTrackOptions.setLayout(jPanelTrackOptionsLayout);
 				this.add(jPanelTrackOptions);
 				jPanelTrackOptions.setBounds(10, 212, 280, 188);
-				jPanelTrackOptions.setBorder(new LineBorder(new java.awt.Color(192,192,192), 1, true));
+				jPanelTrackOptions.setBorder(new LineBorder(new java.awt.Color(192, 192, 192), 1, true));
 				{
 					jLabelTrackDisplayMode = new JLabel();
 					jPanelTrackOptions.add(jLabelTrackDisplayMode);
@@ -303,7 +309,7 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 							Integer oldValue = (Integer) displaySettings.get(KEY_TRACK_DISPLAY_MODE);
 							Integer newValue = jComboBoxDisplayMode.getSelectedIndex();
 							displaySettings.put(KEY_TRACK_DISPLAY_MODE, newValue);
-							
+
 							DisplaySettingsEvent event = new DisplaySettingsEvent(ConfigureViewsPanel.this, KEY_TRACK_DISPLAY_MODE, newValue, oldValue);
 							fireDisplaySettingsChange(event);
 						}
@@ -328,7 +334,7 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 							}
 							Integer oldValue = (Integer) displaySettings.get(KEY_TRACK_DISPLAY_DEPTH);
 							displaySettings.put(KEY_TRACK_DISPLAY_DEPTH, depth);
-							
+
 							DisplaySettingsEvent event = new DisplaySettingsEvent(ConfigureViewsPanel.this, KEY_TRACK_DISPLAY_DEPTH, depth, oldValue);
 							fireDisplaySettingsChange(event);
 						}
@@ -345,7 +351,7 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 					jTextFieldFrameDepth = new JTextField();
 					jPanelTrackOptions.add(jTextFieldFrameDepth);
 					jTextFieldFrameDepth.setFont(SMALL_FONT);
-					jTextFieldFrameDepth.setText(""+TrackMateModelView.DEFAULT_TRACK_DISPLAY_DEPTH);
+					jTextFieldFrameDepth.setText("" + TrackMateModelView.DEFAULT_TRACK_DISPLAY_DEPTH);
 					jTextFieldFrameDepth.setPreferredSize(new java.awt.Dimension(34, 20));
 					jTextFieldFrameDepth.addActionListener(new ActionListener() {
 						@Override
@@ -353,7 +359,7 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 							Integer depth = Integer.parseInt(jTextFieldFrameDepth.getText());
 							Integer oldValue = (Integer) displaySettings.get(KEY_TRACK_DISPLAY_DEPTH);
 							displaySettings.put(KEY_TRACK_DISPLAY_DEPTH, depth);
-							
+
 							DisplaySettingsEvent event = new DisplaySettingsEvent(ConfigureViewsPanel.this, KEY_TRACK_DISPLAY_DEPTH, depth, oldValue);
 							fireDisplaySettingsChange(event);
 						}
@@ -371,9 +377,9 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						Boolean oldValue = (Boolean) displaySettings.get(KEY_TRACKS_VISIBLE);
-						Boolean newValue =  jCheckBoxDisplayTracks.isSelected();
+						Boolean newValue = jCheckBoxDisplayTracks.isSelected();
 						displaySettings.put(KEY_TRACKS_VISIBLE, newValue);
-						
+
 						DisplaySettingsEvent event = new DisplaySettingsEvent(ConfigureViewsPanel.this, KEY_TRACKS_VISIBLE, newValue, oldValue);
 						fireDisplaySettingsChange(event);
 					}
@@ -390,9 +396,9 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						Boolean oldValue = (Boolean) displaySettings.get(KEY_SPOTS_VISIBLE);
-						Boolean newValue =  jCheckBoxDisplaySpots.isSelected();
+						Boolean newValue = jCheckBoxDisplaySpots.isSelected();
 						displaySettings.put(KEY_SPOTS_VISIBLE, newValue);
-						
+
 						DisplaySettingsEvent event = new DisplaySettingsEvent(ConfigureViewsPanel.this, KEY_SPOTS_VISIBLE, newValue, oldValue);
 						fireDisplaySettingsChange(event);
 					}
@@ -401,8 +407,9 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 			{
 				jPanelSpotOptions = new JPanel() {
 					private static final long serialVersionUID = 1L;
+
 					public void setEnabled(boolean enabled) {
-						for(Component c : getComponents())
+						for (Component c : getComponents())
 							c.setEnabled(enabled);
 					};
 				};
@@ -411,7 +418,7 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 				jPanelSpotOptions.setLayout(jPanelSpotOptionsLayout);
 				this.add(jPanelSpotOptions);
 				jPanelSpotOptions.setBounds(10, 63, 280, 110);
-				jPanelSpotOptions.setBorder(new LineBorder(new java.awt.Color(192,192,192), 1, true));
+				jPanelSpotOptions.setBorder(new LineBorder(new java.awt.Color(192, 192, 192), 1, true));
 				{
 					JLabel jLabelSpotRadius = new JLabel();
 					jLabelSpotRadius.setText("  Spot display radius ratio:");
@@ -426,9 +433,9 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							Float oldValue = (Float) displaySettings.get(KEY_SPOT_RADIUS_RATIO);
-							Float newValue =  (float) jTextFieldSpotRadius.getValue();
+							Float newValue = (float) jTextFieldSpotRadius.getValue();
 							displaySettings.put(KEY_SPOT_RADIUS_RATIO, newValue);
-							
+
 							DisplaySettingsEvent event = new DisplaySettingsEvent(ConfigureViewsPanel.this, KEY_SPOT_RADIUS_RATIO, newValue, oldValue);
 							fireDisplaySettingsChange(event);
 						}
@@ -437,14 +444,16 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 						@Override
 						public void focusLost(FocusEvent e) {
 							Float oldValue = (Float) displaySettings.get(KEY_SPOT_RADIUS_RATIO);
-							Float newValue =  (float) jTextFieldSpotRadius.getValue();
+							Float newValue = (float) jTextFieldSpotRadius.getValue();
 							displaySettings.put(KEY_SPOT_RADIUS_RATIO, newValue);
-							
+
 							DisplaySettingsEvent event = new DisplaySettingsEvent(ConfigureViewsPanel.this, KEY_SPOT_RADIUS_RATIO, newValue, oldValue);
 							fireDisplaySettingsChange(event);
 						}
+
 						@Override
-						public void focusGained(FocusEvent e) {}
+						public void focusGained(FocusEvent e) {
+						}
 					});
 				}
 				{
@@ -457,9 +466,9 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 						@Override
 						public void actionPerformed(ActionEvent e) {
 							Boolean oldValue = (Boolean) displaySettings.get(KEY_DISPLAY_SPOT_NAMES);
-							Boolean newValue = (Boolean) jCheckBoxDisplayNames.isSelected(); 
+							Boolean newValue = (Boolean) jCheckBoxDisplayNames.isSelected();
 							displaySettings.put(KEY_DISPLAY_SPOT_NAMES, newValue);
-							
+
 							DisplaySettingsEvent event = new DisplaySettingsEvent(ConfigureViewsPanel.this, KEY_DISPLAY_SPOT_NAMES, newValue, oldValue);
 							fireDisplaySettingsChange(event);
 						}
@@ -506,5 +515,4 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 		}
 	}
 
-	
 }

@@ -51,7 +51,9 @@ public class TrackIndexAnalyzerTest {
 	}
 
 	/**
-	 * Test method for {@link fiji.plugin.trackmate.features.track.TrackIndexAnalyzer#process(java.util.Collection)}.
+	 * Test method for
+	 * {@link fiji.plugin.trackmate.features.track.TrackIndexAnalyzer#process(java.util.Collection)}
+	 * .
 	 */
 	@Test
 	public final void testProcess() {
@@ -66,18 +68,20 @@ public class TrackIndexAnalyzerTest {
 			trackIndices.add(model.getFeatureModel().getTrackFeature(trackID, TrackIndexAnalyzer.TRACK_INDEX).intValue());
 		}
 
-		//Check values: they must be 0, 1, 2, ... in the order of the filtered track IDs (which reflect track names order)
+		// Check values: they must be 0, 1, 2, ... in the order of the filtered
+		// track IDs (which reflect track names order)
 		for (int i = 0; i < N_TRACKS; i++) {
 			assertEquals("Bad track index:", (long) i, trackIndices.get(i).longValue());
 		}
 	}
 
 	/**
-	 * Test method for {@link fiji.plugin.trackmate.features.track.TrackIndexAnalyzer#modelChanged(fiji.plugin.trackmate.ModelChangeEvent)}.
+	 * Test method for
+	 * {@link fiji.plugin.trackmate.features.track.TrackIndexAnalyzer#modelChanged(fiji.plugin.trackmate.ModelChangeEvent)}
+	 * .
 	 */
 	@Test
 	public final void testModelChanged() {
-
 
 		// Compute track index
 		Set<Integer> trackIDs = model.getTrackModel().trackIDs(true);
@@ -106,11 +110,9 @@ public class TrackIndexAnalyzerTest {
 			}
 		};
 
-		/*
-		 *  Modify the model a first time:
-		 *  We attach a new spot to an existing track. It must not modify the 
-		 *  track indices, nor generate a call to recalculate them. 
-		 */
+		/* Modify the model a first time: We attach a new spot to an existing
+		 * track. It must not modify the track indices, nor generate a call to
+		 * recalculate them. */
 		model.addModelChangeListener(listener);
 		model.beginUpdate();
 		try {
@@ -124,13 +126,12 @@ public class TrackIndexAnalyzerTest {
 		// Reset analyzer
 		analyzer.hasBeenCalled = false;
 
-		/*
-		 * Second modification: we create a new track by cutting one track in the middle
-		 */
+		/* Second modification: we create a new track by cutting one track in
+		 * the middle */
 		model.addModelChangeListener(listener);
 		model.beginUpdate();
 		try {
-			Spot targetSpot = model.getSpots().iterator(DEPTH/2, true).next();
+			Spot targetSpot = model.getSpots().iterator(DEPTH / 2, true).next();
 			model.removeSpot(targetSpot);
 		} finally {
 			model.endUpdate();
@@ -141,7 +142,7 @@ public class TrackIndexAnalyzerTest {
 
 		// There must N_TRACKS+1 indices now
 		trackIDs = model.getTrackModel().trackIDs(true);
-		assertEquals((long) N_TRACKS+1,	(long) trackIDs.size());
+		assertEquals((long) N_TRACKS + 1, (long) trackIDs.size());
 
 		// With correct indices
 		Iterator<Integer> it = trackIDs.iterator();
@@ -149,13 +150,14 @@ public class TrackIndexAnalyzerTest {
 			assertEquals((long) i, model.getFeatureModel().getTrackFeature(it.next(), TrackIndexAnalyzer.TRACK_INDEX).longValue());
 		}
 		// FIXME
-		// FAILS BECAUSE TRANCK INDEX IS A GLOBAL TRACK ANALYZER AND NEEDS TO RECOMPUTE FOR THE WHOLE MODEL
+		// FAILS BECAUSE TRANCK INDEX IS A GLOBAL TRACK ANALYZER AND NEEDS TO
+		// RECOMPUTE FOR THE WHOLE MODEL
 		// C:EST LA VIE
 
 	}
 
 	/**
-	 *  Subclass of {@link TrackIndexAnalyzer} to monitor method calls.
+	 * Subclass of {@link TrackIndexAnalyzer} to monitor method calls.
 	 */
 	private static final class TestTrackIndexAnalyzer extends TrackIndexAnalyzer {
 
@@ -171,6 +173,5 @@ public class TrackIndexAnalyzerTest {
 			super.process(trackIDs);
 		}
 	}
-
 
 }

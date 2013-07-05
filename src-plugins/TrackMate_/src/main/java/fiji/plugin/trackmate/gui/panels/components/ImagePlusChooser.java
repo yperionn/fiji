@@ -1,4 +1,5 @@
 package fiji.plugin.trackmate.gui.panels.components;
+
 import static fiji.plugin.trackmate.gui.TrackMateWizard.FONT;
 import static fiji.plugin.trackmate.gui.TrackMateWizard.SMALL_FONT;
 import ij.ImagePlus;
@@ -19,7 +20,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
-
 
 public class ImagePlusChooser extends javax.swing.JFrame {
 
@@ -49,37 +49,44 @@ public class ImagePlusChooser extends javax.swing.JFrame {
 		});
 	}
 
-	/*
-	 * CONSTRUCTOR
-	 */
+	/* CONSTRUCTOR */
 
 	public ImagePlusChooser() {
 		super();
 		initGUI();
 		addWindowListener(new WindowListener() {
 			@Override
-			public void windowOpened(WindowEvent e) {}
+			public void windowOpened(WindowEvent e) {
+			}
+
 			@Override
-			public void windowIconified(WindowEvent e) {}
+			public void windowIconified(WindowEvent e) {
+			}
+
 			@Override
-			public void windowDeiconified(WindowEvent e) {}
+			public void windowDeiconified(WindowEvent e) {
+			}
+
 			@Override
-			public void windowDeactivated(WindowEvent e) {}
+			public void windowDeactivated(WindowEvent e) {
+			}
+
 			@Override
-			public void windowClosing(WindowEvent e) {}
+			public void windowClosing(WindowEvent e) {
+			}
+
 			@Override
 			public void windowClosed(WindowEvent e) {
 				fireAction(CANCEL_BUTTON_PUSHED);
 			}
+
 			@Override
-			public void windowActivated(WindowEvent e) {}
+			public void windowActivated(WindowEvent e) {
+			}
 		});
 	}
 
-
-	/*
-	 * METHODS
-	 */
+	/* METHODS */
 
 	public void addActionListener(ActionListener listener) {
 		listeners.add(listener);
@@ -90,31 +97,27 @@ public class ImagePlusChooser extends javax.swing.JFrame {
 	}
 
 	/**
-	 * Return the selected {@link ImagePlus} in the combo list, or <code>null</code> if 
-	 * the first choice "3D viewer" was selected.
+	 * Return the selected {@link ImagePlus} in the combo list, or
+	 * <code>null</code> if the first choice "3D viewer" was selected.
 	 */
 	public ImagePlus getSelectedImagePlus() {
 		int index = jComboBoxImage.getSelectedIndex();
-		if (index < 1) 
+		if (index < 1)
 			return null;
-		else 
-			return images.get(index-1);
+		else
+			return images.get(index - 1);
 	}
 
-
-	/*
-	 * PRIVATE METHODS
-	 */
+	/* PRIVATE METHODS */
 
 	private void fireAction(ActionEvent event) {
-		for(ActionListener listener : listeners) 
+		for (ActionListener listener : listeners)
 			listener.actionPerformed(event);
 	}
 
-
 	/**
-	 * Refresh the name list of images, from the field {@link #images}, and send it
-	 * to the {@link JComboBox} that display then.
+	 * Refresh the name list of images, from the field {@link #images}, and send
+	 * it to the {@link JComboBox} that display then.
 	 */
 	private String[] getImageNames() {
 		int[] IDs = WindowManager.getIDList();
@@ -137,11 +140,10 @@ public class ImagePlusChooser extends javax.swing.JFrame {
 		}
 		image_names[0] = "New 3D viewer";
 		for (int i = 0; i < images.size(); i++) {
-			image_names[i+1] = images.get(i).getTitle();			
+			image_names[i + 1] = images.get(i).getTitle();
 		}
 		return image_names;
 	}
-
 
 	private void initGUI() {
 		try {

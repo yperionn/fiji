@@ -25,36 +25,18 @@ import fiji.plugin.trackmate.util.TMUtils;
 
 public class ExportTracksToXML extends AbstractTMAction {
 
-
-
 	public static final ImageIcon ICON = new ImageIcon(TrackMateWizard.class.getResource("images/page_save.png"));
 	public static final String NAME = "Export tracks to XML file";
-	public static final String INFO_TEXT = "<html>" +
-				"Export the tracks in the current model content to a XML " +
-				"file in a simple format. " +
-				"<p> " +
-				"The file will have one element per track, and each track " +
-				"contains several spot elements. These spots are " +
-				"sorted by frame number, and have 4 numerical attributes: " +
-				"the frame number this spot is in, and its X, Y, Z position in " +
-				"physical units as specified in the image properties. " +
-				"<p>" +
-				"As such, this format <u>cannot</u> handle track merging and " +
-				"splitting properly, and is suited only for non-branching tracks." +
-				"</html>";
-	
-	/*
-	 * CONSTRUCTOR
-	 */
+	public static final String INFO_TEXT = "<html>" + "Export the tracks in the current model content to a XML " + "file in a simple format. " + "<p> " + "The file will have one element per track, and each track " + "contains several spot elements. These spots are " + "sorted by frame number, and have 4 numerical attributes: " + "the frame number this spot is in, and its X, Y, Z position in " + "physical units as specified in the image properties. " + "<p>" + "As such, this format <u>cannot</u> handle track merging and " + "splitting properly, and is suited only for non-branching tracks." + "</html>";
+
+	/* CONSTRUCTOR */
 
 	public ExportTracksToXML(TrackMate trackmate, TrackMateGUIController controller) {
 		super(trackmate, controller);
 		this.icon = ICON;
 	}
 
-	/*
-	 * METHODS
-	 */
+	/* METHODS */
 
 	@Override
 	public void execute() {
@@ -70,18 +52,18 @@ public class ExportTracksToXML extends AbstractTMAction {
 		logger.log("  Preparing XML data.\n");
 		Element root = marshall(model, trackmate.getSettings());
 
-		File folder; 
+		File folder;
 		try {
 			folder = new File(trackmate.getSettings().imp.getOriginalFileInfo().directory);
 		} catch (NullPointerException npe) {
 			folder = new File(System.getProperty("user.dir")).getParentFile().getParentFile();
 		}
-		
+
 		File file;
 		try {
 			String filename = trackmate.getSettings().imageFileName;
 			filename = filename.substring(0, filename.indexOf("."));
-			file = new File(folder.getPath() + File.separator + filename +"_Tracks.xml");
+			file = new File(folder.getPath() + File.separator + filename + "_Tracks.xml");
 		} catch (NullPointerException npe) {
 			file = new File(folder.getPath() + File.separator + "Tracks.xml");
 		}
@@ -96,9 +78,9 @@ public class ExportTracksToXML extends AbstractTMAction {
 		try {
 			outputter.output(document, new FileOutputStream(file));
 		} catch (FileNotFoundException e) {
-			logger.error("Trouble writing to "+file+":\n" + e.getMessage());
+			logger.error("Trouble writing to " + file + ":\n" + e.getMessage());
 		} catch (IOException e) {
-			logger.error("Trouble writing to "+file+":\n" + e.getMessage());
+			logger.error("Trouble writing to " + file + ":\n" + e.getMessage());
 		}
 		logger.log("Done.\n");
 	}
@@ -116,11 +98,11 @@ public class ExportTracksToXML extends AbstractTMAction {
 	private Element marshall(Model model, Settings settings) {
 		logger.setStatus("Marshalling...");
 		Element content = new Element(CONTENT_KEY);
-		
-		content.setAttribute(NTRACKS_ATT, ""+model.getTrackModel().nTracks(true));
+
+		content.setAttribute(NTRACKS_ATT, "" + model.getTrackModel().nTracks(true));
 		content.setAttribute(PHYSUNIT_ATT, model.getSpaceUnits());
-		content.setAttribute(FRAMEINTERVAL_ATT, ""+settings.dt);
-		content.setAttribute(FRAMEINTERVALUNIT_ATT, ""+model.getTimeUnits());
+		content.setAttribute(FRAMEINTERVAL_ATT, "" + settings.dt);
+		content.setAttribute(FRAMEINTERVALUNIT_ATT, "" + model.getTimeUnits());
 		content.setAttribute(DATE_ATT, TMUtils.getCurrentTimeString());
 		content.setAttribute(FROM_ATT, TrackMate.PLUGIN_NAME_STR + " v" + TrackMate.PLUGIN_NAME_VERSION);
 
@@ -129,11 +111,11 @@ public class ExportTracksToXML extends AbstractTMAction {
 		for (Integer trackID : trackIDs) {
 
 			Set<Spot> track = model.getTrackModel().trackSpots(trackID);
-			
-			Element trackElement = new Element(TRACK_KEY);
-			trackElement.setAttribute(NSPOTS_ATT, ""+track.size());
 
-			// Sort them by time 
+			Element trackElement = new Element(TRACK_KEY);
+			trackElement.setAttribute(NSPOTS_ATT, "" + track.size());
+
+			// Sort them by time
 			TreeSet<Spot> sortedTrack = new TreeSet<Spot>(Spot.timeComparator);
 			sortedTrack.addAll(track);
 
@@ -144,10 +126,10 @@ public class ExportTracksToXML extends AbstractTMAction {
 				double z = spot.getFeature(Spot.POSITION_Z);
 
 				Element spotElement = new Element(SPOT_KEY);
-				spotElement.setAttribute(T_ATT, ""+frame);
-				spotElement.setAttribute(X_ATT, ""+x);
-				spotElement.setAttribute(Y_ATT, ""+y);
-				spotElement.setAttribute(Z_ATT, ""+z);
+				spotElement.setAttribute(T_ATT, "" + frame);
+				spotElement.setAttribute(X_ATT, "" + x);
+				spotElement.setAttribute(Y_ATT, "" + y);
+				spotElement.setAttribute(Z_ATT, "" + z);
 				trackElement.addContent(spotElement);
 			}
 			content.addContent(trackElement);
@@ -159,27 +141,22 @@ public class ExportTracksToXML extends AbstractTMAction {
 		return content;
 	}
 
+	/* XML KEYS */
 
-	/*
-	 * XML KEYS
-	 */
+	private static final String CONTENT_KEY = "Tracks";
+	private static final String DATE_ATT = "generationDateTime";
+	private static final String PHYSUNIT_ATT = "spaceUnits";
+	private static final String FRAMEINTERVAL_ATT = "frameInterval";
+	private static final String FRAMEINTERVALUNIT_ATT = "timeUnits";
+	private static final String FROM_ATT = "from";
+	private static final String NTRACKS_ATT = "nTracks";
+	private static final String NSPOTS_ATT = "nSpots";
 
-	private static final String CONTENT_KEY 	= "Tracks";
-	private static final String DATE_ATT 		= "generationDateTime";
-	private static final String PHYSUNIT_ATT 	= "spaceUnits";
-	private static final String FRAMEINTERVAL_ATT 	= "frameInterval";
-	private static final String FRAMEINTERVALUNIT_ATT 	= "timeUnits";
-	private static final String FROM_ATT 		= "from";
-	private static final String NTRACKS_ATT		= "nTracks";
-	private static final String NSPOTS_ATT		= "nSpots";
-	
-	
 	private static final String TRACK_KEY = "particle";
 	private static final String SPOT_KEY = "detection";
 	private static final String X_ATT = "x";
 	private static final String Y_ATT = "y";
 	private static final String Z_ATT = "z";
 	private static final String T_ATT = "t";
-
 
 }

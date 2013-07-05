@@ -16,33 +16,24 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.HyperSliceImgPlus;
 
-
 public class DownsampleLogDetectorFactory<T extends RealType<T> & NativeType<T>> extends LogDetectorFactory<T> {
 
-	/*
-	 * CONSTANTS
-	 */
-	
+	/* CONSTANTS */
 
-	/** A string key identifying this factory. */ 
+	/** A string key identifying this factory. */
 	public static final String DETECTOR_KEY = "DOWNSAMPLE_LOG_DETECTOR";
 	/** The pretty name of the target detector. */
-	public static final String NAME =  "Downsample LoG detector";
+	public static final String NAME = "Downsample LoG detector";
 	/** An html information text. */
-	public static final String INFO_TEXT = "<html>" +
-			"This detector is basically identical to the LoG detector, except <br>" +
-			"that images are downsampled before filtering, giving it a good <br>" +
-			"kick in speed, particularly for large spot sizes. It is the fastest for <br>" +
-			"large spot sizes (>&nbsp;~20 pixels), at the cost of precision in localization. " +
-			"</html>";
-	
-	/*
-	 * METHODS
-	 */
-	
+	public static final String INFO_TEXT = "<html>" + "This detector is basically identical to the LoG detector, except <br>" + "that images are downsampled before filtering, giving it a good <br>" + "kick in speed, particularly for large spot sizes. It is the fastest for <br>" + "large spot sizes (>&nbsp;~20 pixels), at the cost of precision in localization. " + "</html>";
+
+	/* METHODS */
+
 	@Override
 	public SpotDetector<T> getDetector(final int frame) {
-		final int targetChannel = (Integer) settings.get(KEY_TARGET_CHANNEL) - 1; // parameter is 1-based
+		final int targetChannel = (Integer) settings.get(KEY_TARGET_CHANNEL) - 1; // parameter
+																					// is
+																					// 1-based
 		final ImgPlus<T> imgC = HyperSliceImgPlus.fixChannelAxis(img, targetChannel);
 		final ImgPlus<T> imgT = HyperSliceImgPlus.fixTimeAxis(imgC, frame);
 		final double radius = (Double) settings.get(KEY_RADIUS);
@@ -50,17 +41,17 @@ public class DownsampleLogDetectorFactory<T extends RealType<T> & NativeType<T>>
 		final int downsamplingFactor = (Integer) settings.get(KEY_DOWNSAMPLE_FACTOR);
 		return new DownsampleLogDetector<T>(imgT, radius, threshold, downsamplingFactor);
 	}
-	
+
 	@Override
 	public String getKey() {
 		return DETECTOR_KEY;
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME;
 	}
-	
+
 	@Override
 	public boolean checkInput() {
 		StringBuilder errorHolder = new StringBuilder();
@@ -70,17 +61,21 @@ public class DownsampleLogDetectorFactory<T extends RealType<T> & NativeType<T>>
 		}
 		return ok;
 	}
-	
+
 	/**
-	 * Check that the given settings map is suitable for the Downsample LoG detector.
-	 * @param settings  the map to test.
-	 * @param errorHolder  if not suitable, will contain an error message.
-	 * @return  true if the settings map is valid.
+	 * Check that the given settings map is suitable for the Downsample LoG
+	 * detector.
+	 * 
+	 * @param settings
+	 *        the map to test.
+	 * @param errorHolder
+	 *        if not suitable, will contain an error message.
+	 * @return true if the settings map is valid.
 	 */
 	public static final boolean checkInput(Map<String, Object> settings, StringBuilder errorHolder) {
 		boolean ok = true;
 		ok = ok & checkParameter(settings, KEY_TARGET_CHANNEL, Integer.class, errorHolder);
-		ok = ok & checkParameter(settings, KEY_RADIUS, Double.class, errorHolder) ;
+		ok = ok & checkParameter(settings, KEY_RADIUS, Double.class, errorHolder);
 		ok = ok & checkParameter(settings, KEY_THRESHOLD, Double.class, errorHolder);
 		ok = ok & checkParameter(settings, KEY_DOWNSAMPLE_FACTOR, Integer.class, errorHolder);
 		List<String> mandatoryKeys = new ArrayList<String>();
@@ -89,8 +84,7 @@ public class DownsampleLogDetectorFactory<T extends RealType<T> & NativeType<T>>
 		mandatoryKeys.add(KEY_THRESHOLD);
 		mandatoryKeys.add(KEY_DOWNSAMPLE_FACTOR);
 		ok = ok & checkMapKeys(settings, mandatoryKeys, null, errorHolder);
-		return ok;	
+		return ok;
 	}
-	
-	
+
 }

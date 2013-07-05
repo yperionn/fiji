@@ -20,9 +20,7 @@ import fiji.plugin.trackmate.Model;
 public class EdgeTimeLocationAnalyzer implements EdgeAnalyzer, MultiThreaded {
 
 	public static final String KEY = "Edge mean location";
-	/*
-	 * FEATURE NAMES 
-	 */
+	/* FEATURE NAMES */
 	public static final String TIME = "TIME";
 	public static final String X_LOCATION = "X_LOCATION";
 	public static final String Y_LOCATION = "Y_LOCATION";
@@ -60,9 +58,7 @@ public class EdgeTimeLocationAnalyzer implements EdgeAnalyzer, MultiThreaded {
 	private final FeatureModel featureModel;
 	private final Model model;
 
-	/*
-	 * CONSTRUCTOR
-	 */
+	/* CONSTRUCTOR */
 
 	public EdgeTimeLocationAnalyzer(final Model model) {
 		this.model = model;
@@ -75,14 +71,13 @@ public class EdgeTimeLocationAnalyzer implements EdgeAnalyzer, MultiThreaded {
 		return true;
 	}
 
-
 	@Override
 	public void process(final Collection<DefaultWeightedEdge> edges) {
 
 		if (edges.isEmpty()) {
 			return;
 		}
-		
+
 		final ArrayBlockingQueue<DefaultWeightedEdge> queue = new ArrayBlockingQueue<DefaultWeightedEdge>(edges.size(), false, edges);
 
 		Thread[] threads = SimpleMultiThreading.newThreads(numThreads);
@@ -96,10 +91,10 @@ public class EdgeTimeLocationAnalyzer implements EdgeAnalyzer, MultiThreaded {
 						Spot source = model.getTrackModel().getEdgeSource(edge);
 						Spot target = model.getTrackModel().getEdgeTarget(edge);
 
-						double x = 0.5 * ( source.getFeature(Spot.POSITION_X) + target.getFeature(Spot.POSITION_X) ); 
-						double y = 0.5 * ( source.getFeature(Spot.POSITION_Y) + target.getFeature(Spot.POSITION_Y) ); 
-						double z = 0.5 * ( source.getFeature(Spot.POSITION_Z) + target.getFeature(Spot.POSITION_Z) ); 
-						double t = 0.5 * ( source.getFeature(Spot.POSITION_T) + target.getFeature(Spot.POSITION_T) ); 
+						double x = 0.5 * (source.getFeature(Spot.POSITION_X) + target.getFeature(Spot.POSITION_X));
+						double y = 0.5 * (source.getFeature(Spot.POSITION_Y) + target.getFeature(Spot.POSITION_Y));
+						double z = 0.5 * (source.getFeature(Spot.POSITION_Z) + target.getFeature(Spot.POSITION_Z));
+						double t = 0.5 * (source.getFeature(Spot.POSITION_T) + target.getFeature(Spot.POSITION_T));
 
 						featureModel.putEdgeFeature(edge, TIME, t);
 						featureModel.putEdgeFeature(edge, X_LOCATION, x);
@@ -117,7 +112,6 @@ public class EdgeTimeLocationAnalyzer implements EdgeAnalyzer, MultiThreaded {
 		processingTime = end - start;
 	}
 
-
 	@Override
 	public String getKey() {
 		return KEY;
@@ -130,7 +124,7 @@ public class EdgeTimeLocationAnalyzer implements EdgeAnalyzer, MultiThreaded {
 
 	@Override
 	public void setNumThreads() {
-		this.numThreads = Runtime.getRuntime().availableProcessors();  
+		this.numThreads = Runtime.getRuntime().availableProcessors();
 	}
 
 	@Override
@@ -164,4 +158,3 @@ public class EdgeTimeLocationAnalyzer implements EdgeAnalyzer, MultiThreaded {
 		return FEATURE_DIMENSIONS;
 	};
 }
-

@@ -21,11 +21,7 @@ import fiji.plugin.trackmate.gui.panels.components.JNumericTextField;
 public class StartDialogPanel extends ActionListenablePanel {
 
 	private static final long serialVersionUID = -1L;
-	private static final String TOOLTIP = "<html>" +
-			"Pressing this button will make the current <br>" +
-			"ImagePlus the source for TrackMate. If the <br>" +
-			"image has a ROI, it will be used to set the <br>" +
-			"crop rectangle as well.</html>";
+	private static final String TOOLTIP = "<html>" + "Pressing this button will make the current <br>" + "ImagePlus the source for TrackMate. If the <br>" + "image has a ROI, it will be used to set the <br>" + "crop rectangle as well.</html>";
 
 	/** ActionEvent fired when the user press the refresh button. */
 	private final ActionEvent IMAGEPLUS_REFRESHED = new ActionEvent(this, 0, "ImagePlus refreshed");
@@ -68,46 +64,46 @@ public class StartDialogPanel extends ActionListenablePanel {
 	public StartDialogPanel() {
 		initGUI();
 	}
-	
 
-
-	/*
-	 * PUBLIC METHODS
-	 */
+	/* PUBLIC METHODS */
 
 	/**
-	 * Returns <code>true</code> if the {@link ImagePlus} selected is valid and can
-	 * be processed.
-	 * @return  a boolean flag.
+	 * Returns <code>true</code> if the {@link ImagePlus} selected is valid and
+	 * can be processed.
+	 * 
+	 * @return a boolean flag.
 	 */
 	public boolean isImpValid() {
 		return impValid;
 	}
-	
+
 	/**
-	 * Update the specified settings object, with the parameters set in this panel.	
-	 * @param settings  the Settings to update. Cannot be <code>null</code>.
+	 * Update the specified settings object, with the parameters set in this
+	 * panel.
+	 * 
+	 * @param settings
+	 *        the Settings to update. Cannot be <code>null</code>.
 	 */
 	public void updateTo(Model model, Settings settings) {
 		settings.imp = imp;
 		// Crop cube
 		settings.tstart = Math.round(Float.parseFloat(jTextFieldTStart.getText()));
-		settings.tend 	= Math.round(Float.parseFloat(jTextFieldTEnd.getText()));
+		settings.tend = Math.round(Float.parseFloat(jTextFieldTEnd.getText()));
 		settings.xstart = Math.round(Float.parseFloat(jTextFieldXStart.getText()));
-		settings.xend 	= Math.round(Float.parseFloat(jTextFieldXEnd.getText()));
+		settings.xend = Math.round(Float.parseFloat(jTextFieldXEnd.getText()));
 		settings.ystart = Math.round(Float.parseFloat(jTextFieldYStart.getText()));
-		settings.yend 	= Math.round(Float.parseFloat(jTextFieldYEnd.getText()));
+		settings.yend = Math.round(Float.parseFloat(jTextFieldYEnd.getText()));
 		settings.zstart = Math.round(Float.parseFloat(jTextFieldZStart.getText()));
-		settings.zend 	= Math.round(Float.parseFloat(jTextFieldZEnd.getText()));
+		settings.zend = Math.round(Float.parseFloat(jTextFieldZEnd.getText()));
 		// Image info
-		settings.dx 	= Float.parseFloat(jTextFieldPixelWidth.getText());
-		settings.dy 	= Float.parseFloat(jTextFieldPixelHeight.getText());
-		settings.dz 	= Float.parseFloat(jTextFieldVoxelDepth.getText());
-		settings.dt 	= Float.parseFloat(jTextFieldTimeInterval.getText());
-		settings.width 		= imp.getWidth();
-		settings.height		= imp.getHeight();
-		settings.nslices	= imp.getNSlices();
-		settings.nframes	= imp.getNFrames();
+		settings.dx = Float.parseFloat(jTextFieldPixelWidth.getText());
+		settings.dy = Float.parseFloat(jTextFieldPixelHeight.getText());
+		settings.dz = Float.parseFloat(jTextFieldVoxelDepth.getText());
+		settings.dt = Float.parseFloat(jTextFieldTimeInterval.getText());
+		settings.width = imp.getWidth();
+		settings.height = imp.getHeight();
+		settings.nslices = imp.getNSlices();
+		settings.nframes = imp.getNFrames();
 		// Units
 		model.setPhysicalUnits(jLabelUnits1.getText(), jLabelUnits4.getText());
 		// Roi
@@ -117,61 +113,58 @@ public class StartDialogPanel extends ActionListenablePanel {
 		}
 		// File info
 		if (null != imp.getOriginalFileInfo()) {
-			settings.imageFileName	= imp.getOriginalFileInfo().fileName;
-			settings.imageFolder 	= imp.getOriginalFileInfo().directory;
+			settings.imageFileName = imp.getOriginalFileInfo().fileName;
+			settings.imageFolder = imp.getOriginalFileInfo().directory;
 		}
 	}
 
-
-	/*
-	 * PRIVATE METHODS
-	 */
+	/* PRIVATE METHODS */
 
 	/**
-	 * Fill the text fields with the parameters grabbed in the {@link Settings} argument.
+	 * Fill the text fields with the parameters grabbed in the {@link Settings}
+	 * argument.
 	 */
 	public void echoSettings(Model model, Settings settings) {
 		jLabelImageName.setText(settings.imp.getTitle());
-		jTextFieldPixelWidth.setText(""+settings.dx);
-		jTextFieldPixelHeight.setText(""+settings.dy);
-		jTextFieldVoxelDepth.setText(""+settings.dz);
-		jTextFieldTimeInterval.setText(""+settings.dt);
+		jTextFieldPixelWidth.setText("" + settings.dx);
+		jTextFieldPixelHeight.setText("" + settings.dy);
+		jTextFieldVoxelDepth.setText("" + settings.dz);
+		jTextFieldTimeInterval.setText("" + settings.dt);
 		jLabelUnits1.setText(model.getSpaceUnits());
 		jLabelUnits2.setText(model.getSpaceUnits());
 		jLabelUnits3.setText(model.getSpaceUnits());
 		jLabelUnits4.setText(model.getTimeUnits());
-		jTextFieldXStart.setText(""+settings.xstart); 
-		jTextFieldYStart.setText(""+settings.ystart);
-		jTextFieldXEnd.setText(""+settings.xend);
-		jTextFieldYEnd.setText(""+settings.yend);
-		jTextFieldZStart.setText(""+settings.zstart);
-		jTextFieldZEnd.setText(""+settings.zend);
-		jTextFieldTStart.setText(""+settings.tstart); 
-		jTextFieldTEnd.setText(""+settings.tend);
+		jTextFieldXStart.setText("" + settings.xstart);
+		jTextFieldYStart.setText("" + settings.ystart);
+		jTextFieldXEnd.setText("" + settings.xend);
+		jTextFieldYEnd.setText("" + settings.yend);
+		jTextFieldZStart.setText("" + settings.zstart);
+		jTextFieldZEnd.setText("" + settings.zend);
+		jTextFieldTStart.setText("" + settings.tstart);
+		jTextFieldTEnd.setText("" + settings.tend);
 	}
 
-
 	/**
-	 * Fill the text fields with parameters grabbed from specified ImagePlus. 
+	 * Fill the text fields with parameters grabbed from specified ImagePlus.
 	 */
 	public void getFrom(ImagePlus imp) {
-		
+
 		this.imp = imp;
-		
+
 		if (null == imp) {
 			jLabelImageName.setText("No image selected.");
 			impValid = false;
 			return;
 		}
-		
+
 		if (imp.getType() == ImagePlus.COLOR_RGB) {
 			// We do not know how to process RGB images
-			jLabelImageName.setText(imp.getShortTitle()+" is RGB: invalid.");
+			jLabelImageName.setText(imp.getShortTitle() + " is RGB: invalid.");
 			impValid = false;
 			return;
 		}
 
-		jLabelImageName.setText("Target: "+imp.getShortTitle());
+		jLabelImageName.setText("Target: " + imp.getShortTitle());
 		jTextFieldPixelWidth.setText(String.format("%g", imp.getCalibration().pixelWidth));
 		jTextFieldPixelHeight.setText(String.format("%g", imp.getCalibration().pixelHeight));
 		jTextFieldVoxelDepth.setText(String.format("%g", imp.getCalibration().pixelDepth));
@@ -187,20 +180,20 @@ public class StartDialogPanel extends ActionListenablePanel {
 		jLabelUnits3.setText(imp.getCalibration().getZUnit());
 		Roi roi = imp.getRoi();
 		if (null == roi)
-			roi = new Roi(0,0,imp.getWidth(),imp.getHeight());
+			roi = new Roi(0, 0, imp.getWidth(), imp.getHeight());
 		Rectangle boundingRect = roi.getBounds();
-		jTextFieldXStart.setText(""+(boundingRect.x)); 
-		jTextFieldYStart.setText(""+(boundingRect.y));
-		jTextFieldXEnd.setText(""+(boundingRect.width+boundingRect.x-1));
-		jTextFieldYEnd.setText(""+(boundingRect.height+boundingRect.y-1));
-		jTextFieldZStart.setText(""+0);
-		jTextFieldZEnd.setText(""+(imp.getNSlices()-1));
-		jTextFieldTStart.setText(""+0); 
-		jTextFieldTEnd.setText(""+(imp.getNFrames()-1));
-		
+		jTextFieldXStart.setText("" + (boundingRect.x));
+		jTextFieldYStart.setText("" + (boundingRect.y));
+		jTextFieldXEnd.setText("" + (boundingRect.width + boundingRect.x - 1));
+		jTextFieldYEnd.setText("" + (boundingRect.height + boundingRect.y - 1));
+		jTextFieldZStart.setText("" + 0);
+		jTextFieldZEnd.setText("" + (imp.getNSlices() - 1));
+		jTextFieldTStart.setText("" + 0);
+		jTextFieldTEnd.setText("" + (imp.getNFrames() - 1));
+
 		impValid = true;
 	}
-	
+
 	private void initGUI() {
 		try {
 			this.setPreferredSize(new java.awt.Dimension(266, 476));
@@ -244,7 +237,7 @@ public class StartDialogPanel extends ActionListenablePanel {
 				jLabelTimeInterval = new JLabel();
 				jLabelTimeInterval.setBounds(52, 191, 66, 13);
 				this.add(jLabelTimeInterval);
-				jLabelTimeInterval.setText("Time interval:" );				
+				jLabelTimeInterval.setText("Time interval:");
 				jLabelTimeInterval.setFont(SMALL_FONT);
 			}
 			{
@@ -420,7 +413,7 @@ public class StartDialogPanel extends ActionListenablePanel {
 				jTextFieldTEnd.setPreferredSize(TEXTFIELD_DIMENSION);
 				jTextFieldTEnd.setFont(SMALL_FONT);
 			}
-			
+
 			{
 				jButtonRefresh = new JButton();
 				jButtonRefresh.setBounds(10, 422, 108, 29);

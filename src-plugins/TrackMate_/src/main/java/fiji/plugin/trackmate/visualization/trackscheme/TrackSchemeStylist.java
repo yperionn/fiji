@@ -29,9 +29,9 @@ public class TrackSchemeStylist {
 	private String globalStyle = DEFAULT_STYLE_NAME;
 
 	static final Map<String, Map<String, Object>> VERTEX_STYLES;
-	static final String 			FULL_STYLE_NAME = "full";
-	static final String 			SIMPLE_STYLE_NAME = "simple";
-	static final String 			DEFAULT_STYLE_NAME = SIMPLE_STYLE_NAME;
+	static final String FULL_STYLE_NAME = "full";
+	static final String SIMPLE_STYLE_NAME = "simple";
+	static final String DEFAULT_STYLE_NAME = SIMPLE_STYLE_NAME;
 
 	private static final HashMap<String, Object> FULL_VERTEX_STYLE = new HashMap<String, Object>();
 	private static final HashMap<String, Object> SIMPLE_VERTEX_STYLE = new HashMap<String, Object>();
@@ -65,12 +65,11 @@ public class TrackSchemeStylist {
 		BASIC_EDGE_STYLE.put(mxConstants.STYLE_STROKEWIDTH, 2.0f);
 		BASIC_EDGE_STYLE.put(mxConstants.STYLE_STROKECOLOR, DEFAULT_COLOR);
 
-		VERTEX_STYLES = new HashMap<String, Map<String, Object> >(2);
+		VERTEX_STYLES = new HashMap<String, Map<String, Object>>(2);
 		VERTEX_STYLES.put(FULL_STYLE_NAME, FULL_VERTEX_STYLE);
 		VERTEX_STYLES.put(SIMPLE_STYLE_NAME, SIMPLE_VERTEX_STYLE);
 
 	}
-
 
 	public TrackSchemeStylist(JGraphXAdapter graphx, TrackColorGenerator colorGenerator) {
 		this.graphx = graphx;
@@ -96,8 +95,11 @@ public class TrackSchemeStylist {
 	}
 
 	/**
-	 * Change the style of the edge cells to reflect the currently set color generator.
-	 * @param edgeMap the {@link mxCell} ordered by the track IDs they belong to.
+	 * Change the style of the edge cells to reflect the currently set color
+	 * generator.
+	 * 
+	 * @param edgeMap
+	 *        the {@link mxCell} ordered by the track IDs they belong to.
 	 */
 	public synchronized Set<mxICell> execute(Map<Integer, Set<mxCell>> edgeMap) {
 
@@ -121,7 +123,7 @@ public class TrackSchemeStylist {
 						colorstr = Integer.toHexString(color.getRGB()).substring(2);
 					}
 					String style = cell.getStyle();
-					style = mxStyleUtils.setStyle(style , mxConstants.STYLE_STROKECOLOR, colorstr);
+					style = mxStyleUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR, colorstr);
 					graphx.getModel().setStyle(cell, style);
 
 					// Its target
@@ -148,10 +150,8 @@ public class TrackSchemeStylist {
 
 				int nedges = vertex.getEdgeCount();
 				if (nedges == 0) {
-					/*
-					 * A lonely spot. We paint it with default color, 
-					 * according to current style.
-					 */
+					/* A lonely spot. We paint it with default color, according
+					 * to current style. */
 					setVertexStyle(vertex, DEFAULT_COLOR);
 					continue;
 				}
@@ -172,7 +172,7 @@ public class TrackSchemeStylist {
 	private void setVertexStyle(mxICell vertex, String colorstr) {
 		String targetStyle = vertex.getStyle();
 		targetStyle = mxStyleUtils.removeAllStylenames(targetStyle);
-		targetStyle = mxStyleUtils.setStyle(targetStyle , mxConstants.STYLE_STROKECOLOR, colorstr );
+		targetStyle = mxStyleUtils.setStyle(targetStyle, mxConstants.STYLE_STROKECOLOR, colorstr);
 
 		// Style specifics
 		int width, height;
@@ -189,14 +189,13 @@ public class TrackSchemeStylist {
 
 		graphx.getModel().setStyle(vertex, targetStyle);
 		graphx.getModel().getGeometry(vertex).setWidth(width);
-		graphx.getModel().getGeometry(vertex).setHeight(height);	
+		graphx.getModel().getGeometry(vertex).setHeight(height);
 	}
 
 	private final void setVertexStyleFromEdge(final mxICell vertex, final mxICell edge) {
 		String colorstr = getStyleValue(edge.getStyle(), mxConstants.STYLE_STROKECOLOR);
 		setVertexStyle(vertex, colorstr);
 	}
-
 
 	private static final String getStyleValue(String style, String key) {
 		int index = style.indexOf(key + "=");

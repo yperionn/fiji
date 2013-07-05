@@ -18,9 +18,7 @@ import fiji.plugin.trackmate.Model;
 
 public class TrackLocationAnalyzer implements TrackAnalyzer, MultiThreaded, Benchmark {
 
-	/*
-	 * FEATURE NAMES 
-	 */
+	/* FEATURE NAMES */
 	public static final String KEY = "Track location";
 	public static final String X_LOCATION = "X_LOCATION";
 	public static final String Y_LOCATION = "Y_LOCATION";
@@ -53,9 +51,7 @@ public class TrackLocationAnalyzer implements TrackAnalyzer, MultiThreaded, Benc
 	private long processingTime;
 	private final Model model;
 
-	/*
-	 * CONSTRUCTOR
-	 */
+	/* CONSTRUCTOR */
 
 	public TrackLocationAnalyzer(final Model model) {
 		this.model = model;
@@ -69,7 +65,7 @@ public class TrackLocationAnalyzer implements TrackAnalyzer, MultiThreaded, Benc
 
 	@Override
 	public void process(final Collection<Integer> trackIDs) {
-		
+
 		if (trackIDs.isEmpty()) {
 			return;
 		}
@@ -91,7 +87,7 @@ public class TrackLocationAnalyzer implements TrackAnalyzer, MultiThreaded, Benc
 						double y = 0;
 						double z = 0;
 
-						for(Spot spot : track) {
+						for (Spot spot : track) {
 							x += spot.getFeature(Spot.POSITION_X);
 							y += spot.getFeature(Spot.POSITION_Y);
 							z += spot.getFeature(Spot.POSITION_Z);
@@ -124,7 +120,7 @@ public class TrackLocationAnalyzer implements TrackAnalyzer, MultiThreaded, Benc
 
 	@Override
 	public void setNumThreads() {
-		this.numThreads = Runtime.getRuntime().availableProcessors();  
+		this.numThreads = Runtime.getRuntime().availableProcessors();
 	}
 
 	@Override
