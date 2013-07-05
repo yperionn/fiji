@@ -1,14 +1,17 @@
 package fiji.plugin.trackmate.providers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import net.imglib2.img.ImgPlus;
-import fiji.plugin.trackmate.TrackMate;
+import net.imglib2.type.NativeType;
+import net.imglib2.type.numeric.RealType;
 import fiji.plugin.trackmate.Model;
+import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.features.spot.SpotAnalyzer;
-import fiji.plugin.trackmate.features.spot.SpotContrastAndSNRAnalyzerFactory;
 import fiji.plugin.trackmate.features.spot.SpotAnalyzerFactory;
+import fiji.plugin.trackmate.features.spot.SpotContrastAndSNRAnalyzerFactory;
 import fiji.plugin.trackmate.features.spot.SpotIntensityAnalyzerFactory;
 import fiji.plugin.trackmate.features.spot.SpotRadiusEstimatorFactory;
 
@@ -21,6 +24,15 @@ public class SpotAnalyzerProvider {
 	/** The detector names, in the order they will appear in the GUI.
 	 * These names will be used as keys to access relevant spot analyzer classes.  */
 	protected List<String> analyzerNames;
+
+	/** Create a {@link SpotAnalyzerFactory} given an {@link ImgPlus}. */
+	public static interface FactoryCreator {
+		public <T extends RealType<T> & NativeType<T>> SpotAnalyzerFactory<T> create(ImgPlus<T> img);
+	}
+
+	/** Map a spot analyzer key to a {@link FactoryCreator factory} for the spot analyzer factory. */
+	protected final HashMap< String, FactoryCreator > analyzerCreators;
+
 	protected final Model model;
 
 	/*
@@ -38,7 +50,9 @@ public class SpotAnalyzerProvider {
 	 */
 	public SpotAnalyzerProvider(Model model) {
 		this.model = model;
-		registerSpotFeatureAnalyzers();
+		analyzerNames = new ArrayList<String>();
+		analyzerCreators = new HashMap<String, FactoryCreator>();
+		registerDefaultSpotFeatureAnalyzers();
 	}
 
 
@@ -47,35 +61,47 @@ public class SpotAnalyzerProvider {
 	 */
 
 	/**
-	 * Registers the standard spotFeatureAnalyzers shipped with TrackMate.
+	 * Register a {@link SpotAnalyzerFactory} {@link FactoryCreator creator}.
 	 */
-	protected void registerSpotFeatureAnalyzers() {
-		analyzerNames = new ArrayList<String>(3);
-		analyzerNames.add(SpotIntensityAnalyzerFactory.KEY);
-		analyzerNames.add(SpotContrastAndSNRAnalyzerFactory.KEY); // must be after the statistics one
-		analyzerNames.add(SpotRadiusEstimatorFactory.KEY);
+	protected void registerSpotFeatureAnalyzer( final String key, final FactoryCreator creator )
+	{
+		analyzerNames.add(key);
+		analyzerCreators.put(key, creator);
+	}
+
+	/**
+	 * Register the standard spotFeatureAnalyzers shipped with TrackMate.
+	 */
+	private void registerDefaultSpotFeatureAnalyzers() {
+		registerSpotFeatureAnalyzer(SpotIntensityAnalyzerFactory.KEY, new FactoryCreator() {
+			@Override
+			public <T extends RealType<T> & NativeType<T>> SpotAnalyzerFactory<T> create(final ImgPlus<T> img) {
+				return new SpotIntensityAnalyzerFactory<T>(model, img);
+			}
+		});
+		registerSpotFeatureAnalyzer(SpotContrastAndSNRAnalyzerFactory.KEY, new FactoryCreator() {
+			@Override
+			public <T extends RealType<T> & NativeType<T>> SpotAnalyzerFactory<T> create(final ImgPlus<T> img) {
+				return new SpotContrastAndSNRAnalyzerFactory<T>(model, img);
+			}
+		});
+		registerSpotFeatureAnalyzer(SpotRadiusEstimatorFactory.KEY, new FactoryCreator() {
+			@Override
+			public <T extends RealType<T> & NativeType<T>> SpotAnalyzerFactory<T> create(final ImgPlus<T> img) {
+				return new SpotRadiusEstimatorFactory<T>(model, img);
+			}
+		});
 	}
 
 	/**
 	 * Returns a new instance of the target spotFeatureAnalyzer identified by the key parameter,
 	 * and configured to operate on the specified {@link ImgPlus}.
-	 * If the key is unknown to this provider, <code>null</code> is returned. 
+	 * If the key is unknown to this provider, <code>null</code> is returned.
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public SpotAnalyzerFactory getSpotFeatureAnalyzer(String key, ImgPlus<?> img) {
-		
-		if (key.equals(SpotIntensityAnalyzerFactory.KEY)) {
-			return new SpotIntensityAnalyzerFactory(model, img);
-			
-		} else if (key.equals(SpotContrastAndSNRAnalyzerFactory.KEY)) {
-			return new SpotContrastAndSNRAnalyzerFactory(model, img);
-			
-		} else if (key.equals(SpotRadiusEstimatorFactory.KEY)) {
-			return new SpotRadiusEstimatorFactory(model, img);
-			
-		} else {
-			return null;
-		}
+	public SpotAnalyzerFactory getSpotFeatureAnalyzer(final String key, final ImgPlus<?> img) {
+		final FactoryCreator creator = analyzerCreators.get(key);
+		return creator == null ? null : creator.create((ImgPlus) img);
 	}
 
 	/**
