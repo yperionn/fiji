@@ -1,8 +1,8 @@
 package fiji.plugin.trackmate.tests;
 
+import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.SelectionModel;
 import fiji.plugin.trackmate.TrackMate;
-import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.io.TmXmlReader;
 import fiji.plugin.trackmate.visualization.TrackMateModelView;
 import fiji.plugin.trackmate.visualization.threedviewer.SpotDisplayer3D;
@@ -18,24 +18,24 @@ public class SpotDisplayer3DModel_TestDrive {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		System.out.println(Install_J3D.getJava3DVersion());
-		
-		File file = new File(AppUtils.getBaseDirectory(TrackMate.class), "samples/FakeTracks.xml");
+
+		final File file = new File(AppUtils.getBaseDirectory(TrackMate.class), "samples/FakeTracks.xml");
 		ij.ImageJ.main(args);
-		
-		TmXmlReader reader = new TmXmlReader(file);
-		Model model = reader.getModel();
-		
-		Image3DUniverse universe = new Image3DUniverse();
+
+		final TmXmlReader reader = new TmXmlReader(file);
+		final Model model = reader.getModel();
+
+		final Image3DUniverse universe = new Image3DUniverse();
 		universe.show();
 
-		SpotDisplayer3D displayer = new SpotDisplayer3D(model, new SelectionModel(model), universe);
+		final SpotDisplayer3D displayer = new SpotDisplayer3D(model, new SelectionModel(model), universe);
 		displayer.render();
-		
+
 		displayer.setDisplaySettings(TrackMateModelView.KEY_TRACK_DISPLAY_MODE, TrackMateModelView.TRACK_DISPLAY_MODE_LOCAL);
 		displayer.refresh();
-		
+
 		System.out.println(universe.getContents());
 	}
 

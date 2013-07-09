@@ -8,17 +8,17 @@ import java.util.Set;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
 
+import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.ModelChangeEvent;
 import fiji.plugin.trackmate.SelectionChangeEvent;
 import fiji.plugin.trackmate.SelectionModel;
 import fiji.plugin.trackmate.Spot;
-import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.visualization.AbstractTrackMateModelView;
 import fiji.plugin.trackmate.visualization.TrackColorGenerator;
 import fiji.plugin.trackmate.visualization.TrackMateModelView;
 import fiji.plugin.trackmate.visualization.ViewUtils;
 
-public class HyperStackDisplayer extends AbstractTrackMateModelView  {
+public class HyperStackDisplayer extends AbstractTrackMateModelView {
 
 	private static final boolean DEBUG = false;
 	public static final String NAME = "HyperStack Displayer";
@@ -56,7 +56,7 @@ public class HyperStackDisplayer extends AbstractTrackMateModelView  {
 	 * CONSTRUCTORS
 	 */
 
-	public HyperStackDisplayer(final Model model, final SelectionModel selectionModel, final ImagePlus imp) {	
+	public HyperStackDisplayer(final Model model, final SelectionModel selectionModel, final ImagePlus imp) {
 		super(model, selectionModel);
 		if (null != imp) {
 			this.imp = imp;
@@ -64,9 +64,9 @@ public class HyperStackDisplayer extends AbstractTrackMateModelView  {
 			this.imp = ViewUtils.makeEmpytImagePlus(model);
 		}
 		this.spotOverlay = createSpotOverlay();
-		this.trackOverlay = createTrackOverlay(); 
+		this.trackOverlay = createTrackOverlay();
 	}
-	
+
 	public HyperStackDisplayer(final Model model, final SelectionModel selectionModel) {
 		this(model, selectionModel, null);
 	}
@@ -76,7 +76,9 @@ public class HyperStackDisplayer extends AbstractTrackMateModelView  {
 	 */
 
 	/**
-	 * Hook for subclassers. Instantiate here the overlay you want to use for the spots. 
+	 * Hook for subclassers. Instantiate here the overlay you want to use for
+	 * the spots.
+	 *
 	 * @return the spot overlay
 	 */
 	protected SpotOverlay createSpotOverlay() {
@@ -84,38 +86,38 @@ public class HyperStackDisplayer extends AbstractTrackMateModelView  {
 	}
 
 	/**
-	 * Hook for subclassers. Instantiate here the overlay you want to use for the spots. 
+	 * Hook for subclassers. Instantiate here the overlay you want to use for
+	 * the spots.
+	 *
 	 * @return the track overlay
 	 */
 	protected TrackOverlay createTrackOverlay() {
-		TrackOverlay to = new TrackOverlay(model, imp, displaySettings);
-		TrackColorGenerator colorGenerator = (TrackColorGenerator) displaySettings.get(KEY_TRACK_COLORING);
+		final TrackOverlay to = new TrackOverlay(model, imp, displaySettings);
+		final TrackColorGenerator colorGenerator = (TrackColorGenerator) displaySettings.get(KEY_TRACK_COLORING);
 		to.setTrackColorGenerator(colorGenerator);
 		return to;
 	}
-
 
 	/*
 	 * PUBLIC METHODS
 	 */
 
 	@Override
-	public void modelChanged(ModelChangeEvent event) {
+	public void modelChanged(final ModelChangeEvent event) {
 		if (DEBUG)
-			System.out.println("[HyperStackDisplayer] Received model changed event ID: " 
-					 + event.getEventID() +" from "+event.getSource());
+			System.out.println("[HyperStackDisplayer] Received model changed event ID: " + event.getEventID() + " from " + event.getSource());
 		boolean redoOverlay = false;
 
 		switch (event.getEventID()) {
 
 		case ModelChangeEvent.MODEL_MODIFIED:
-			// Rebuild track overlay only if edges were added or removed, or if at least one spot was removed. 
+			// Rebuild track overlay only if edges were added or removed, or if at least one spot was removed.
 			final Set<DefaultWeightedEdge> edges = event.getEdges();
 			if (edges != null && edges.size() > 0) {
-				redoOverlay = true;				
+				redoOverlay = true;
 			}
 			break;
-			
+
 		case ModelChangeEvent.SPOTS_FILTERED:
 			redoOverlay = true;
 			break;
@@ -135,22 +137,22 @@ public class HyperStackDisplayer extends AbstractTrackMateModelView  {
 	}
 
 	@Override
-	public void selectionChanged(SelectionChangeEvent event) {
+	public void selectionChanged(final SelectionChangeEvent event) {
 		// Highlight selection
 		trackOverlay.setHighlight(selectionModel.getEdgeSelection());
 		spotOverlay.setSpotSelection(selectionModel.getSpotSelection());
 		// Center on last spot
 		super.selectionChanged(event);
 		// Redraw
-		imp.updateAndDraw();				
+		imp.updateAndDraw();
 	}
 
 	@Override
-	public void centerViewOn(Spot spot) {
-		int frame = spot.getFeature(Spot.FRAME).intValue();
-		double dz = imp.getCalibration().pixelDepth;
-		long z = Math.round(spot.getFeature(Spot.POSITION_Z) / dz  ) + 1;
-		imp.setPosition(1, (int) z, frame+1);
+	public void centerViewOn(final Spot spot) {
+		final int frame = spot.getFeature(Spot.FRAME).intValue();
+		final double dz = imp.getCalibration().pixelDepth;
+		final long z = Math.round(spot.getFeature(Spot.POSITION_Z) / dz) + 1;
+		imp.setPosition(1, (int) z, frame + 1);
 	}
 
 	@Override
@@ -172,9 +174,8 @@ public class HyperStackDisplayer extends AbstractTrackMateModelView  {
 		registerEditTool();
 	}
 
-
 	@Override
-	public void refresh() { 
+	public void refresh() {
 		if (null != imp) {
 			imp.updateAndDraw();
 		}
@@ -192,9 +193,9 @@ public class HyperStackDisplayer extends AbstractTrackMateModelView  {
 			imp.getOverlay().add(initialROI);
 		}
 		refresh();
-	}	
+	}
 
-	public void addOverlay(Roi overlay) {
+	public void addOverlay(final Roi overlay) {
 		imp.getOverlay().add(overlay);
 	}
 
@@ -202,7 +203,7 @@ public class HyperStackDisplayer extends AbstractTrackMateModelView  {
 	public String getInfoText() {
 		return INFO_TEXT;
 	}
-	
+
 	@Override
 	public String getKey() {
 		return NAME;
@@ -211,7 +212,7 @@ public class HyperStackDisplayer extends AbstractTrackMateModelView  {
 	public SelectionModel getSelectionModel() {
 		return selectionModel;
 	}
-	
+
 	/*
 	 * PRIVATE METHODS
 	 */
@@ -227,19 +228,19 @@ public class HyperStackDisplayer extends AbstractTrackMateModelView  {
 	}
 
 	@Override
-	public void setDisplaySettings(String key, Object value) {
+	public void setDisplaySettings(final String key, final Object value) {
 		boolean dorefresh = false;
-		
+
 		if (key == TrackMateModelView.KEY_SPOT_COLORING) {
 			dorefresh = true;
-			
+
 		} else if (key == TrackMateModelView.KEY_TRACK_COLORING) {
 			// pass the new one to the track overlay - we ignore its spot coloring and keep the spot coloring
-			TrackColorGenerator colorGenerator = (TrackColorGenerator) value;
+			final TrackColorGenerator colorGenerator = (TrackColorGenerator) value;
 			trackOverlay.setTrackColorGenerator(colorGenerator);
 			dorefresh = true;
 		}
-		
+
 		super.setDisplaySettings(key, value);
 		if (dorefresh) {
 			refresh();

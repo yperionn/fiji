@@ -1,4 +1,5 @@
 package fiji.plugin.trackmate.gui.panels.components;
+
 import static fiji.plugin.trackmate.gui.TrackMateWizard.FONT;
 import static fiji.plugin.trackmate.gui.TrackMateWizard.SMALL_FONT;
 import ij.ImagePlus;
@@ -20,7 +21,6 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
-
 public class ImagePlusChooser extends javax.swing.JFrame {
 
 	private static final long serialVersionUID = 322598397229876595L;
@@ -34,15 +34,16 @@ public class ImagePlusChooser extends javax.swing.JFrame {
 	private JButton jButtonCancel;
 	private JButton jButtonOK;
 	private ArrayList<ImagePlus> images;
-	private ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
+	private final ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
 
 	/**
 	 * Auto-generated main method to display this JFrame
 	 */
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
+			@Override
 			public void run() {
-				ImagePlusChooser inst = new ImagePlusChooser();
+				final ImagePlusChooser inst = new ImagePlusChooser();
 				inst.setLocationRelativeTo(null);
 				inst.setVisible(true);
 			}
@@ -58,66 +59,75 @@ public class ImagePlusChooser extends javax.swing.JFrame {
 		initGUI();
 		addWindowListener(new WindowListener() {
 			@Override
-			public void windowOpened(WindowEvent e) {}
+			public void windowOpened(final WindowEvent e) {
+			}
+
 			@Override
-			public void windowIconified(WindowEvent e) {}
+			public void windowIconified(final WindowEvent e) {
+			}
+
 			@Override
-			public void windowDeiconified(WindowEvent e) {}
+			public void windowDeiconified(final WindowEvent e) {
+			}
+
 			@Override
-			public void windowDeactivated(WindowEvent e) {}
+			public void windowDeactivated(final WindowEvent e) {
+			}
+
 			@Override
-			public void windowClosing(WindowEvent e) {}
+			public void windowClosing(final WindowEvent e) {
+			}
+
 			@Override
-			public void windowClosed(WindowEvent e) {
+			public void windowClosed(final WindowEvent e) {
 				fireAction(CANCEL_BUTTON_PUSHED);
 			}
+
 			@Override
-			public void windowActivated(WindowEvent e) {}
+			public void windowActivated(final WindowEvent e) {
+			}
 		});
 	}
-
 
 	/*
 	 * METHODS
 	 */
 
-	public void addActionListener(ActionListener listener) {
+	public void addActionListener(final ActionListener listener) {
 		listeners.add(listener);
 	}
 
-	public boolean removeActionListener(ActionListener listener) {
+	public boolean removeActionListener(final ActionListener listener) {
 		return listeners.remove(listener);
 	}
 
 	/**
-	 * Return the selected {@link ImagePlus} in the combo list, or <code>null</code> if 
-	 * the first choice "3D viewer" was selected.
+	 * Return the selected {@link ImagePlus} in the combo list, or
+	 * <code>null</code> if the first choice "3D viewer" was selected.
 	 */
 	public ImagePlus getSelectedImagePlus() {
-		int index = jComboBoxImage.getSelectedIndex();
-		if (index < 1) 
+		final int index = jComboBoxImage.getSelectedIndex();
+		if (index < 1)
 			return null;
-		else 
-			return images.get(index-1);
+		else
+			return images.get(index - 1);
 	}
-
 
 	/*
 	 * PRIVATE METHODS
 	 */
 
-	private void fireAction(ActionEvent event) {
-		for(ActionListener listener : listeners) 
+	private void fireAction(final ActionEvent event) {
+		for (final ActionListener listener : listeners)
 			listener.actionPerformed(event);
 	}
 
-
 	/**
-	 * Refresh the name list of images, from the field {@link #images}, and send it
-	 * to the {@link JComboBox} that display then.
+	 * Refresh the name list of images, from the field {@link #images}, and send
+	 * it to the {@link JComboBox} that display then.
 	 */
 	private String[] getImageNames() {
-		int[] IDs = WindowManager.getIDList();
+		final int[] IDs = WindowManager.getIDList();
 		String[] image_names = null;
 		if (null == IDs) {
 			image_names = new String[] { "New 3D viewer" };
@@ -137,11 +147,10 @@ public class ImagePlusChooser extends javax.swing.JFrame {
 		}
 		image_names[0] = "New 3D viewer";
 		for (int i = 0; i < images.size(); i++) {
-			image_names[i+1] = images.get(i).getTitle();			
+			image_names[i + 1] = images.get(i).getTitle();
 		}
 		return image_names;
 	}
-
 
 	private void initGUI() {
 		try {
@@ -158,7 +167,7 @@ public class ImagePlusChooser extends javax.swing.JFrame {
 					jLabelSelect.setBounds(12, 10, 258, 15);
 				}
 				{
-					ComboBoxModel jComboBoxImageModel = new DefaultComboBoxModel(getImageNames());
+					final ComboBoxModel jComboBoxImageModel = new DefaultComboBoxModel(getImageNames());
 					jComboBoxImage = new JComboBox();
 					jPanelMain.add(jComboBoxImage);
 					jComboBoxImage.setFont(SMALL_FONT);
@@ -173,7 +182,7 @@ public class ImagePlusChooser extends javax.swing.JFrame {
 					jButtonCancel.setBounds(12, 65, 64, 26);
 					jButtonCancel.addActionListener(new ActionListener() {
 						@Override
-						public void actionPerformed(ActionEvent e) {
+						public void actionPerformed(final ActionEvent e) {
 							fireAction(CANCEL_BUTTON_PUSHED);
 						}
 					});
@@ -186,7 +195,7 @@ public class ImagePlusChooser extends javax.swing.JFrame {
 					jButtonOK.setBounds(205, 65, 65, 26);
 					jButtonOK.addActionListener(new ActionListener() {
 						@Override
-						public void actionPerformed(ActionEvent e) {
+						public void actionPerformed(final ActionEvent e) {
 							fireAction(OK_BUTTON_PUSHED);
 						}
 					});
@@ -196,7 +205,7 @@ public class ImagePlusChooser extends javax.swing.JFrame {
 			this.setSize(280, 130);
 			this.setTitle("Copy overlay");
 			this.setResizable(false);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 	}

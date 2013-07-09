@@ -36,20 +36,16 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 	/** The name of the default, uniform painting style. */
 	public static final String UNIFORM_NAME = "Uniform color";
 
-
 	/*
 	 * ENUM
 	 */
 
 	public static enum Category {
-		SPOTS("spots"),
-		EDGES("edges"),
-		TRACKS("tracks"),
-		DEFAULT("Default");
+		SPOTS("spots"), EDGES("edges"), TRACKS("tracks"), DEFAULT("Default");
 
 		private String name;
 
-		private Category(String name) {
+		private Category(final String name) {
 			this.name = name;
 		}
 
@@ -65,8 +61,10 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 	 */
 
 	private static final long serialVersionUID = 1L;
-	/** This action is fired when the feature to color in the "Set color by feature"
-	 * JComboBox is changed. */
+	/**
+	 * This action is fired when the feature to color in the
+	 * "Set color by feature" JComboBox is changed.
+	 */
 	public final ActionEvent COLOR_FEATURE_CHANGED = new ActionEvent(this, 1, "ColorFeatureChanged");
 	private JLabel jLabelSetColorBy;
 	private CategoryJComboBox<Category, String> jComboBoxSetColorBy;
@@ -82,7 +80,7 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 	 * CONSTRUCTOR
 	 */
 
-	public ColorByFeatureGUIPanel(Model model, List<Category> categories) {
+	public ColorByFeatureGUIPanel(final Model model, final List<Category> categories) {
 		super();
 		this.model = model;
 		this.categories = categories;
@@ -97,17 +95,18 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 	 * Forward the enabled flag to all components off this panel.
 	 */
 	@Override
-	public void setEnabled(boolean enabled) {
+	public void setEnabled(final boolean enabled) {
 		jLabelSetColorBy.setEnabled(enabled);
 		jComboBoxSetColorBy.setEnabled(enabled);
 		canvasColor.setEnabled(enabled);
 	}
 
 	/**
-	 * Returns a key to the color generator category selected in the combo box. 
+	 * Returns a key to the color generator category selected in the combo box.
 	 * Will be a {@link Category} enum type, as set in constructor.
+	 *
 	 * @return the selected category.
-	 * @see #getColorFeature() 
+	 * @see #getColorFeature()
 	 */
 	public Category getColorGeneratorCategory() {
 		return jComboBoxSetColorBy.getSelectedCategory();
@@ -115,6 +114,7 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 
 	/**
 	 * Returns the selected feature in the combo box.
+	 *
 	 * @return the selected feature.
 	 * @see #getColorGeneratorCategory()
 	 */
@@ -122,7 +122,7 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 		return jComboBoxSetColorBy.getSelectedItem();
 	}
 
-	public void setColorFeature(String feature) {
+	public void setColorFeature(final String feature) {
 		if (null == feature) {
 			jComboBoxSetColorBy.setSelectedItem(UNIFORM_KEY);
 		} else {
@@ -134,7 +134,6 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 	 * PRIVATE METHODS
 	 */
 
-
 	/**
 	 * Forward the 'color by feature' action to the caller of this GUI.
 	 */
@@ -142,7 +141,7 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 		super.fireAction(COLOR_FEATURE_CHANGED);
 	}
 
-	private void repaintColorCanvas(Graphics g) {
+	private void repaintColorCanvas(final Graphics g) {
 		if (null == jComboBoxSetColorBy.getSelectedItem() || getColorGeneratorCategory().equals(Category.DEFAULT)) {
 			g.clearRect(0, 0, canvasColor.getWidth(), canvasColor.getHeight());
 			return;
@@ -159,37 +158,38 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 		double val;
 		for (int i = 0; i < values.length; i++) {
 			val = values[i];
-			if (val > max) max = val;
-			if (val < min) min = val;
+			if (val > max)
+				max = val;
+			if (val < min)
+				min = val;
 		}
 
 		final int width = canvasColor.getWidth();
 		final int height = canvasColor.getHeight();
 		float alpha;
 		for (int i = 0; i < width; i++) {
-			alpha = (float) i / (width-1);
+			alpha = (float) i / (width - 1);
 			g.setColor(colorMap.getPaint(alpha));
 			g.drawLine(i, 0, i, height);
 		}
 		g.setColor(Color.WHITE);
 		g.setFont(SMALL_FONT.deriveFont(Font.BOLD));
-		FontMetrics fm = g.getFontMetrics();
-		String minStr = String.format("%.1f", min);
-		String maxStr = String.format("%.1f", max);
-		g.drawString(minStr, 1, height/2 + fm.getHeight()/2);
-		g.drawString(maxStr, width - fm.stringWidth(maxStr)-1, height/2 + fm.getHeight()/2);
+		final FontMetrics fm = g.getFontMetrics();
+		final String minStr = String.format("%.1f", min);
+		final String maxStr = String.format("%.1f", max);
+		g.drawString(minStr, 1, height / 2 + fm.getHeight() / 2);
+		g.drawString(maxStr, width - fm.stringWidth(maxStr) - 1, height / 2 + fm.getHeight() / 2);
 	}
-
 
 	private void initGUI() {
 
 		{
-			BorderLayout layout = new BorderLayout();
+			final BorderLayout layout = new BorderLayout();
 			setLayout(layout);
 			this.setPreferredSize(new java.awt.Dimension(270, 45));
 
 			jPanelByFeature = new JPanel();
-			BoxLayout jPanelByFeatureLayout = new BoxLayout(jPanelByFeature, javax.swing.BoxLayout.X_AXIS);
+			final BoxLayout jPanelByFeatureLayout = new BoxLayout(jPanelByFeature, javax.swing.BoxLayout.X_AXIS);
 			jPanelByFeature.setLayout(jPanelByFeatureLayout);
 			add(jPanelByFeature, BorderLayout.CENTER);
 			jPanelByFeature.setPreferredSize(new java.awt.Dimension(270, 25));
@@ -208,7 +208,8 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 				jPanelByFeature.add(Box.createHorizontalStrut(5));
 				jPanelByFeature.add(jComboBoxSetColorBy);
 				jComboBoxSetColorBy.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
+					@Override
+					public void actionPerformed(final ActionEvent e) {
 						colorByFeatureChanged();
 						canvasColor.repaint();
 					}
@@ -217,15 +218,16 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 		}
 		{
 			jPanelColor = new JPanel();
-			BorderLayout jPanelColorLayout = new BorderLayout();
+			final BorderLayout jPanelColorLayout = new BorderLayout();
 			add(jPanelColor, BorderLayout.SOUTH);
 			jPanelColor.setLayout(jPanelColorLayout);
 			jPanelColor.setPreferredSize(new java.awt.Dimension(10, 20));
 			{
 				canvasColor = new Canvas() {
 					private static final long serialVersionUID = -2174317490066575040L;
+
 					@Override
-					public void paint(Graphics g) {
+					public void paint(final Graphics g) {
 						repaintColorCanvas(g);
 					}
 				};
@@ -233,7 +235,7 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 				canvasColor.setPreferredSize(new java.awt.Dimension(270, 20));
 				canvasColor.addMouseListener(new MouseAdapter() {
 					@Override
-					public void mouseClicked(MouseEvent e) {
+					public void mouseClicked(final MouseEvent e) {
 						canvasColor.repaint();
 					}
 				});
@@ -242,7 +244,7 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 		{
 			addMouseListener(new MouseAdapter() {
 				@Override
-				public void mouseClicked(MouseEvent e) {
+				public void mouseClicked(final MouseEvent e) {
 					canvasColor.repaint();
 				}
 			});
@@ -250,43 +252,45 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 	}
 
 	/**
-	 * Return the {@link CategoryJComboBox} that configures this selector. 
-	 * Subclasses can override this method to decide what items are in the combo box list.
+	 * Return the {@link CategoryJComboBox} that configures this selector.
+	 * Subclasses can override this method to decide what items are in the combo
+	 * box list.
+	 *
 	 * @return a new {@link CategoryJComboBox}.
 	 */
-	protected CategoryJComboBox<Category, String> createComboBoxSelector(List<Category> categories) {
-		LinkedHashMap<Category, Collection<String>> features = new LinkedHashMap<Category, Collection<String>>(categories.size());
-		HashMap<Category, String> categoryNames = new HashMap<Category, String>(categories.size());
-		HashMap<String, String> featureNames = new HashMap<String, String>();
-		
-		for (Category category : categories) {
+	protected CategoryJComboBox<Category, String> createComboBoxSelector(final List<Category> categories) {
+		final LinkedHashMap<Category, Collection<String>> features = new LinkedHashMap<Category, Collection<String>>(categories.size());
+		final HashMap<Category, String> categoryNames = new HashMap<Category, String>(categories.size());
+		final HashMap<String, String> featureNames = new HashMap<String, String>();
+
+		for (final Category category : categories) {
 			switch (category) {
 			case SPOTS:
 				categoryNames.put(Category.SPOTS, "Spot features:");
-				Collection<String> spotFeatures = model.getFeatureModel().getSpotFeatures();
+				final Collection<String> spotFeatures = model.getFeatureModel().getSpotFeatures();
 				features.put(Category.SPOTS, spotFeatures);
 				featureNames.putAll(model.getFeatureModel().getSpotFeatureNames());
 				break;
 
 			case EDGES:
 				categoryNames.put(Category.EDGES, "Edge features:");
-				Collection<String> edgeFeatures = model.getFeatureModel().getEdgeFeatures();
+				final Collection<String> edgeFeatures = model.getFeatureModel().getEdgeFeatures();
 				features.put(Category.EDGES, edgeFeatures);
 				featureNames.putAll(model.getFeatureModel().getEdgeFeatureNames());
 				break;
 
 			case TRACKS:
 				categoryNames.put(Category.TRACKS, "Track features:");
-				Collection<String> trackFeatures = model.getFeatureModel().getTrackFeatures();
+				final Collection<String> trackFeatures = model.getFeatureModel().getTrackFeatures();
 				features.put(Category.TRACKS, trackFeatures);
 				featureNames.putAll(model.getFeatureModel().getTrackFeatureNames());
 				break;
-				
+
 			case DEFAULT:
 				categoryNames.put(Category.DEFAULT, "Default:");
-				Collection<String> defaultOptions = new ArrayList<String>();
+				final Collection<String> defaultOptions = new ArrayList<String>();
 				defaultOptions.add(UNIFORM_KEY);
-				features.put(Category.DEFAULT, defaultOptions );
+				features.put(Category.DEFAULT, defaultOptions);
 				featureNames.put(UNIFORM_KEY, UNIFORM_NAME);
 				break;
 
@@ -297,16 +301,18 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 		return new CategoryJComboBox<Category, String>(features, featureNames, categoryNames);
 	}
 
-
 	/**
-	 * Returns the feature values for the item currently selected in the combo box.
-	 * @param cb  the {@link CategoryJComboBox} to interrogate.
+	 * Returns the feature values for the item currently selected in the combo
+	 * box.
+	 *
+	 * @param cb
+	 *            the {@link CategoryJComboBox} to interrogate.
 	 * @return a new double array containing the feature values.
 	 */
-	protected double[] getValues(CategoryJComboBox<Category, String> cb) {
+	protected double[] getValues(final CategoryJComboBox<Category, String> cb) {
 		double[] values;
-		Category category = cb.getSelectedCategory();
-		String feature = cb.getSelectedItem();
+		final Category category = cb.getSelectedCategory();
+		final String feature = cb.getSelectedItem();
 		switch (category) {
 		case TRACKS:
 			values = model.getFeatureModel().getTrackFeatureValues(feature, true);
@@ -315,7 +321,7 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 			values = model.getFeatureModel().getEdgeFeatureValues(feature, true);
 			break;
 		case SPOTS:
-			SpotCollection spots = model.getSpots();
+			final SpotCollection spots = model.getSpots();
 			values = spots.collectValues(feature, false);
 			break;
 		case DEFAULT:

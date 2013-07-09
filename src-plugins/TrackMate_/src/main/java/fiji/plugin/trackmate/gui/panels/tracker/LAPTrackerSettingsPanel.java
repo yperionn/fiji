@@ -9,7 +9,6 @@ import javax.swing.JScrollPane;
 
 import fiji.plugin.trackmate.gui.ConfigurationPanel;
 
-
 public class LAPTrackerSettingsPanel extends ConfigurationPanel {
 
 	private static final long serialVersionUID = 1L;
@@ -51,11 +50,11 @@ public class LAPTrackerSettingsPanel extends ConfigurationPanel {
 
 	private void initGUI() {
 		try {
-			BorderLayout thisLayout = new BorderLayout();
+			final BorderLayout thisLayout = new BorderLayout();
 			setPreferredSize(new Dimension(300, 500));
 			this.setLayout(thisLayout);
 			{
-				JScrollPane jScrollPaneMain = new JScrollPane();
+				final JScrollPane jScrollPaneMain = new JScrollPane();
 				this.add(jScrollPaneMain, BorderLayout.CENTER);
 				jScrollPaneMain.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 				jScrollPaneMain.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -65,7 +64,7 @@ public class LAPTrackerSettingsPanel extends ConfigurationPanel {
 					jScrollPaneMain.setViewportView(jPanelMain);
 				}
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 	}

@@ -18,7 +18,7 @@ public class JPanelFeaturePenalty extends javax.swing.JPanel {
 	private JComboBox jComboBoxFeature;
 	private JNumericTextField jTextFieldFeatureWeight;
 	private final List<String> features;
-	private Map<String, String> featureNames;
+	private final Map<String, String> featureNames;
 
 	public JPanelFeaturePenalty(final List<String> features, final Map<String, String> featureNames, final int index) {
 		super();
@@ -32,13 +32,13 @@ public class JPanelFeaturePenalty extends javax.swing.JPanel {
 	 * PUBLIC METHODS
 	 */
 
-	public void setSelectedFeature(String feature, double weight) {
-		int index = features.indexOf(feature);
+	public void setSelectedFeature(final String feature, final double weight) {
+		final int index = features.indexOf(feature);
 		if (index < 0) {
 			return;
 		}
 		jComboBoxFeature.setSelectedIndex(index);
-		jTextFieldFeatureWeight.setText(""+weight);
+		jTextFieldFeatureWeight.setText("" + weight);
 	}
 
 	public String getSelectedFeature() {
@@ -50,7 +50,7 @@ public class JPanelFeaturePenalty extends javax.swing.JPanel {
 	}
 
 	@Override
-	public void setEnabled(boolean enabled) {
+	public void setEnabled(final boolean enabled) {
 		super.setEnabled(enabled);
 		jComboBoxFeature.setEnabled(enabled);
 		jTextFieldFeatureWeight.setEnabled(enabled);
@@ -66,8 +66,7 @@ public class JPanelFeaturePenalty extends javax.swing.JPanel {
 			this.setSize(280, 40);
 			this.setLayout(null);
 			{
-				ComboBoxModel jComboBoxFeatureModel = new DefaultComboBoxModel(
-						TMUtils.getArrayFromMaping(features, featureNames).toArray(new String[] {}));
+				final ComboBoxModel jComboBoxFeatureModel = new DefaultComboBoxModel(TMUtils.getArrayFromMaping(features, featureNames).toArray(new String[] {}));
 				jComboBoxFeature = new JComboBox();
 				this.add(jComboBoxFeature);
 				jComboBoxFeature.setModel(jComboBoxFeatureModel);
@@ -82,7 +81,7 @@ public class JPanelFeaturePenalty extends javax.swing.JPanel {
 				jTextFieldFeatureWeight.setSize(TEXTFIELD_DIMENSION);
 				jTextFieldFeatureWeight.setFont(SMALL_FONT);
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 	}

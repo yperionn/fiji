@@ -3,17 +3,19 @@ package fiji.plugin.trackmate.detection.subpixel;
 import net.imglib2.Localizable;
 import net.imglib2.type.numeric.NumericType;
 
-public class SubPixelLocalization< T extends NumericType<T> & Comparable<T>> implements Localizable, Comparable<SubPixelLocalization<T>> {
+public class SubPixelLocalization<T extends NumericType<T> & Comparable<T>> implements Localizable, Comparable<SubPixelLocalization<T>> {
 
-	public static enum LocationType { INVALID, MIN, MAX };
-	
+	public static enum LocationType {
+		INVALID, MIN, MAX
+	};
+
 	protected long[] pixelCoordinates;
 	protected double[] subPixelLocationOffset;
 	protected T value;
 	protected T interpolatedValue;
 	protected String errorMessage = "";
 	protected LocationType locationType;
-	
+
 	public SubPixelLocalization(final long[] position, final T value, final LocationType locationType) {
 		this.locationType = locationType;
 		this.pixelCoordinates = position;
@@ -24,26 +26,26 @@ public class SubPixelLocalization< T extends NumericType<T> & Comparable<T>> imp
 	}
 
 	@Override
-	public void localize(float[] position) {
+	public void localize(final float[] position) {
 		for (int i = 0; i < position.length; i++) {
 			position[i] = (float) (pixelCoordinates[i] + subPixelLocationOffset[i]);
 		}
 	}
 
 	@Override
-	public void localize(double[] position) {
+	public void localize(final double[] position) {
 		for (int i = 0; i < position.length; i++) {
 			position[i] = pixelCoordinates[i] + subPixelLocationOffset[i];
 		}
 	}
 
 	@Override
-	public float getFloatPosition(int d) {
+	public float getFloatPosition(final int d) {
 		return (float) (pixelCoordinates[d] + subPixelLocationOffset[d]);
 	}
 
 	@Override
-	public double getDoublePosition(int d) {
+	public double getDoublePosition(final int d) {
 		return pixelCoordinates[d] + subPixelLocationOffset[d];
 	}
 
@@ -53,38 +55,38 @@ public class SubPixelLocalization< T extends NumericType<T> & Comparable<T>> imp
 	}
 
 	@Override
-	public void localize(int[] position) {
+	public void localize(final int[] position) {
 		for (int i = 0; i < position.length; i++) {
 			position[i] = (int) pixelCoordinates[i];
 		}
 	}
 
 	@Override
-	public void localize(long[] position) {
+	public void localize(final long[] position) {
 		for (int i = 0; i < position.length; i++) {
 			position[i] = pixelCoordinates[i];
 		}
 	}
 
 	@Override
-	public int getIntPosition(int d) {
+	public int getIntPosition(final int d) {
 		return (int) pixelCoordinates[d];
 	}
 
 	@Override
-	public long getLongPosition(int d) {
+	public long getLongPosition(final int d) {
 		return pixelCoordinates[d];
 	}
 
-	public void setSubPixelLocationOffset(double offset, int d) {
+	public void setSubPixelLocationOffset(final double offset, final int d) {
 		this.subPixelLocationOffset[d] = offset;
 	}
 
 	public T getValue() {
 		return value;
 	}
-	
-	public void setValue(T value) {
+
+	public void setValue(final T value) {
 		this.value = value;
 	}
 
@@ -92,10 +94,10 @@ public class SubPixelLocalization< T extends NumericType<T> & Comparable<T>> imp
 		return interpolatedValue;
 	}
 
-	public void setErrorMessage(String error) {
+	public void setErrorMessage(final String error) {
 		this.errorMessage = error;
 	}
-	
+
 	public String getErrorMessage() {
 		return errorMessage;
 	}
@@ -104,21 +106,20 @@ public class SubPixelLocalization< T extends NumericType<T> & Comparable<T>> imp
 		return locationType;
 	}
 
-	public void setLocationType(LocationType locationType) {
+	public void setLocationType(final LocationType locationType) {
 		this.locationType = locationType;
 	}
 
-	
 	@Override
 	public int compareTo(final SubPixelLocalization<T> inPeak) {
 		/*
-		 * You're probably wondering why this is negated.
-		 * It is because Collections.sort() sorts only in the forward direction.
-		 * I want these to be sorted in the descending order, and the Collections.sort
-		 * method is the only thing that should ever touch Peak.compareTo.
-		 * This is faster than sorting, then reversing.
+		 * You're probably wondering why this is negated. It is because
+		 * Collections.sort() sorts only in the forward direction. I want these
+		 * to be sorted in the descending order, and the Collections.sort method
+		 * is the only thing that should ever touch Peak.compareTo. This is
+		 * faster than sorting, then reversing.
 		 */
-		if (value.compareTo(inPeak.value) == 1) 	{
+		if (value.compareTo(inPeak.value) == 1) {
 			return -1;
 		} else if (value.compareTo(inPeak.value) == 0) {
 			return 0;

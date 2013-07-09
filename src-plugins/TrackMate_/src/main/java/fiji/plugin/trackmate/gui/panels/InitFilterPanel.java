@@ -20,7 +20,7 @@ import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.util.OnRequestUpdater;
 import fiji.plugin.trackmate.util.OnRequestUpdater.Refreshable;
 
-public class InitFilterPanel extends ActionListenablePanel  {
+public class InitFilterPanel extends ActionListenablePanel {
 
 	private static final long serialVersionUID = 1L;
 	private static final String EXPLANATION_TEXT = "<html><p align=\"justify\">" +
@@ -34,7 +34,6 @@ public class InitFilterPanel extends ActionListenablePanel  {
 			"</html>";
 	private static final String SELECTED_SPOT_STRING = "Selected spots: %d out of %d";
 
-
 	private FilterPanel jPanelThreshold;
 	private JPanel jPanelFields;
 	private JLabel jLabelInitialThreshold;
@@ -44,9 +43,8 @@ public class InitFilterPanel extends ActionListenablePanel  {
 	private double[] values;
 	OnRequestUpdater updater;
 
-
 	/**
-	 * Default constructor, initialize component. 
+	 * Default constructor, initialize component.
 	 */
 	public InitFilterPanel() {
 		this.updater = new OnRequestUpdater(new Refreshable() {
@@ -58,42 +56,41 @@ public class InitFilterPanel extends ActionListenablePanel  {
 		initGUI();
 	}
 
-
 	/*
 	 * PUBLIC METHOD
 	 */
-	
-	public void setValues(double[] values) {
+
+	public void setValues(final double[] values) {
 		this.values = values;
-		
+
 		if (null != jPanelThreshold) {
 			this.remove(jPanelThreshold);
 		}
-		
-		ArrayList<String> keys = new ArrayList<String>(1);
+
+		final ArrayList<String> keys = new ArrayList<String>(1);
 		keys.add(Spot.QUALITY);
-		HashMap<String, String> keyNames = new HashMap<String, String>(1);
+		final HashMap<String, String> keyNames = new HashMap<String, String>(1);
 		keyNames.put(Spot.QUALITY, Spot.FEATURE_NAMES.get(Spot.QUALITY));
 
-		Map<String, double[]> features = new HashMap<String, double[]>(1);
+		final Map<String, double[]> features = new HashMap<String, double[]>(1);
 		features.put(Spot.QUALITY, values);
-		
-		jPanelThreshold = new FilterPanel(features , keys, keyNames);
+
+		jPanelThreshold = new FilterPanel(features, keys, keyNames);
 		jPanelThreshold.jComboBoxFeature.setEnabled(false);
 		jPanelThreshold.jRadioButtonAbove.setEnabled(false);
 		jPanelThreshold.jRadioButtonBelow.setEnabled(false);
 		this.add(jPanelThreshold, BorderLayout.CENTER);
 		jPanelThreshold.setPreferredSize(new java.awt.Dimension(300, 200));
 		jPanelThreshold.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
+			@Override
+			public void stateChanged(final ChangeEvent e) {
 				updater.doUpdate();
 			}
 		});
 
-		
 	}
 
-	public void setInitialFilterValue(Double initialFilterValue) {
+	public void setInitialFilterValue(final Double initialFilterValue) {
 		if (null != initialFilterValue) {
 			jPanelThreshold.setThreshold(initialFilterValue);
 		} else {
@@ -103,7 +100,7 @@ public class InitFilterPanel extends ActionListenablePanel  {
 	}
 
 	/**
-	 * Return the feature threshold on quality set by this panel. 
+	 * Return the feature threshold on quality set by this panel.
 	 */
 	public FeatureFilter getFeatureThreshold() {
 		return new FeatureFilter(jPanelThreshold.getKey(), new Double(jPanelThreshold.getThreshold()), jPanelThreshold.isAboveThreshold());
@@ -114,28 +111,27 @@ public class InitFilterPanel extends ActionListenablePanel  {
 	 */
 
 	private void thresholdChanged() {
-		double threshold  = jPanelThreshold.getThreshold();
-		boolean isAbove = jPanelThreshold.isAboveThreshold();
+		final double threshold = jPanelThreshold.getThreshold();
+		final boolean isAbove = jPanelThreshold.isAboveThreshold();
 		if (null == values)
 			return;
-		int nspots = values.length;
+		final int nspots = values.length;
 		int nselected = 0;
 		if (isAbove) {
-			for (double val : values) 
+			for (final double val : values)
 				if (val >= threshold)
 					nselected++;
 		} else {
-			for (double val : values) 
+			for (final double val : values)
 				if (val <= threshold)
 					nselected++;
 		}
 		jLabelSelectedSpots.setText(String.format(SELECTED_SPOT_STRING, nselected, nspots));
 	}
 
-
-	private void initGUI() { 
+	private void initGUI() {
 		try {
-			BorderLayout thisLayout = new BorderLayout();
+			final BorderLayout thisLayout = new BorderLayout();
 			this.setLayout(thisLayout);
 			this.setPreferredSize(new java.awt.Dimension(300, 500));
 
@@ -172,7 +168,7 @@ public class InitFilterPanel extends ActionListenablePanel  {
 					jLabelExplanation.setFont(FONT.deriveFont(Font.ITALIC));
 				}
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 	}

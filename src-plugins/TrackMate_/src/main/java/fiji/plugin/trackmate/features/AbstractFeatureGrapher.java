@@ -21,26 +21,26 @@ import javax.swing.JScrollPane;
 import org.jfree.chart.renderer.InterpolatePaintScale;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
-import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.Model;
+import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.TrackModel;
 import fiji.plugin.trackmate.util.ExportableChartPanel;
 
 public abstract class AbstractFeatureGrapher {
-	
+
 	protected static final Shape DEFAULT_SHAPE = new Ellipse2D.Double(-3, -3, 6, 6);
 
-	protected final InterpolatePaintScale paints = InterpolatePaintScale.Jet; 
+	protected final InterpolatePaintScale paints = InterpolatePaintScale.Jet;
 	protected final String xFeature;
 	protected final Set<String> yFeatures;
 	protected final Model model;
 
-	public AbstractFeatureGrapher(final String xFeature, final Set<String> yFeatures,final Model model) {
+	public AbstractFeatureGrapher(final String xFeature, final Set<String> yFeatures, final Model model) {
 		this.xFeature = xFeature;
 		this.yFeatures = yFeatures;
 		this.model = model;
 	}
-	
+
 	/**
 	 * Draw and render the graph.
 	 */
@@ -49,27 +49,28 @@ public abstract class AbstractFeatureGrapher {
 	/*
 	 * UTILS
 	 */
-	
+
 	/**
-	 * Render and display a frame containing all the char panels, grouped by dimension
+	 * Render and display a frame containing all the char panels, grouped by
+	 * dimension
 	 */
 	protected final void renderCharts(final List<ExportableChartPanel> chartPanels) {
 		// The Panel
-		JPanel panel = new JPanel();
-		BoxLayout panelLayout = new BoxLayout(panel, BoxLayout.Y_AXIS);
+		final JPanel panel = new JPanel();
+		final BoxLayout panelLayout = new BoxLayout(panel, BoxLayout.Y_AXIS);
 		panel.setLayout(panelLayout);
-		for(ExportableChartPanel chartPanel : chartPanels)  {
+		for (final ExportableChartPanel chartPanel : chartPanels) {
 			panel.add(chartPanel);
 			panel.add(Box.createVerticalStrut(5));
 		}
-		
+
 		// Scroll pane
-		JScrollPane scrollPane = new JScrollPane();
+		final JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setViewportView(panel);
 
 		// The frame
-		JFrame frame = new JFrame();
+		final JFrame frame = new JFrame();
 		frame.setTitle("Feature plot for Track scheme");
 		frame.setIconImage(TRACK_SCHEME_ICON.getImage());
 		frame.getContentPane().add(scrollPane);
@@ -78,44 +79,47 @@ public abstract class AbstractFeatureGrapher {
 		frame.setVisible(true);
 	}
 
-
 	/**
-	 * @return the unique mapped values in the given map, for the collection of keys given.
+	 * @return the unique mapped values in the given map, for the collection of
+	 *         keys given.
 	 */
-	protected final <K, V> Set<V> getUniqueValues(Iterable<K> keys, Map<K,V> map) {
-		HashSet<V> mapping = new HashSet<V>();
-		for (K key : keys) {
+	protected final <K, V> Set<V> getUniqueValues(final Iterable<K> keys, final Map<K, V> map) {
+		final HashSet<V> mapping = new HashSet<V>();
+		for (final K key : keys) {
 			mapping.add(map.get(key));
 		}
 		return mapping;
 	}
 
 	/**
-	 * @return  the collection of keys amongst the given ones, 
-	 * that point to the target value in the given map.
-	 * @param targetValue the common value to search
-	 * @param keys the keys to inspect
-	 * @param map the map to search in
+	 * @return the collection of keys amongst the given ones, that point to the
+	 *         target value in the given map.
+	 * @param targetValue
+	 *            the common value to search
+	 * @param keys
+	 *            the keys to inspect
+	 * @param map
+	 *            the map to search in
 	 */
-	protected final <K, V> List<K> getCommonKeys(final V targetValue, final Iterable<K> keys, final Map<K,V> map) {
-		ArrayList<K> foundKeys = new ArrayList<K>();
-		for (K key : keys) {
+	protected final <K, V> List<K> getCommonKeys(final V targetValue, final Iterable<K> keys, final Map<K, V> map) {
+		final ArrayList<K> foundKeys = new ArrayList<K>();
+		for (final K key : keys) {
 			if (map.get(key).equals(targetValue)) {
 				foundKeys.add(key);
 			}
 		}
 		return foundKeys;
 	}
-	
+
 	/**
 	 * @return a suitable plot title built from the given target features
 	 */
-	
+
 	protected final String buildPlotTitle(final Iterable<String> yFeatures, final Map<String, String> featureNames) {
-		StringBuilder sb = new StringBuilder("Plot of ");
-		Iterator<String> it = yFeatures.iterator();
-		sb.append(featureNames.get(it.next()) );
-		while(it.hasNext()) {
+		final StringBuilder sb = new StringBuilder("Plot of ");
+		final Iterator<String> it = yFeatures.iterator();
+		sb.append(featureNames.get(it.next()));
+		while (it.hasNext()) {
 			sb.append(", ");
 			sb.append(featureNames.get(it.next()));
 		}
@@ -126,22 +130,21 @@ public abstract class AbstractFeatureGrapher {
 	}
 
 	/**
-	 * @return the list of links that have their source and target in the given spot list.
+	 * @return the list of links that have their source and target in the given
+	 *         spot list.
 	 */
 	protected final List<DefaultWeightedEdge> getInsideEdges(final Collection<Spot> spots) {
-		int nspots = spots.size();
-		ArrayList<DefaultWeightedEdge> edges = new ArrayList<DefaultWeightedEdge>(nspots);
-		TrackModel trackModel = model.getTrackModel();
-		for (DefaultWeightedEdge edge : trackModel.edgeSet()) {
-			Spot source = trackModel.getEdgeSource(edge);
-			Spot target = trackModel.getEdgeTarget(edge);
+		final int nspots = spots.size();
+		final ArrayList<DefaultWeightedEdge> edges = new ArrayList<DefaultWeightedEdge>(nspots);
+		final TrackModel trackModel = model.getTrackModel();
+		for (final DefaultWeightedEdge edge : trackModel.edgeSet()) {
+			final Spot source = trackModel.getEdgeSource(edge);
+			final Spot target = trackModel.getEdgeTarget(edge);
 			if (spots.contains(source) && spots.contains(target)) {
 				edges.add(edge);
 			}
 		}
 		return edges;
 	}
-	
-	
 
 }

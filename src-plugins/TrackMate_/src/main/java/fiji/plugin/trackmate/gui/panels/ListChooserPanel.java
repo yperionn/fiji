@@ -13,7 +13,6 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 
-
 /**
  * A panel to let the user choose what displayer he wants to use.
  */
@@ -31,7 +30,7 @@ public class ListChooserPanel extends ActionListenablePanel {
 	 * CONSTRUCTOR
 	 */
 
-	public ListChooserPanel(List<String> items, List<String> infoTexts, String typeName) {
+	public ListChooserPanel(final List<String> items, final List<String> infoTexts, final String typeName) {
 		super();
 		this.infoTexts = infoTexts;
 		this.typeName = typeName;
@@ -47,10 +46,9 @@ public class ListChooserPanel extends ActionListenablePanel {
 		return jComboBoxChoice.getSelectedIndex();
 	}
 
-	public void setChoice(int index) {
+	public void setChoice(final int index) {
 		jComboBoxChoice.setSelectedIndex(index);
 	}
-
 
 	/*
 	 * PRIVATE METHODS
@@ -64,12 +62,12 @@ public class ListChooserPanel extends ActionListenablePanel {
 				jLabelHeader = new JLabel();
 				this.add(jLabelHeader);
 				jLabelHeader.setFont(BIG_FONT);
-				jLabelHeader.setText("Select a "+typeName);
+				jLabelHeader.setText("Select a " + typeName);
 				jLabelHeader.setBounds(20, 20, 270, 16);
 			}
 			{
-				String[] names = items.toArray(new String[] {});
-				ComboBoxModel jComboBoxDisplayerChoiceModel = new DefaultComboBoxModel(names);
+				final String[] names = items.toArray(new String[] {});
+				final ComboBoxModel jComboBoxDisplayerChoiceModel = new DefaultComboBoxModel(names);
 				jComboBoxChoice = new JComboBox();
 				jComboBoxChoice.setModel(jComboBoxDisplayerChoiceModel);
 				this.add(jComboBoxChoice);
@@ -77,7 +75,7 @@ public class ListChooserPanel extends ActionListenablePanel {
 				jComboBoxChoice.setBounds(12, 48, 270, 27);
 				jComboBoxChoice.addActionListener(new ActionListener() {
 					@Override
-					public void actionPerformed(ActionEvent e) {
+					public void actionPerformed(final ActionEvent e) {
 						echo(jComboBoxChoice.getSelectedIndex());
 					}
 				});
@@ -89,17 +87,13 @@ public class ListChooserPanel extends ActionListenablePanel {
 				echo(jComboBoxChoice.getSelectedIndex());
 				this.add(jLabelHelpText);
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void echo(int index) {
-		jLabelHelpText.setText(infoTexts.get(index)
-				.replace("<br>", "")
-				.replace("<p>", "<p align=\"justify\">")
-				.replace("<html>", "<html><p align=\"justify\">")
-				);
+	private void echo(final int index) {
+		jLabelHelpText.setText(infoTexts.get(index).replace("<br>", "").replace("<p>", "<p align=\"justify\">").replace("<html>", "<html><p align=\"justify\">"));
 	}
 
 }

@@ -54,34 +54,36 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 	private JButton jButtonAddThreshold;
 	private JLabel jLabelInfo;
 	private JLabel jTopLabel;
-	private OnRequestUpdater updater;
+	private final OnRequestUpdater updater;
 
-	private Stack<FilterPanel> thresholdPanels = new Stack<FilterPanel>();
-	private Stack<Component> struts = new Stack<Component>();
+	private final Stack<FilterPanel> thresholdPanels = new Stack<FilterPanel>();
+	private final Stack<Component> struts = new Stack<Component>();
 	private int newFeatureIndex;
 
 	private List<FeatureFilter> featureFilters = new ArrayList<FeatureFilter>();
-	private ArrayList<ChangeListener> changeListeners = new ArrayList<ChangeListener>();
+	private final ArrayList<ChangeListener> changeListeners = new ArrayList<ChangeListener>();
 
 	private final Map<String, String> featureNames;
 	private final List<Category> categories;
 	private final Model model;
 	private final List<String> features;
-	/** Holds the map of feature values. Is made final so that the instance can be shared with the components
-	 * of this panel. */
+	/**
+	 * Holds the map of feature values. Is made final so that the instance can
+	 * be shared with the components of this panel.
+	 */
 	private final Map<String, double[]> featureValues;
 
 	/*
 	 * CONSTRUCTOR
 	 */
 
-	public FilterGuiPanel(Model model, List<Category> categories) {
+	public FilterGuiPanel(final Model model, final List<Category> categories) {
 		this.model = model;
 		this.categories = categories;
-		
+
 		this.features = new ArrayList<String>();
 		this.featureNames = new HashMap<String, String>();
-		for (Category category : categories) {
+		for (final Category category : categories) {
 			switch (category) {
 			case SPOTS:
 				features.addAll(model.getFeatureModel().getSpotFeatures());
@@ -116,18 +118,17 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 		initGUI();
 	}
 
-
 	/*
 	 * PUBLIC METHODS
 	 */
 
 	/**
 	 * Calls the re-calculation of the feature values displayed in the filter
-	 * panels. 
+	 * panels.
 	 */
 	public void refreshDisplayedFeatureValues() {
 		featureValues.clear();
-		for (Category category : categories) {
+		for (final Category category : categories) {
 			switch (category) {
 			case SPOTS:
 				featureValues.putAll(model.getSpots().collectValues(model.getFeatureModel().getSpotFeatures(), false));
@@ -146,26 +147,29 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 	}
 
 	/**
-	 * Set the feature filters to display and layout in this panel. 
-	 * @param filters  the list of {@link FeatureFilter}s that should be already present in the GUI 
-	 * (for loading purpose). Can be <code>null</code> or empty.
+	 * Set the feature filters to display and layout in this panel.
+	 *
+	 * @param filters
+	 *            the list of {@link FeatureFilter}s that should be already
+	 *            present in the GUI (for loading purpose). Can be
+	 *            <code>null</code> or empty.
 	 */
-	public void setFilters(List<FeatureFilter> filters) {
+	public void setFilters(final List<FeatureFilter> filters) {
 		// Clean current panels
-		int n_panels = thresholdPanels.size();
+		final int n_panels = thresholdPanels.size();
 		for (int i = 0; i < n_panels; i++) {
 			removeThresholdPanel();
 		}
 
 		if (null != filters) {
 
-			for (FeatureFilter ft : filters) {
+			for (final FeatureFilter ft : filters) {
 				addFilterPanel(ft);
 			}
 			if (filters.isEmpty())
 				newFeatureIndex = 0;
 			else
-				newFeatureIndex = this.features.indexOf(filters.get(filters.size()-1).feature);
+				newFeatureIndex = this.features.indexOf(filters.get(filters.size() - 1).feature);
 
 		}
 	}
@@ -174,7 +178,7 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 	 * Called when one of the {@link FilterPanel} is changed by the user.
 	 */
 	@Override
-	public void stateChanged(ChangeEvent e) {
+	public void stateChanged(final ChangeEvent e) {
 		updater.doUpdate();
 	}
 
@@ -186,7 +190,7 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 	}
 
 	/**
-	 * Returns the feature selected in the "color by feature" comb-box. 
+	 * Returns the feature selected in the "color by feature" comb-box.
 	 */
 	public String getColorFeature() {
 		return jPanelColorByFeatureGUI.getColorFeature();
@@ -196,25 +200,26 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 		return jPanelColorByFeatureGUI.getColorGeneratorCategory();
 	}
 
-	public void setColorFeature(String feature) {
+	public void setColorFeature(final String feature) {
 		jPanelColorByFeatureGUI.setColorFeature(feature);
 	}
 
 	/**
-	 * Add an {@link ChangeListener} to this panel. The {@link ChangeListener} will
-	 * be notified when a change happens to the thresholds displayed by this panel, whether
-	 * due to the slider being move, the auto-threshold button being pressed, or
-	 * the combo-box selection being changed.
+	 * Add an {@link ChangeListener} to this panel. The {@link ChangeListener}
+	 * will be notified when a change happens to the thresholds displayed by
+	 * this panel, whether due to the slider being move, the auto-threshold
+	 * button being pressed, or the combo-box selection being changed.
 	 */
-	public void addChangeListener(ChangeListener listener) {
+	public void addChangeListener(final ChangeListener listener) {
 		changeListeners.add(listener);
 	}
 
 	/**
-	 * Remove a ChangeListener from this panel. 
+	 * Remove a ChangeListener from this panel.
+	 *
 	 * @return true if the listener was in listener collection of this instance.
 	 */
-	public boolean removeChangeListener(ChangeListener listener) {
+	public boolean removeChangeListener(final ChangeListener listener) {
 		return changeListeners.remove(listener);
 	}
 
@@ -226,29 +231,29 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 	 * PRIVATE METHODS
 	 */
 
-	private void fireThresholdChanged(ChangeEvent e) {
-		for (ChangeListener cl : changeListeners)  {
+	private void fireThresholdChanged(final ChangeEvent e) {
+		for (final ChangeListener cl : changeListeners) {
 			cl.stateChanged(e);
 		}
 	}
 
 	public void addFilterPanel() {
-		addFilterPanel(features.get(newFeatureIndex));		
+		addFilterPanel(features.get(newFeatureIndex));
 	}
 
-	public void addFilterPanel(FeatureFilter filter) {
+	public void addFilterPanel(final FeatureFilter filter) {
 		if (null == filter)
 			return;
 
-		int filterIndex = features.indexOf(filter.feature);
-		FilterPanel tp = new FilterPanel(features, featureNames, featureValues, filterIndex);
+		final int filterIndex = features.indexOf(filter.feature);
+		final FilterPanel tp = new FilterPanel(features, featureNames, featureValues, filterIndex);
 		tp.setThreshold(filter.value);
-		tp.setAboveThreshold(filter.isAbove);		
+		tp.setAboveThreshold(filter.isAbove);
 		tp.addChangeListener(this);
 		newFeatureIndex++;
-		if (newFeatureIndex >= features.size()) 
+		if (newFeatureIndex >= features.size())
 			newFeatureIndex = 0;
-		Component strut = Box.createVerticalStrut(5);
+		final Component strut = Box.createVerticalStrut(5);
 		struts.push(strut);
 		thresholdPanels.push(tp);
 		jPanelAllThresholds.add(tp);
@@ -257,16 +262,15 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 		stateChanged(CHANGE_EVENT);
 	}
 
-
-	public void addFilterPanel(String feature) {
+	public void addFilterPanel(final String feature) {
 		if (null == featureValues)
 			return;
-		FilterPanel tp = new FilterPanel(features, featureNames, featureValues, features.indexOf(feature));
+		final FilterPanel tp = new FilterPanel(features, featureNames, featureValues, features.indexOf(feature));
 		tp.addChangeListener(this);
 		newFeatureIndex++;
-		if (newFeatureIndex >= features.size()) 
+		if (newFeatureIndex >= features.size())
 			newFeatureIndex = 0;
-		Component strut = Box.createVerticalStrut(5);
+		final Component strut = Box.createVerticalStrut(5);
 		struts.push(strut);
 		thresholdPanels.push(tp);
 		jPanelAllThresholds.add(tp);
@@ -277,14 +281,15 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 
 	private void removeThresholdPanel() {
 		try {
-			FilterPanel tp = thresholdPanels.pop();
+			final FilterPanel tp = thresholdPanels.pop();
 			tp.removeChangeListener(this);
-			Component strut = struts.pop();
+			final Component strut = struts.pop();
 			jPanelAllThresholds.remove(strut);
 			jPanelAllThresholds.remove(tp);
 			jPanelAllThresholds.repaint();
 			stateChanged(CHANGE_EVENT);
-		} catch (EmptyStackException ese) {	}
+		} catch (final EmptyStackException ese) {
+		}
 	}
 
 	private void refresh() {
@@ -292,7 +297,7 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 			System.out.println("[FilterGuiPanel] #refresh()");
 		}
 		featureFilters = new ArrayList<FeatureFilter>(thresholdPanels.size());
-		for (FilterPanel tp : thresholdPanels) {
+		for (final FilterPanel tp : thresholdPanels) {
 			featureFilters.add(new FeatureFilter(tp.getKey(), new Double(tp.getThreshold()), tp.isAboveThreshold()));
 		}
 		fireThresholdChanged(null);
@@ -303,25 +308,25 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 		String info = "";
 		int nobjects = 0;
 
-		for (double[] values : featureValues.values()) { // bulletproof against unspecified features, which are signaled by empty arrays
+		for (final double[] values : featureValues.values()) { // bulletproof against unspecified features, which are signaled by empty arrays
 			if (values.length > 0) {
 				nobjects = values.length;
 				break;
 			}
 		}
 
-		if (nobjects == 0)	{
+		if (nobjects == 0) {
 			info = "No objects.";
-		} else if (featureFilters == null || featureFilters.isEmpty() ) {
-			info = "Keep all "+nobjects+" "+categories+".";
+		} else if (featureFilters == null || featureFilters.isEmpty()) {
+			info = "Keep all " + nobjects + " " + categories + ".";
 		} else {
 			int nselected = 0;
 			double val;
 			for (int i = 0; i < nobjects; i++) {
 				boolean ok = true;
-				for (FeatureFilter filter : featureFilters) {
-					double[] values =  featureValues.get(filter.feature);
-					if (i >= values.length || values.length == 0) { // bulletproof 
+				for (final FeatureFilter filter : featureFilters) {
+					final double[] values = featureValues.get(filter.feature);
+					if (i >= values.length || values.length == 0) { // bulletproof
 						continue;
 					}
 					val = values[i];
@@ -340,16 +345,15 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 				if (ok)
 					nselected++;
 			}
-			info = "Keep "+nselected+" "+categories+" out of  "+nobjects+".";
+			info = "Keep " + nselected + " " + categories + " out of  " + nobjects + ".";
 		}
 		jLabelInfo.setText(info);
 
 	}
 
-
 	private void initGUI() {
 		try {
-			BorderLayout thisLayout = new BorderLayout();
+			final BorderLayout thisLayout = new BorderLayout();
 			this.setLayout(thisLayout);
 			setPreferredSize(new Dimension(270, 500));
 			{
@@ -367,21 +371,21 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 				jScrollPaneThresholds.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 				{
 					jPanelAllThresholds = new JPanel();
-					BoxLayout jPanelAllThresholdsLayout = new BoxLayout(jPanelAllThresholds, BoxLayout.Y_AXIS);
+					final BoxLayout jPanelAllThresholdsLayout = new BoxLayout(jPanelAllThresholds, BoxLayout.Y_AXIS);
 					jPanelAllThresholds.setLayout(jPanelAllThresholdsLayout);
 					jScrollPaneThresholds.setViewportView(jPanelAllThresholds);
 				}
 			}
 			{
 				jPanelBottom = new JPanel();
-				BorderLayout jPanelBottomLayout = new BorderLayout();
+				final BorderLayout jPanelBottomLayout = new BorderLayout();
 				jPanelBottom.setLayout(jPanelBottomLayout);
 				this.add(jPanelBottom, BorderLayout.SOUTH);
 				jPanelBottom.setPreferredSize(new java.awt.Dimension(270, 71));
 				{
 					jPanelButtons = new JPanel();
 					jPanelBottom.add(jPanelButtons, BorderLayout.NORTH);
-					BoxLayout jPanelButtonsLayout = new BoxLayout(jPanelButtons, javax.swing.BoxLayout.X_AXIS);
+					final BoxLayout jPanelButtonsLayout = new BoxLayout(jPanelButtons, javax.swing.BoxLayout.X_AXIS);
 					jPanelButtons.setLayout(jPanelButtonsLayout);
 					jPanelButtons.setPreferredSize(new java.awt.Dimension(270, 22));
 					jPanelButtons.setSize(270, 25);
@@ -396,7 +400,8 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 						jButtonAddThreshold.setSize(24, 24);
 						jButtonAddThreshold.setMinimumSize(new java.awt.Dimension(24, 24));
 						jButtonAddThreshold.addActionListener(new ActionListener() {
-							public void actionPerformed(ActionEvent e) {
+							@Override
+							public void actionPerformed(final ActionEvent e) {
 								addFilterPanel();
 							}
 						});
@@ -411,7 +416,8 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 						jButtonRemoveThreshold.setSize(24, 24);
 						jButtonRemoveThreshold.setMinimumSize(new java.awt.Dimension(24, 24));
 						jButtonRemoveThreshold.addActionListener(new ActionListener() {
-							public void actionPerformed(ActionEvent e) {
+							@Override
+							public void actionPerformed(final ActionEvent e) {
 								removeThresholdPanel();
 							}
 						});
@@ -429,17 +435,16 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 					COLOR_FEATURE_CHANGED = jPanelColorByFeatureGUI.COLOR_FEATURE_CHANGED;
 					jPanelColorByFeatureGUI.addActionListener(new ActionListener() {
 						@Override
-						public void actionPerformed(ActionEvent e) {
+						public void actionPerformed(final ActionEvent e) {
 							fireAction(COLOR_FEATURE_CHANGED);
 						}
 					});
 					jPanelBottom.add(jPanelColorByFeatureGUI);
 				}
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 	}
-
 
 }

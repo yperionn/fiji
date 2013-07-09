@@ -7,7 +7,6 @@ import fiji.plugin.trackmate.SpotCollection;
 
 public class SimpleFastLAPTracker extends FastLAPTracker {
 
-
 	public static final String TRACKER_KEY = "SIMPLE_FAST_LAP_TRACKER";
 	public static final String NAME = "Simple LAP tracker";
 	public static final String INFO_TEXT =  "<html>" +
@@ -15,17 +14,16 @@ public class SimpleFastLAPTracker extends FastLAPTracker {
 			"proposes fewer tuning options. Namely, only gap closing is allowed, based solely on <br>" +
 			"a distance and time condition. Track splitting and merging are not allowed, resulting <br>" +
 			"in having non-branching tracks." +
-			" </html>";	
-	
-	public SimpleFastLAPTracker(SpotCollection spots, Logger logger) {
+			" </html>";
+
+	public SimpleFastLAPTracker(final SpotCollection spots, final Logger logger) {
 		super(spots, logger);
 	}
-	
-	public SimpleFastLAPTracker(SpotCollection spots, Map<String, Object> settings) {
+
+	public SimpleFastLAPTracker(final SpotCollection spots, final Map<String, Object> settings) {
 		this(spots, Logger.VOID_LOGGER);
 	}
-	
-	
+
 	@Override
 	public String toString() {
 		return NAME;
@@ -34,5 +32,5 @@ public class SimpleFastLAPTracker extends FastLAPTracker {
 	@Override
 	public String getKey() {
 		return TRACKER_KEY;
-}
+	}
 }

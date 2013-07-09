@@ -20,15 +20,15 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
 import fiji.plugin.trackmate.Dimension;
-import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.Model;
+import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.util.ExportableChartPanel;
 import fiji.plugin.trackmate.util.TMUtils;
 import fiji.plugin.trackmate.util.XYEdgeRenderer;
 import fiji.plugin.trackmate.util.XYEdgeSeries;
 import fiji.plugin.trackmate.util.XYEdgeSeriesCollection;
 
-public class SpotFeatureGrapher extends AbstractFeatureGrapher  {
+public class SpotFeatureGrapher extends AbstractFeatureGrapher {
 
 	private final Collection<Spot> spots;
 	private final Dimension xDimension;
@@ -46,53 +46,52 @@ public class SpotFeatureGrapher extends AbstractFeatureGrapher  {
 		this.yDimensions = model.getFeatureModel().getSpotFeatureDimensions();
 		this.featureNames = model.getFeatureModel().getSpotFeatureNames();
 	}
-	
+
 	/*
 	 * PRIVATE METHODS
 	 */
 
-	
 	@Override
 	public void render() {
-				
+
 		// X label
-		String xAxisLabel = xFeature + " (" + TMUtils.getUnitsFor(xDimension, model.getSpaceUnits(), model.getTimeUnits())+")";
-		
+		final String xAxisLabel = xFeature + " (" + TMUtils.getUnitsFor(xDimension, model.getSpaceUnits(), model.getTimeUnits()) + ")";
+
 		// Find how many different dimensions
-		Set<Dimension> dimensions = getUniqueValues(yFeatures, yDimensions);
-		
+		final Set<Dimension> dimensions = getUniqueValues(yFeatures, yDimensions);
+
 		// Generate one panel per different dimension
-		ArrayList<ExportableChartPanel> chartPanels = new ArrayList<ExportableChartPanel>(dimensions.size());
-		for (Dimension dimension : dimensions) {
-			
+		final ArrayList<ExportableChartPanel> chartPanels = new ArrayList<ExportableChartPanel>(dimensions.size());
+		for (final Dimension dimension : dimensions) {
+
 			// Y label
-			String yAxisLabel = TMUtils.getUnitsFor(dimension, model.getSpaceUnits(), model.getTimeUnits());
-			
+			final String yAxisLabel = TMUtils.getUnitsFor(dimension, model.getSpaceUnits(), model.getTimeUnits());
+
 			// Collect suitable feature for this dimension
-			List<String> featuresThisDimension = getCommonKeys(dimension, yFeatures, yDimensions);
+			final List<String> featuresThisDimension = getCommonKeys(dimension, yFeatures, yDimensions);
 
 			// Title
-			String title = buildPlotTitle(featuresThisDimension, featureNames);
+			final String title = buildPlotTitle(featuresThisDimension, featureNames);
 
 			// Data-set for points (easy)
-			XYSeriesCollection pointDataset = buildSpotDataSet(featuresThisDimension, spots);
+			final XYSeriesCollection pointDataset = buildSpotDataSet(featuresThisDimension, spots);
 
 			// Point renderer
-			XYLineAndShapeRenderer pointRenderer = new XYLineAndShapeRenderer();
+			final XYLineAndShapeRenderer pointRenderer = new XYLineAndShapeRenderer();
 
 			// Edge renderer
-			XYEdgeRenderer edgeRenderer = new XYEdgeRenderer();
+			final XYEdgeRenderer edgeRenderer = new XYEdgeRenderer();
 
 			// Data-set for edges
-			XYEdgeSeriesCollection edgeDataset = buildEdgeDataSet(featuresThisDimension, spots);
-			
+			final XYEdgeSeriesCollection edgeDataset = buildEdgeDataSet(featuresThisDimension, spots);
+
 			// The chart
-			JFreeChart chart = ChartFactory.createXYLineChart(title, xAxisLabel, yAxisLabel, pointDataset, PlotOrientation.VERTICAL, true, true, false);
+			final JFreeChart chart = ChartFactory.createXYLineChart(title, xAxisLabel, yAxisLabel, pointDataset, PlotOrientation.VERTICAL, true, true, false);
 			chart.getTitle().setFont(FONT);
 			chart.getLegend().setItemFont(SMALL_FONT);
 
 			// The plot
-			XYPlot plot = chart.getXYPlot();
+			final XYPlot plot = chart.getXYPlot();
 			plot.setDataset(1, edgeDataset);
 			plot.setRenderer(1, edgeRenderer);
 			plot.setRenderer(0, pointRenderer);
@@ -100,38 +99,38 @@ public class SpotFeatureGrapher extends AbstractFeatureGrapher  {
 			plot.getRangeAxis().setTickLabelFont(SMALL_FONT);
 			plot.getDomainAxis().setLabelFont(FONT);
 			plot.getDomainAxis().setTickLabelFont(SMALL_FONT);
-			
+
 			// Paint
 			pointRenderer.setUseOutlinePaint(true);
-			int nseries = edgeDataset.getSeriesCount();
+			final int nseries = edgeDataset.getSeriesCount();
 			for (int i = 0; i < nseries; i++) {
 				pointRenderer.setSeriesOutlinePaint(i, Color.black);
 				pointRenderer.setSeriesLinesVisible(i, false);
 				pointRenderer.setSeriesShape(i, DEFAULT_SHAPE, false);
-				pointRenderer.setSeriesPaint(i, paints.getPaint((double)i/nseries), false);
-				edgeRenderer.setSeriesPaint(i, paints.getPaint((double)i/nseries), false);
+				pointRenderer.setSeriesPaint(i, paints.getPaint((double) i / nseries), false);
+				edgeRenderer.setSeriesPaint(i, paints.getPaint((double) i / nseries), false);
 			}
 
 			// The panel
-			ExportableChartPanel chartPanel = new ExportableChartPanel(chart);
+			final ExportableChartPanel chartPanel = new ExportableChartPanel(chart);
 			chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
 			chartPanels.add(chartPanel);
 		}
-		
+
 		renderCharts(chartPanels);
 	}
-	
+
 	/**
-	 * @return a new dataset that contains the values, specified from the given feature, and  extracted from all
-	 * the given spots.
+	 * @return a new dataset that contains the values, specified from the given
+	 *         feature, and extracted from all the given spots.
 	 */
 	private XYSeriesCollection buildSpotDataSet(final Iterable<String> targetYFeatures, final Iterable<Spot> spots) {
-		XYSeriesCollection dataset = new XYSeriesCollection();
-		for(String feature : targetYFeatures) {
-			XYSeries series = new XYSeries(featureNames.get(feature));
-			for(Spot spot : spots) {
-				Double x = spot.getFeature(xFeature);
-				Double y = spot.getFeature(feature);
+		final XYSeriesCollection dataset = new XYSeriesCollection();
+		for (final String feature : targetYFeatures) {
+			final XYSeries series = new XYSeries(featureNames.get(feature));
+			for (final Spot spot : spots) {
+				final Double x = spot.getFeature(xFeature);
+				final Double y = spot.getFeature(feature);
 				if (null == x || null == y) {
 					continue;
 				}
@@ -141,24 +140,25 @@ public class SpotFeatureGrapher extends AbstractFeatureGrapher  {
 		}
 		return dataset;
 	}
-	
+
 	/**
-	 * @return a new dataset that contains the values, specified from the given feature, and  extracted from all
-	 * the given spots. The dataset returned is a {@link XYEdgeSeriesCollection}, made to plot the lines
-	 * between 2 points representing 2 spot. We therefore retrieve 
+	 * @return a new dataset that contains the values, specified from the given
+	 *         feature, and extracted from all the given spots. The dataset
+	 *         returned is a {@link XYEdgeSeriesCollection}, made to plot the
+	 *         lines between 2 points representing 2 spot. We therefore retrieve
 	 */
 	private XYEdgeSeriesCollection buildEdgeDataSet(final Iterable<String> targetYFeatures, final Collection<Spot> spots) {
 		// Collect edges
-		List<DefaultWeightedEdge> edges = getInsideEdges(spots);
-		
+		final List<DefaultWeightedEdge> edges = getInsideEdges(spots);
+
 		// Build dataset
-		XYEdgeSeriesCollection edgeDataset = new XYEdgeSeriesCollection();
+		final XYEdgeSeriesCollection edgeDataset = new XYEdgeSeriesCollection();
 		Double x0, x1, y0, y1;
 		XYEdgeSeries edgeSeries;
 		Spot source, target;
-		for(String yFeature : targetYFeatures) {
+		for (final String yFeature : targetYFeatures) {
 			edgeSeries = new XYEdgeSeries(featureNames.get(yFeature));
-			for(DefaultWeightedEdge	edge : edges) {
+			for (final DefaultWeightedEdge edge : edges) {
 				source = model.getTrackModel().getEdgeSource(edge);
 				target = model.getTrackModel().getEdgeTarget(edge);
 				x0 = source.getFeature(xFeature);

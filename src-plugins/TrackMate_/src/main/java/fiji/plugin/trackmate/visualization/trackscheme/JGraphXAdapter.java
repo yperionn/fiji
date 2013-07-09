@@ -13,16 +13,16 @@ import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxICell;
 import com.mxgraph.view.mxGraph;
 
-import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.Model;
+import fiji.plugin.trackmate.Spot;
 
 public class JGraphXAdapter extends mxGraph implements GraphListener<Spot, DefaultWeightedEdge> {
 
-	private HashMap<Spot, mxCell> 					vertexToCellMap 	= new HashMap<Spot, mxCell>();
-	private HashMap<DefaultWeightedEdge, mxCell> 	edgeToCellMap 		= new HashMap<DefaultWeightedEdge, mxCell>();
-	private HashMap<mxCell, Spot>					cellToVertexMap		= new HashMap<mxCell, Spot>();
-	private HashMap<mxCell, DefaultWeightedEdge>	cellToEdgeMap		= new HashMap<mxCell, DefaultWeightedEdge>();
-	private Model tmm;
+	private final HashMap<Spot, mxCell> vertexToCellMap = new HashMap<Spot, mxCell>();
+	private final HashMap<DefaultWeightedEdge, mxCell> edgeToCellMap = new HashMap<DefaultWeightedEdge, mxCell>();
+	private final HashMap<mxCell, Spot> cellToVertexMap = new HashMap<mxCell, Spot>();
+	private final HashMap<mxCell, DefaultWeightedEdge> cellToEdgeMap = new HashMap<mxCell, DefaultWeightedEdge>();
+	private final Model tmm;
 
 	/*
 	 * CONSTRUCTOR
@@ -37,18 +37,19 @@ public class JGraphXAdapter extends mxGraph implements GraphListener<Spot, Defau
 	/*
 	 * METHODS
 	 */
-	
+
 	/**
-	 * Overridden method so that when a label is changed, we change the target spot's name.
+	 * Overridden method so that when a label is changed, we change the target
+	 * spot's name.
 	 */
 	@Override
-	public void cellLabelChanged(Object cell, Object value, boolean autoSize) {
+	public void cellLabelChanged(final Object cell, final Object value, final boolean autoSize) {
 		model.beginUpdate();
 		try {
-			Spot spot = cellToVertexMap.get(cell);
+			final Spot spot = cellToVertexMap.get(cell);
 			if (null == spot)
 				return;
-			String str = (String) value;
+			final String str = (String) value;
 			spot.setName(str);
 			getModel().setValue(cell, str);
 
@@ -60,7 +61,7 @@ public class JGraphXAdapter extends mxGraph implements GraphListener<Spot, Defau
 		}
 	}
 
-	public mxCell addJGraphTVertex(Spot vertex) {
+	public mxCell addJGraphTVertex(final Spot vertex) {
 		if (vertexToCellMap.containsKey(vertex)) {
 			// cell for Spot already existed, skip creation and return original cell.
 			return vertexToCellMap.get(vertex);
@@ -81,7 +82,7 @@ public class JGraphXAdapter extends mxGraph implements GraphListener<Spot, Defau
 		return cell;
 	}
 
-	public mxCell addJGraphTEdge(DefaultWeightedEdge edge) {
+	public mxCell addJGraphTEdge(final DefaultWeightedEdge edge) {
 		if (edgeToCellMap.containsKey(edge)) {
 			// cell for edge already existed, skip creation and return original cell.
 			return edgeToCellMap.get(edge);
@@ -89,15 +90,15 @@ public class JGraphXAdapter extends mxGraph implements GraphListener<Spot, Defau
 		mxCell cell = null;
 		getModel().beginUpdate();
 		try {
-			Spot source = tmm.getTrackModel().getEdgeSource(edge);
-			Spot target = tmm.getTrackModel().getEdgeTarget(edge);				
+			final Spot source = tmm.getTrackModel().getEdgeSource(edge);
+			final Spot target = tmm.getTrackModel().getEdgeTarget(edge);
 			cell = new mxCell(edge);
 			cell.setEdge(true);
 			cell.setId(null);
 			cell.setValue(String.format("%.1f", tmm.getTrackModel().getEdgeWeight(edge)));
 			cell.setGeometry(new mxGeometry());
 			cell.getGeometry().setRelative(true);
-			addEdge(cell, defaultParent, vertexToCellMap.get(source),  vertexToCellMap.get(target), null);
+			addEdge(cell, defaultParent, vertexToCellMap.get(source), vertexToCellMap.get(target), null);
 			edgeToCellMap.put(edge, cell);
 			cellToEdgeMap.put(cell, edge);
 		} finally {
@@ -105,75 +106,70 @@ public class JGraphXAdapter extends mxGraph implements GraphListener<Spot, Defau
 		}
 		return cell;
 	}
-	
-	public void mapEdgeToCell(DefaultWeightedEdge edge, mxCell cell) {
+
+	public void mapEdgeToCell(final DefaultWeightedEdge edge, final mxCell cell) {
 		cellToEdgeMap.put(cell, edge);
 		edgeToCellMap.put(edge, cell);
 	}
-	
-	public Spot getSpotFor(mxICell cell) {
+
+	public Spot getSpotFor(final mxICell cell) {
 		return cellToVertexMap.get(cell);
 	}
-	
-	public DefaultWeightedEdge getEdgeFor(mxICell cell) {
+
+	public DefaultWeightedEdge getEdgeFor(final mxICell cell) {
 		return cellToEdgeMap.get(cell);
 	}
-	
-	public mxCell getCellFor(Spot spot) {
+
+	public mxCell getCellFor(final Spot spot) {
 		return vertexToCellMap.get(spot);
 	}
-	
-	public mxCell getCellFor(DefaultWeightedEdge edge) {
+
+	public mxCell getCellFor(final DefaultWeightedEdge edge) {
 		return edgeToCellMap.get(edge);
 	}
-	
+
 	public Set<mxCell> getVertexCells() {
 		return cellToVertexMap.keySet();
 	}
-	
+
 	public Set<mxCell> getEdgeCells() {
 		return cellToEdgeMap.keySet();
 	}
-	
-	public void removeMapping(Spot spot) {
-		mxICell cell = vertexToCellMap.remove(spot);
+
+	public void removeMapping(final Spot spot) {
+		final mxICell cell = vertexToCellMap.remove(spot);
 		cellToVertexMap.remove(cell);
 	}
-	
-	public void removeMapping(DefaultWeightedEdge edge) {
-		mxICell cell = edgeToCellMap.remove(edge);
+
+	public void removeMapping(final DefaultWeightedEdge edge) {
+		final mxICell cell = edgeToCellMap.remove(edge);
 		cellToEdgeMap.remove(cell);
 	}
-
-	
-
-	
 
 	/*
 	 * GRAPH LISTENER
 	 */
 
-
 	@Override
-	public void vertexAdded(GraphVertexChangeEvent<Spot> e) {
+	public void vertexAdded(final GraphVertexChangeEvent<Spot> e) {
 		addJGraphTVertex(e.getVertex());
 	}
 
 	@Override
-	public void vertexRemoved(GraphVertexChangeEvent<Spot> e) {
-		mxCell cell = vertexToCellMap.remove(e.getVertex());
-		removeCells(new Object[] { cell } );
+	public void vertexRemoved(final GraphVertexChangeEvent<Spot> e) {
+		final mxCell cell = vertexToCellMap.remove(e.getVertex());
+		removeCells(new Object[] { cell });
 	}
 
 	@Override
-	public void edgeAdded(GraphEdgeChangeEvent<Spot, DefaultWeightedEdge> e) {
+	public void edgeAdded(final GraphEdgeChangeEvent<Spot, DefaultWeightedEdge> e) {
 		addJGraphTEdge(e.getEdge());
 	}
 
 	@Override
-	public void edgeRemoved(GraphEdgeChangeEvent<Spot, DefaultWeightedEdge> e) {
-		mxICell cell = edgeToCellMap.remove(e.getEdge());
-		removeCells(new Object[] { cell } );
+	public void edgeRemoved(final GraphEdgeChangeEvent<Spot, DefaultWeightedEdge> e) {
+		final mxICell cell = edgeToCellMap.remove(e.getEdge());
+		removeCells(new Object[] { cell });
 	}
 
 	/*
@@ -181,30 +177,28 @@ public class JGraphXAdapter extends mxGraph implements GraphListener<Spot, Defau
 	 */
 
 	/**
-	 * Only insert spot and edges belonging to visible tracks. 
-	 * Any other spot or edges will be ignored by the whole trackscheme
-	 * framework, and if they are needed, they will have to be imported "by hand".
+	 * Only insert spot and edges belonging to visible tracks. Any other spot or
+	 * edges will be ignored by the whole trackscheme framework, and if they are
+	 * needed, they will have to be imported "by hand".
 	 */
 	private void insertTrackCollection(final Model tmm) {
 		model.beginUpdate();
 		try {
-			for (Integer trackID : tmm.getTrackModel().trackIDs(true)) {
-				
-				for (Spot vertex : tmm.getTrackModel().trackSpots(trackID)) {
+			for (final Integer trackID : tmm.getTrackModel().trackIDs(true)) {
+
+				for (final Spot vertex : tmm.getTrackModel().trackSpots(trackID)) {
 					addJGraphTVertex(vertex);
 				}
 
-				for (DefaultWeightedEdge edge : tmm.getTrackModel().trackEdges(trackID)) {
+				for (final DefaultWeightedEdge edge : tmm.getTrackModel().trackEdges(trackID)) {
 					addJGraphTEdge(edge);
 				}
-			
+
 			}
 		} finally {
 			model.endUpdate();
 		}
-		
+
 	}
-
-
 
 }

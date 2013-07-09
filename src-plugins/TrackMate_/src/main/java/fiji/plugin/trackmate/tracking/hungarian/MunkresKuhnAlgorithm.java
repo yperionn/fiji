@@ -2,7 +2,8 @@ package fiji.plugin.trackmate.tracking.hungarian;
 
 import java.util.Arrays;
 
-/** This implements optimal matching between two sets given a weight matrix
+/**
+ * This implements optimal matching between two sets given a weight matrix
  * (where the goal is to minimize the cumulative weight of the matches).
  * <p>
  * This implements the improved O(n^3) algorithm by Kuhn and Munkres, as
@@ -18,14 +19,14 @@ import java.util.Arrays;
  * The equality graph of a labeling is the graph consisting of the tight edges
  * and the vertices they connect.
  * <p>
- * An alternating path is a path along edges that alternate between X and Y.
- * In the context of the Hungarian algorithm, all alternating paths begin and
- * end in X.
+ * An alternating path is a path along edges that alternate between X and Y. In
+ * the context of the Hungarian algorithm, all alternating paths begin and end
+ * in X.
  * <p>
  * An alternating tree is a set of alternating paths all beginning in the same
- * root in X. In the context of this algorithm, all alternating trees visit
- * each node at most once, i.e. there is at most one incoming and one outgoing
- * edge for each vertex.
+ * root in X. In the context of this algorithm, all alternating trees visit each
+ * node at most once, i.e. there is at most one incoming and one outgoing edge
+ * for each vertex.
  * <p>
  * The alternating trees in the Hungarian algorithm have the property that all
  * edges from X to Y are <u>matches</u>, so that the current matching can be
@@ -39,34 +40,33 @@ import java.util.Arrays;
  * <p>
  * The details of this idea are described eloquently by András Frank in
  *
- *	http://www.cs.elte.hu/egres/tr/egres-04-14.pdf
+ * http://www.cs.elte.hu/egres/tr/egres-04-14.pdf
  * <p>
  * Note that the term <i>exposed</i> simply means "unmatched", and the term
- * <i>weighted-covering</i> refers to the labeling, while <i>orienting
- * edges</i> denotes the building of the alternating tree:
+ * <i>weighted-covering</i> refers to the labeling, while <i>orienting edges</i>
+ * denotes the building of the alternating tree:
  * <p>
  * "In a general step, Kuhn’s algorithm also has a weighted-covering π and
  * considers the subgraph Gπ of tight edges (on node set S ∪ T). Let M be a
- * matching in Gπ. Orient the elements of M from T to S while all other edges
- * of Gπ from S to T. Let RS ⊆ S and RT ⊆ T denote the set of nodes exposed by
- * M in S and in T, respectively. Let Z denote the set of nodes reachable in
- * the resulting digraph from RS by a directed path (that can be computed by a
+ * matching in Gπ. Orient the elements of M from T to S while all other edges of
+ * Gπ from S to T. Let RS ⊆ S and RT ⊆ T denote the set of nodes exposed by M in
+ * S and in T, respectively. Let Z denote the set of nodes reachable in the
+ * resulting digraph from RS by a directed path (that can be computed by a
  * breadth-first search, for example).
  * <p>
- *  If RT ∩ Z is non-empty, then we have obtained a path P consisting of tight
- *  edges that alternates in M. The symmetric difference of P and M is a
- *  matching M of Gπ consisting of one more edge than M does. The procedure is
- *  then iterated with this M. If RT ∩ Z is empty, then revise π as follows.
- *  Let ∆ := min{π(u) + π(v) − c(uv): u ∈ Z ∩ S, v ∈ T − Z}. Decrease
- *  (increase, respectively) the π-value of the elements of S ∩ Z (of T ∩ Z,
- *  resp.) by ∆. The resulting π is also a weighted-covering. Construct the
- *  subgraph of Gπ and iterate the procedure with π and with the unchanged M."
+ * If RT ∩ Z is non-empty, then we have obtained a path P consisting of tight
+ * edges that alternates in M. The symmetric difference of P and M is a matching
+ * M of Gπ consisting of one more edge than M does. The procedure is then
+ * iterated with this M. If RT ∩ Z is empty, then revise π as follows. Let ∆ :=
+ * min{π(u) + π(v) − c(uv): u ∈ Z ∩ S, v ∈ T − Z}. Decrease (increase,
+ * respectively) the π-value of the elements of S ∩ Z (of T ∩ Z, resp.) by ∆.
+ * The resulting π is also a weighted-covering. Construct the subgraph of Gπ and
+ * iterate the procedure with π and with the unchanged M."
  * <p>
  * The first clever idea, therefore, is to find an alternating path in the
  * egality graph whose first (and likewise, whose last) edge is not a matching
  * but every other edge is. By inverting the meaning of those edges (matches
- * become non-matches, and vice versa), there will be one more match in the
- * end.
+ * become non-matches, and vice versa), there will be one more match in the end.
  * <p>
  * The second clever idea is that if no such alternating path can be found (in
  * the complete alternating tree using the current matching, starting from an
@@ -81,8 +81,8 @@ import java.util.Arrays;
  * in the use of the <i>slack</i> array, which is really just a cache for the
  * values of ∆.
  * <p>
- * Copyright 2011 (C) Johannes Schindelin
- * License: GPLv3
+ * Copyright 2011 (C) Johannes Schindelin License: GPLv3
+ *
  * @author Johannes Schindelin
  */
 
@@ -102,20 +102,21 @@ public class MunkresKuhnAlgorithm implements AssignmentAlgorithm {
 	protected int[] queue;
 	protected int x, queueStart, queueEnd;
 
-	public int[][] computeAssignments(double[][] costMatrix) {
+	@Override
+	public int[][] computeAssignments(final double[][] costMatrix) {
 		weight = costMatrix;
 		M = weight.length;
 		if (M == 0) {
 			// no spot
-			return new int[][] { {  } };
+			return new int[][] { {} };
 		}
 		N = weight[0].length;
-		
+
 		if (M <= 1 && N <= 1) {
 			// no spot
-			return new int[][] { {  } };
+			return new int[][] { {} };
 		}
-		
+
 		initialize();
 		calculate();
 
@@ -125,7 +126,7 @@ public class MunkresKuhnAlgorithm implements AssignmentAlgorithm {
 			if (matchingY[x] >= 0 && weight[x][matchingY[x]] != NO_EDGE_VALUE)
 				result[counter++] = new int[] { x, matchingY[x] };
 		if (counter < result.length) {
-			int[][] newResult = new int[counter][];
+			final int[][] newResult = new int[counter][];
 			System.arraycopy(result, 0, newResult, 0, counter);
 			result = newResult;
 		}
@@ -174,7 +175,7 @@ public class MunkresKuhnAlgorithm implements AssignmentAlgorithm {
 	final protected void calculate() {
 		for (int matches = 0; matches < M && matches < N; matches++) {
 			// pick free vertex
-			int x = findUnmatchedX();
+			final int x = findUnmatchedX();
 
 			// initialize S and T
 			for (int i = 0; i < S.length; i++)
@@ -224,7 +225,7 @@ public class MunkresKuhnAlgorithm implements AssignmentAlgorithm {
 	// find a y that is not in the alternating tree yet
 	final protected int findY() {
 		while (queueStart < queueEnd) {
-			int x = queue[queueStart];
+			final int x = queue[queueStart];
 			for (int y = 0; y < N; y++)
 				if (!T[y] && isTight(x, y))
 					return y;
@@ -267,8 +268,8 @@ public class MunkresKuhnAlgorithm implements AssignmentAlgorithm {
 
 	final protected void augmentPath(int y) {
 		while (y >= 0) {
-			int x = previousX[y];
-			int nextY = matchingY[x];
+			final int x = previousX[y];
+			final int nextY = matchingY[x];
 			matchingX[y] = x;
 			matchingY[x] = y;
 			y = nextY;
@@ -303,8 +304,7 @@ public class MunkresKuhnAlgorithm implements AssignmentAlgorithm {
 					System.err.println("ERROR: slack[" + y + "] should be " + min + " but is " + slack[y]);
 					result = false;
 				}
-				if (slackX[y] != minX && (labelingX[slackX[y]] + labelingY[y] - -weight[slackX[y]][y]
-						!= labelingX[minX] + labelingY[y] - -weight[minX][y])) {
+				if (slackX[y] != minX && (labelingX[slackX[y]] + labelingY[y] - -weight[slackX[y]][y] != labelingX[minX] + labelingY[y] - -weight[minX][y])) {
 					System.err.println("ERROR: slackX[" + y + "] should be " + minX + " but is " + slackX[y]);
 					result = false;
 				}
@@ -340,34 +340,34 @@ public class MunkresKuhnAlgorithm implements AssignmentAlgorithm {
 	protected String alternatingPath(int y) {
 		String result = " ]";
 		while (y >= 0) {
-			int x = previousX[y];
-			int nextY = matchingY[x];
+			final int x = previousX[y];
+			final int nextY = matchingY[x];
 			result = " " + x + "-" + y + result;
 			y = nextY;
 		}
 		return "[" + result;
 	}
 
-	public static void main(String[] args) {
-		double[][] weight = new double[3][3];
+	public static void main(final String[] args) {
+		final double[][] weight = new double[3][3];
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++)
 				weight[i][j] = Math.floor(Math.random() * 10);
 			System.err.println(Arrays.toString(weight[i]));
 		}
 
-		MunkresKuhnAlgorithm algo = new MunkresKuhnAlgorithm();
+		final MunkresKuhnAlgorithm algo = new MunkresKuhnAlgorithm();
 		algo.computeAssignments(weight);
 		for (int x = 0; x < algo.M; x++)
 			System.err.println("map " + x + " to " + algo.matchingY[x]);
-		double minWeight = algo.getTotalWeight();
+		final double minWeight = algo.getTotalWeight();
 		System.err.println("weight: " + minWeight);
 		for (int a = 0; a < 3; a++) {
-			double weight1 = weight[0][a];
+			final double weight1 = weight[0][a];
 			for (int b = 0; b < 3; b++)
 				if (a != b) {
-					int c = 3 - a - b;
-					double weight2 = weight1 + weight[1][b] + weight[2][c];
+					final int c = 3 - a - b;
+					final double weight2 = weight1 + weight[1][b] + weight[2][c];
 					if (weight2 > minWeight)
 						continue;
 					if (weight2 < minWeight)

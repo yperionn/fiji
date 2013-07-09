@@ -21,7 +21,6 @@ import fiji.plugin.trackmate.visualization.trackscheme.TrackSchemeFrame;
 
 public class CaptureOverlayAction extends AbstractTMAction {
 
-
 	public static final ImageIcon ICON = new ImageIcon(TrackSchemeFrame.class.getResource("resources/camera_go.png"));
 	public static final String NAME = "Capture overlay";
 	public static final String INFO_TEXT = "<html>" +
@@ -35,7 +34,7 @@ public class CaptureOverlayAction extends AbstractTMAction {
 			"Also, make sure nothing is moved over the image while capturing. "+
 			"</html>";
 
-	public CaptureOverlayAction(TrackMate trackmate, TrackMateGUIController controller) {
+	public CaptureOverlayAction(final TrackMate trackmate, final TrackMateGUIController controller) {
 		super(trackmate, controller);
 		this.icon = ICON;
 	}
@@ -45,7 +44,7 @@ public class CaptureOverlayAction extends AbstractTMAction {
 		logger.log("Capturing TrackMate overlay.\n");
 		logger.log("  Preparing and allocating memory...");
 		try {
-			final ImagePlus imp =  trackmate.getSettings().imp;
+			final ImagePlus imp = trackmate.getSettings().imp;
 			final ImageWindow win = imp.getWindow();
 			win.toFront();
 			final Point loc = win.getLocation();
@@ -54,12 +53,12 @@ public class CaptureOverlayAction extends AbstractTMAction {
 			loc.x += bounds.x;
 			loc.y += bounds.y;
 			final Rectangle r = new Rectangle(loc.x, loc.y, bounds.width, bounds.height);
-			ImageStack stack = new ImageStack(bounds.width, bounds.height);
+			final ImageStack stack = new ImageStack(bounds.width, bounds.height);
 			Robot robot;
 			try {
 				robot = new Robot();
-			} catch (AWTException e) {
-				logger.error("Problem creating the image grabber:\n"+e.getLocalizedMessage());
+			} catch (final AWTException e) {
+				logger.error("Problem creating the image grabber:\n" + e.getLocalizedMessage());
 				return;
 			}
 			logger.log(" done.\n");
@@ -67,7 +66,7 @@ public class CaptureOverlayAction extends AbstractTMAction {
 			logger.log("  Performing capture...");
 			for (int i = 0; i < imp.getStackSize(); i++) {
 				logger.setProgress((float) i / imp.getStackSize());
-				imp.setPosition(i+1);
+				imp.setPosition(i + 1);
 				IJ.wait(200);
 				final Image image = robot.createScreenCapture(r);
 				final ColorProcessor cp = new ColorProcessor(image);

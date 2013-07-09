@@ -16,20 +16,20 @@ public class TrackerChoiceDescriptor implements WizardPanelDescriptor {
 	private final ListChooserPanel component;
 	private final TrackMate trackmate;
 	private final TrackerProvider trackerProvider;
-	
-	public TrackerChoiceDescriptor(TrackerProvider trackerProvider, TrackMate trackmate) {
+
+	public TrackerChoiceDescriptor(final TrackerProvider trackerProvider, final TrackMate trackmate) {
 		this.trackmate = trackmate;
 		this.trackerProvider = trackerProvider;
-		List<String> trackerNames = trackerProvider.getNames();
-		List<String> infoTexts = trackerProvider.getInfoTexts();
+		final List<String> trackerNames = trackerProvider.getNames();
+		final List<String> infoTexts = trackerProvider.getInfoTexts();
 		this.component = new ListChooserPanel(trackerNames, infoTexts, "tracker");
 		setCurrentChoiceFromPlugin();
 	}
-	
+
 	/*
 	 * METHODS
 	 */
-	
+
 	@Override
 	public Component getComponent() {
 		return component;
@@ -41,33 +41,32 @@ public class TrackerChoiceDescriptor implements WizardPanelDescriptor {
 	}
 
 	@Override
-	public void displayingPanel() { }
+	public void displayingPanel() {
+	}
 
 	@Override
 	public void aboutToHidePanel() {
-		
+
 		// Configure the detector provider with choice made in panel
-		int index = component.getChoice();
-		String key = trackerProvider.getKeys().get(index);
-		boolean ok = trackerProvider.select(key);
-		
+		final int index = component.getChoice();
+		final String key = trackerProvider.getKeys().get(index);
+		final boolean ok = trackerProvider.select(key);
+
 		// Check
 		if (!ok) {
-			Logger logger = trackmate.getModel().getLogger();
-			logger.error("Choice panel returned a tracker unkown to this trackmate:.\n" +
-					trackerProvider.getErrorMessage()+
-					"Using default "+trackerProvider.getCurrentKey());
+			final Logger logger = trackmate.getModel().getLogger();
+			logger.error("Choice panel returned a tracker unkown to this trackmate:.\n" + trackerProvider.getErrorMessage() + "Using default " + trackerProvider.getCurrentKey());
 		}
-		
-		SpotTracker tracker = trackerProvider.getTracker();
-		trackmate.getSettings().tracker = tracker; 
+
+		final SpotTracker tracker = trackerProvider.getTracker();
+		trackmate.getSettings().tracker = tracker;
 
 		if (tracker.getKey().equals(ManualTracker.TRACKER_KEY)) {
 			/*
-			 * Compute track and edge features now to ensure they will be available 
-			 * in the next descriptor.
+			 * Compute track and edge features now to ensure they will be
+			 * available in the next descriptor.
 			 */
-			Thread trackFeatureCalculationThread = new Thread("TrackMate track feature calculation thread") {
+			final Thread trackFeatureCalculationThread = new Thread("TrackMate track feature calculation thread") {
 				@Override
 				public void run() {
 					trackmate.computeTrackFeatures(true);
@@ -77,24 +76,24 @@ public class TrackerChoiceDescriptor implements WizardPanelDescriptor {
 			trackFeatureCalculationThread.start();
 			try {
 				trackFeatureCalculationThread.join();
-			} catch (InterruptedException e) {
+			} catch (final InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
 	private void setCurrentChoiceFromPlugin() {
-		
+
 		String key;
 		if (null != trackmate.getSettings().tracker) {
 			key = trackmate.getSettings().tracker.getKey();
 		} else {
-			key = trackerProvider.getCurrentKey(); // back to default 
+			key = trackerProvider.getCurrentKey(); // back to default
 		}
-		int index = trackerProvider.getKeys().indexOf(key);
-		
+		final int index = trackerProvider.getKeys().indexOf(key);
+
 		if (index < 0) {
-			trackmate.getModel().getLogger().error("[TrackerChoiceDescriptor] Cannot find tracker named "+key+" in current trackmate.");
+			trackmate.getModel().getLogger().error("[TrackerChoiceDescriptor] Cannot find tracker named " + key + " in current trackmate.");
 			return;
 		}
 		component.setChoice(index);
@@ -104,5 +103,5 @@ public class TrackerChoiceDescriptor implements WizardPanelDescriptor {
 	public String getKey() {
 		return KEY;
 	}
-	
+
 }

@@ -4,8 +4,8 @@ public class FlagNode<K> {
 
 	private K value;
 	private boolean visited = false;
-	
-	public FlagNode(K value) {
+
+	public FlagNode(final K value) {
 		this.setValue(value);
 	}
 
@@ -13,7 +13,7 @@ public class FlagNode<K> {
 		return visited;
 	}
 
-	public void setVisited(boolean visited) {
+	public void setVisited(final boolean visited) {
 		this.visited = visited;
 	}
 
@@ -21,7 +21,7 @@ public class FlagNode<K> {
 		return value;
 	}
 
-	public void setValue(K value) {
+	public void setValue(final K value) {
 		this.value = value;
 	}
 }

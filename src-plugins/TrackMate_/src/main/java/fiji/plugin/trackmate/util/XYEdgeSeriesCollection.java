@@ -15,20 +15,19 @@ public class XYEdgeSeriesCollection extends AbstractSeriesDataset implements XYD
 	 */
 
 	private static final long serialVersionUID = 1157323153460912998L;
-	private ArrayList<XYEdgeSeries> seriesList = new ArrayList<XYEdgeSeries>();
-	
-	
+	private final ArrayList<XYEdgeSeries> seriesList = new ArrayList<XYEdgeSeries>();
+
 	/*
 	 * PUBLIC METHODS
 	 */
-	
+
 	/**
 	 * Print out the content of this dataset
 	 */
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		for(XYEdgeSeries series : seriesList) {
+		final StringBuilder sb = new StringBuilder();
+		for (final XYEdgeSeries series : seriesList) {
 			sb.append(series.getKey() + ":\n");
 			for (int i = 0; i < series.getItemCount(); i++) {
 				sb.append("  x = " + series.getEdgeXStart(i) + " -> " + series.getEdgeXEnd(i) + ", y = " + series.getEdgeYStart(i) + " -> " + series.getEdgeYEnd(i) + '\n');
@@ -44,30 +43,30 @@ public class XYEdgeSeriesCollection extends AbstractSeriesDataset implements XYD
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public Comparable getSeriesKey(int seriesIndex) {
+	public Comparable getSeriesKey(final int seriesIndex) {
 		return seriesList.get(seriesIndex).getKey();
 	}
-	
-	public XYEdgeSeries getSeries(int seriesIndex) {
+
+	public XYEdgeSeries getSeries(final int seriesIndex) {
 		return seriesList.get(seriesIndex);
 	}
-	
-	public void addSeries(XYEdgeSeries series) {
+
+	public void addSeries(final XYEdgeSeries series) {
 		seriesList.add(series);
 	}
 
 	@SuppressWarnings("rawtypes")
-	public XYEdgeSeries getSeries(Comparable key) {
-		for(XYEdgeSeries s : seriesList) 
-			if (s.getKey().equals(key)) 
+	public XYEdgeSeries getSeries(final Comparable key) {
+		for (final XYEdgeSeries s : seriesList)
+			if (s.getKey().equals(key))
 				return s;
-        throw new UnknownKeyException("Key not found: " + key);
+		throw new UnknownKeyException("Key not found: " + key);
 	}
-	
+
 	public List<XYEdgeSeries> getSeries() {
 		return seriesList;
 	}
-	
+
 	/*
 	 * XYDATASET METHODS
 	 */
@@ -78,28 +77,28 @@ public class XYEdgeSeriesCollection extends AbstractSeriesDataset implements XYD
 	}
 
 	@Override
-	public int getItemCount(int series) {
+	public int getItemCount(final int series) {
 		return seriesList.get(series).getItemCount();
 	}
 
 	@Override
-	public Number getX(int series, int item) {
+	public Number getX(final int series, final int item) {
 		return seriesList.get(series).getEdgeXStart(item);
 	}
 
 	@Override
-	public double getXValue(int series, int item) {
+	public double getXValue(final int series, final int item) {
 		return seriesList.get(series).getEdgeXStart(item).doubleValue();
 	}
 
 	@Override
-	public Number getY(int series, int item) {
+	public Number getY(final int series, final int item) {
 		return seriesList.get(series).getEdgeYStart(item);
 	}
 
 	@Override
-	public double getYValue(int series, int item) {
+	public double getYValue(final int series, final int item) {
 		return seriesList.get(series).getEdgeYStart(item).doubleValue();
 	}
-	
+
 }

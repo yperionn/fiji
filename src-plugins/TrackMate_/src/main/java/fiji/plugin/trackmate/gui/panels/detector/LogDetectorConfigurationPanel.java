@@ -8,17 +8,6 @@ import static fiji.plugin.trackmate.detection.DetectorKeys.KEY_THRESHOLD;
 import static fiji.plugin.trackmate.gui.TrackMateWizard.BIG_FONT;
 import static fiji.plugin.trackmate.gui.TrackMateWizard.FONT;
 import static fiji.plugin.trackmate.gui.TrackMateWizard.SMALL_FONT;
-import fiji.plugin.trackmate.Logger;
-import fiji.plugin.trackmate.Settings;
-import fiji.plugin.trackmate.Spot;
-import fiji.plugin.trackmate.SpotCollection;
-import fiji.plugin.trackmate.TrackMate;
-import fiji.plugin.trackmate.Model;
-import fiji.plugin.trackmate.detection.LogDetectorFactory;
-import fiji.plugin.trackmate.detection.SpotDetectorFactory;
-import fiji.plugin.trackmate.gui.ConfigurationPanel;
-import fiji.plugin.trackmate.gui.TrackMateGUIController;
-import fiji.plugin.trackmate.gui.panels.components.JNumericTextField;
 import ij.ImagePlus;
 import ij.measure.Calibration;
 
@@ -40,11 +29,23 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import fiji.plugin.trackmate.Logger;
+import fiji.plugin.trackmate.Model;
+import fiji.plugin.trackmate.Settings;
+import fiji.plugin.trackmate.Spot;
+import fiji.plugin.trackmate.SpotCollection;
+import fiji.plugin.trackmate.TrackMate;
+import fiji.plugin.trackmate.detection.LogDetectorFactory;
+import fiji.plugin.trackmate.detection.SpotDetectorFactory;
+import fiji.plugin.trackmate.gui.ConfigurationPanel;
+import fiji.plugin.trackmate.gui.TrackMateGUIController;
+import fiji.plugin.trackmate.gui.panels.components.JNumericTextField;
 import fiji.plugin.trackmate.util.JLabelLogger;
 
 /**
- * Configuration panel for spot detectors based on LoG detector. 
- * 
+ * Configuration panel for spot detectors based on LoG detector.
+ *
  * @author Jean-Yves Tinevez <jeanyves.tinevez@gmail.com> 2010 - 2013
  */
 public class LogDetectorConfigurationPanel extends ConfigurationPanel {
@@ -63,8 +64,7 @@ public class LogDetectorConfigurationPanel extends ConfigurationPanel {
 			"ImagePlus and use its value here.</html>";
 	private static final ImageIcon ICON_REFRESH = new ImageIcon(TrackMateGUIController.class.getResource("images/arrow_refresh_small.png"));
 	private static final ImageIcon ICON_PREVIEW = new ImageIcon(TrackMateGUIController.class.getResource("images/flag_checked.png"));
-	
-	
+
 	private JLabel jLabel1;
 	protected JLabel jLabelSegmenterName;
 	private JLabel jLabel2;
@@ -94,16 +94,23 @@ public class LogDetectorConfigurationPanel extends ConfigurationPanel {
 	 */
 
 	/**
-	 * Creates a new {@link LogDetectorConfigurationPanel}, a GUI able to configure
-	 * settings suitable to {@link LogDetectorFactory} and derived implementations. 
-	 * @param imp  the {@link ImagePlus} to read the image content from as well as other metadata. 
-	 * @param infoText  the detector info text, will be displayed on the panel.
-	 * @param detectorName the detector name, will be displayed on the panel. 
-	 * @param model the {@link Model} that will be fed with the preview results. It 
-	 * is the responsibility of the views registered to listen to model change to display 
-	 * the preview results.
+	 * Creates a new {@link LogDetectorConfigurationPanel}, a GUI able to
+	 * configure settings suitable to {@link LogDetectorFactory} and derived
+	 * implementations.
+	 *
+	 * @param imp
+	 *            the {@link ImagePlus} to read the image content from as well
+	 *            as other metadata.
+	 * @param infoText
+	 *            the detector info text, will be displayed on the panel.
+	 * @param detectorName
+	 *            the detector name, will be displayed on the panel.
+	 * @param model
+	 *            the {@link Model} that will be fed with the preview results.
+	 *            It is the responsibility of the views registered to listen to
+	 *            model change to display the preview results.
 	 */
-	public LogDetectorConfigurationPanel(ImagePlus imp, String infoText, String detectorName, Model model) {
+	public LogDetectorConfigurationPanel(final ImagePlus imp, final String infoText, final String detectorName, final Model model) {
 		this.imp = imp;
 		this.infoText = infoText;
 		this.detectorName = detectorName;
@@ -118,12 +125,12 @@ public class LogDetectorConfigurationPanel extends ConfigurationPanel {
 
 	@Override
 	public Map<String, Object> getSettings() {
-		HashMap<String, Object> settings = new HashMap<String, Object>(5);
-		int targetChannel = sliderChannel.getValue();
-		double expectedRadius = Double.parseDouble(jTextFieldBlobDiameter.getText())/2;
-		double threshold = Double.parseDouble(jTextFieldThreshold.getText());
-		boolean useMedianFilter = jCheckBoxMedianFilter.isSelected();
-		boolean doSubPixelLocalization = jCheckSubPixel.isSelected();
+		final HashMap<String, Object> settings = new HashMap<String, Object>(5);
+		final int targetChannel = sliderChannel.getValue();
+		final double expectedRadius = Double.parseDouble(jTextFieldBlobDiameter.getText()) / 2;
+		final double threshold = Double.parseDouble(jTextFieldThreshold.getText());
+		final boolean useMedianFilter = jCheckBoxMedianFilter.isSelected();
+		final boolean doSubPixelLocalization = jCheckSubPixel.isSelected();
 		settings.put(KEY_TARGET_CHANNEL, targetChannel);
 		settings.put(KEY_RADIUS, expectedRadius);
 		settings.put(KEY_THRESHOLD, threshold);
@@ -137,30 +144,32 @@ public class LogDetectorConfigurationPanel extends ConfigurationPanel {
 		sliderChannel.setValue((Integer) settings.get(KEY_TARGET_CHANNEL));
 		double diameter = (Double) settings.get(KEY_RADIUS);
 		if (imp != null) {
-			Calibration calibration = imp.getCalibration();
-			double maxWidth = imp.getWidth() * 0.5 * (calibration == null ? 1 : calibration.pixelWidth);
-			double maxHeight = imp.getHeight() * 0.5 * (calibration == null ? 1 : calibration.pixelHeight);
-			double max = maxWidth < maxHeight ? maxWidth : maxHeight;
-			if (diameter > max) diameter *= max * 4 / (imp.getWidth() + imp.getHeight());
+			final Calibration calibration = imp.getCalibration();
+			final double maxWidth = imp.getWidth() * 0.5 * (calibration == null ? 1 : calibration.pixelWidth);
+			final double maxHeight = imp.getHeight() * 0.5 * (calibration == null ? 1 : calibration.pixelHeight);
+			final double max = maxWidth < maxHeight ? maxWidth : maxHeight;
+			if (diameter > max)
+				diameter *= max * 4 / (imp.getWidth() + imp.getHeight());
 		}
-		jTextFieldBlobDiameter.setText(""+( 2 * diameter));
+		jTextFieldBlobDiameter.setText("" + (2 * diameter));
 		jCheckBoxMedianFilter.setSelected((Boolean) settings.get(KEY_DO_MEDIAN_FILTERING));
 		jTextFieldThreshold.setText("" + settings.get(KEY_THRESHOLD));
 		jCheckSubPixel.setSelected((Boolean) settings.get(KEY_DO_SUBPIXEL_LOCALIZATION));
 	}
 
 	/**
-	 * Returns a new instance of the {@link SpotDetectorFactory} that this configuration
-	 * panels configures. The new instance will in turn be used for the preview 
-	 * mechanism. Therefore, classes extending this class are advised to return a 
-	 * suitable implementation of the factory.
-	 * @return  a new {@link SpotDetectorFactory}.
+	 * Returns a new instance of the {@link SpotDetectorFactory} that this
+	 * configuration panels configures. The new instance will in turn be used
+	 * for the preview mechanism. Therefore, classes extending this class are
+	 * advised to return a suitable implementation of the factory.
+	 *
+	 * @return a new {@link SpotDetectorFactory}.
 	 */
 	@SuppressWarnings("rawtypes")
 	protected SpotDetectorFactory<?> getDetectorFactory() {
 		return new LogDetectorFactory();
 	}
-	
+
 	/*
 	 * PRIVATE METHODS
 	 */
@@ -171,44 +180,45 @@ public class LogDetectorConfigurationPanel extends ConfigurationPanel {
 	private void preview() {
 		btnPreview.setEnabled(false);
 		new Thread("TrackMate preview detection thread") {
+			@Override
 			public void run() {
-				Settings settings = new Settings();
+				final Settings settings = new Settings();
 				settings.setFrom(imp);
-				int frame = imp.getFrame()-1;
+				final int frame = imp.getFrame() - 1;
 				settings.tstart = frame;
 				settings.tend = frame;
-				
+
 				settings.detectorFactory = getDetectorFactory();
 				settings.detectorSettings = getSettings();
-				
-				TrackMate trackmate = new TrackMate(settings);
+
+				final TrackMate trackmate = new TrackMate(settings);
 				trackmate.getModel().setLogger(localLogger);
-				
+
 				trackmate.execDetection();
-				localLogger.log("Found " + trackmate.getModel().getSpots().getNSpots(false) + " spots."); 
-				
+				localLogger.log("Found " + trackmate.getModel().getSpots().getNSpots(false) + " spots.");
+
 				// Wrap new spots in a list.
-				SpotCollection newspots = trackmate.getModel().getSpots();
-				Iterator<Spot> it = newspots.iterator(frame, false);
-				ArrayList<Spot> spotsToCopy = new ArrayList<Spot>(newspots.getNSpots(frame, false));
+				final SpotCollection newspots = trackmate.getModel().getSpots();
+				final Iterator<Spot> it = newspots.iterator(frame, false);
+				final ArrayList<Spot> spotsToCopy = new ArrayList<Spot>(newspots.getNSpots(frame, false));
 				while (it.hasNext()) {
 					spotsToCopy.add(it.next());
 				}
 				// Pass new spot list to model.
 				model.getSpots().put(frame, spotsToCopy);
 				// Make them visible
-				for (Spot spot : spotsToCopy) {
+				for (final Spot spot : spotsToCopy) {
 					spot.putFeature(SpotCollection.VISIBLITY, SpotCollection.ONE);
 				}
 				// Generate event for listener to reflect changes.
 				model.setSpots(model.getSpots(), true);
-				
+
 				btnPreview.setEnabled(true);
-				
+
 			};
 		}.start();
 	}
-	
+
 	/**
 	 * Fill the text fields with parameters grabbed from stored ImagePlus.
 	 */
@@ -278,10 +288,7 @@ public class LogDetectorConfigurationPanel extends ConfigurationPanel {
 				jLabelHelpText.setBounds(10, 60, 280, 104);
 				this.add(jLabelHelpText);
 				jLabelHelpText.setFont(FONT.deriveFont(Font.ITALIC));
-				jLabelHelpText.setText(infoText
-						.replace("<br>", "")
-						.replace("<p>", "<p align=\"justify\">")
-						.replace("<html>", "<html><p align=\"justify\">"));
+				jLabelHelpText.setText(infoText.replace("<br>", "").replace("<p>", "<p align=\"justify\">").replace("<html>", "<html><p align=\"justify\">"));
 			}
 			{
 				jLabelThreshold = new JLabel();
@@ -315,7 +322,10 @@ public class LogDetectorConfigurationPanel extends ConfigurationPanel {
 				sliderChannel = new JSlider();
 				sliderChannel.setBounds(126, 213, 91, 23);
 				sliderChannel.addChangeListener(new ChangeListener() {
-					public void stateChanged(ChangeEvent e) { labelChannel.setText(""+sliderChannel.getValue()); }
+					@Override
+					public void stateChanged(final ChangeEvent e) {
+						labelChannel.setText("" + sliderChannel.getValue());
+					}
 				});
 				add(sliderChannel);
 
@@ -332,7 +342,8 @@ public class LogDetectorConfigurationPanel extends ConfigurationPanel {
 				jButtonRefresh.setToolTipText(TOOLTIP_REFRESH);
 				jButtonRefresh.setFont(SMALL_FONT);
 				jButtonRefresh.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
+					@Override
+					public void actionPerformed(final ActionEvent e) {
 						refresh();
 					}
 				});
@@ -345,7 +356,7 @@ public class LogDetectorConfigurationPanel extends ConfigurationPanel {
 				btnPreview.setFont(SMALL_FONT);
 				btnPreview.addActionListener(new ActionListener() {
 					@Override
-					public void actionPerformed(ActionEvent e) {
+					public void actionPerformed(final ActionEvent e) {
 						preview();
 					}
 				});
@@ -354,11 +365,11 @@ public class LogDetectorConfigurationPanel extends ConfigurationPanel {
 			{
 
 				// Deal with channels: the slider and channel labels are only visible if we find more than one channel.
-				int n_channels = imp.getNChannels();
+				final int n_channels = imp.getNChannels();
 				sliderChannel.setMaximum(n_channels);
 				sliderChannel.setMinimum(1);
 				sliderChannel.setValue(imp.getChannel());
-				
+
 				if (n_channels <= 1) {
 					labelChannel.setVisible(false);
 					lblSegmentInChannel.setVisible(false);
@@ -366,16 +377,16 @@ public class LogDetectorConfigurationPanel extends ConfigurationPanel {
 				} else {
 					labelChannel.setVisible(true);
 					lblSegmentInChannel.setVisible(true);
-					sliderChannel.setVisible(true);			
+					sliderChannel.setVisible(true);
 				}
 			}
 			{
-				JLabelLogger labelLogger = new JLabelLogger();
+				final JLabelLogger labelLogger = new JLabelLogger();
 				labelLogger.setBounds(11, 407, 270, 24);
 				add(labelLogger);
 				localLogger = labelLogger.getLogger();
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 	}

@@ -12,17 +12,17 @@ import net.imglib2.algorithm.MultiThreadedBenchmarkAlgorithm;
 import net.imglib2.multithreading.SimpleMultiThreading;
 import fiji.plugin.trackmate.Dimension;
 import fiji.plugin.trackmate.Logger;
+import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.SpotCollection;
-import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.features.spot.SpotAnalyzer;
 import fiji.plugin.trackmate.features.spot.SpotAnalyzerFactory;
 
 /**
- * A class dedicated to centralizing the calculation of the numerical features of spots,
- * through {@link SpotAnalyzer}s.  
- * @author Jean-Yves Tinevez - 2013
+ * A class dedicated to centralizing the calculation of the numerical features
+ * of spots, through {@link SpotAnalyzer}s.
  *
+ * @author Jean-Yves Tinevez - 2013
  */
 public class SpotFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 
@@ -34,11 +34,11 @@ public class SpotFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 		this.settings = settings;
 		this.model = model;
 	}
-	
+
 	/*
 	 * METHODS
 	 */
-		
+
 	@Override
 	public boolean checkInput() {
 		if (null == model) {
@@ -51,67 +51,66 @@ public class SpotFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 		}
 		return true;
 	}
-	
+
 	/**
-	 * Calculates the spot features configured in the {@link Settings} 
-	 * for all the spots of this model,
+	 * Calculates the spot features configured in the {@link Settings} for all
+	 * the spots of this model,
 	 * <p>
 	 * Features are calculated for each spot, using their location, and the raw
-	 * image. Since a {@link SpotAnalyzer} can compute more than a feature
-	 * at once, spots might received more data than required.
+	 * image. Since a {@link SpotAnalyzer} can compute more than a feature at
+	 * once, spots might received more data than required.
 	 */
 	@Override
 	public boolean process() {
-		long start = System.currentTimeMillis();
-		
+		final long start = System.currentTimeMillis();
+
 		// Declare what you do.
-		for (SpotAnalyzerFactory<?> factory : settings.getSpotAnalyzerFactories()) {
-			Collection<String> features = factory.getFeatures();
-			Map<String, String> featureNames = factory.getFeatureNames();
-			Map<String, String> featureShortNames = factory.getFeatureShortNames();
-			Map<String, Dimension> featureDimensions = factory.getFeatureDimensions();
+		for (final SpotAnalyzerFactory<?> factory : settings.getSpotAnalyzerFactories()) {
+			final Collection<String> features = factory.getFeatures();
+			final Map<String, String> featureNames = factory.getFeatureNames();
+			final Map<String, String> featureShortNames = factory.getFeatureShortNames();
+			final Map<String, Dimension> featureDimensions = factory.getFeatureDimensions();
 			model.getFeatureModel().declareSpotFeatures(features, featureNames, featureShortNames, featureDimensions);
 		}
-		
+
 		// Do it.
 		computeSpotFeaturesAgent(model.getSpots(), settings.getSpotAnalyzerFactories(), true);
-		
-		long end = System.currentTimeMillis();
+
+		final long end = System.currentTimeMillis();
 		processingTime = end - start;
 		return true;
 	}
 
 	/**
-	 * Calculates all the spot features configured in the {@link Settings} object 
-	 * for the specified spot collection. 
-	 * Features are calculated for each spot, using their location, and the raw
-	 * image. 
+	 * Calculates all the spot features configured in the {@link Settings}
+	 * object for the specified spot collection. Features are calculated for
+	 * each spot, using their location, and the raw image.
 	 */
-	public void computeSpotFeatures(final SpotCollection toCompute, boolean doLogIt) {
-		List<SpotAnalyzerFactory<?>> spotFeatureAnalyzers = settings.getSpotAnalyzerFactories();
+	public void computeSpotFeatures(final SpotCollection toCompute, final boolean doLogIt) {
+		final List<SpotAnalyzerFactory<?>> spotFeatureAnalyzers = settings.getSpotAnalyzerFactories();
 		computeSpotFeaturesAgent(toCompute, spotFeatureAnalyzers, doLogIt);
 	}
 
 	/**
-	 * The method in charge of computing spot features with the given {@link SpotAnalyzer}s, for the
-	 * given {@link SpotCollection}.
+	 * The method in charge of computing spot features with the given
+	 * {@link SpotAnalyzer}s, for the given {@link SpotCollection}.
+	 *
 	 * @param toCompute
 	 * @param analyzers
 	 */
-	private void computeSpotFeaturesAgent(final SpotCollection toCompute, final List<SpotAnalyzerFactory<?>> analyzerFactories, boolean doLogIt) {
+	private void computeSpotFeaturesAgent(final SpotCollection toCompute, final List<SpotAnalyzerFactory<?>> analyzerFactories, final boolean doLogIt) {
 
 		final Logger logger;
 		if (doLogIt) {
 			logger = model.getLogger();
-		}
-		else {
+		} else {
 			logger = Logger.VOID_LOGGER;
 		}
 
 		// Can't compute any spot feature without an image to compute on.
 		if (settings.imp == null)
 			return;
-		
+
 		// Do it.
 		final List<Integer> frameSet = new ArrayList<Integer>(toCompute.keySet());
 		final int numFrames = frameSet.size();
@@ -123,8 +122,8 @@ public class SpotFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 		int tc = 0;
 		if (settings != null && settings.detectorSettings != null) {
 			// Try to extract it from detector settings target channel
-			Map<String, Object> ds = settings.detectorSettings;
-			Object obj = ds.get(KEY_TARGET_CHANNEL);
+			final Map<String, Object> ds = settings.detectorSettings;
+			final Object obj = ds.get(KEY_TARGET_CHANNEL);
 			if (null != obj && obj instanceof Integer) {
 				tc = ((Integer) obj) - 1;
 			}
@@ -136,13 +135,14 @@ public class SpotFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 
 			threads[ithread] = new Thread("TrackMate spot feature calculating thread " + (1 + ithread) + "/" + threads.length) {
 
+				@Override
 				public void run() {
 
 					for (int index = ai.getAndIncrement(); index < numFrames; index = ai.getAndIncrement()) {
 
-						int frame = frameSet.get(index);
-						for (SpotAnalyzerFactory<?> factory : analyzerFactories) {
-							SpotAnalyzer<?> analyzer = factory.getAnalyzer(frame, targetChannel);
+						final int frame = frameSet.get(index);
+						for (final SpotAnalyzerFactory<?> factory : analyzerFactories) {
+							final SpotAnalyzer<?> analyzer = factory.getAnalyzer(frame, targetChannel);
 							analyzer.process();
 						}
 

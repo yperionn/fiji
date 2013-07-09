@@ -18,9 +18,9 @@ import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
 import fiji.plugin.trackmate.Logger;
+import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.Spot;
-import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.gui.TrackMateGUIController;
 import fiji.plugin.trackmate.gui.TrackMateWizard;
@@ -31,24 +31,22 @@ public class ISBIChallengeExporter extends AbstractTMAction {
 	public static final ImageIcon ICON = new ImageIcon(TrackMateWizard.class.getResource("images/ISBIlogo.png"));
 	public static final String NAME = "Export to ISBI challenge format";
 	public static final String INFO_TEXT = "<html>" +
-				"Export the current model content to a XML file following the " +
-				"ISBI 2012 particle tracking challenge format, as specified on " +
-				"<a href='http://bioimageanalysis.org/track/'></a>. " +
-				"<p> " +
-				"Only tracks are exported. If there is no track, this action " +
-				"does nothing. " +
-				"</html>";
-
+			"Export the current model content to a XML file following the " +
+			"ISBI 2012 particle tracking challenge format, as specified on " +
+			"<a href='http://bioimageanalysis.org/track/'></a>. " +
+			"<p> " +
+			"Only tracks are exported. If there is no track, this action " +
+			"does nothing. " +
+			"</html>";
 
 	/*
 	 * CONSTRUCTOR
 	 */
-	
-	public ISBIChallengeExporter(TrackMate trackmate, TrackMateGUIController controller) {
+
+	public ISBIChallengeExporter(final TrackMate trackmate, final TrackMateGUIController controller) {
 		super(trackmate, controller);
 		this.icon = ICON;
 	}
-
 
 	/*
 	 * METHODS
@@ -58,44 +56,43 @@ public class ISBIChallengeExporter extends AbstractTMAction {
 	public void execute() {
 		final Model model = trackmate.getModel();
 		File file;
-		File folder = new File(System.getProperty("user.dir")).getParentFile().getParentFile();
+		final File folder = new File(System.getProperty("user.dir")).getParentFile().getParentFile();
 		try {
 			String filename = trackmate.getSettings().imageFileName;
 			filename = filename.substring(0, filename.indexOf("."));
-			file = new File(folder.getPath() + File.separator + filename +"_ISBI.xml");
-		} catch (NullPointerException npe) {
+			file = new File(folder.getPath() + File.separator + filename + "_ISBI.xml");
+		} catch (final NullPointerException npe) {
 			file = new File(folder.getPath() + File.separator + "ISBIChallenge2012Result.xml");
 		}
 		file = IOUtils.askForFileForSaving(file, controller.getGUI(), logger);
 
 		exportToFile(model, trackmate.getSettings(), file);
 	}
-	
-	public static void exportToFile(final Model model, Settings settings, final File file) {
+
+	public static void exportToFile(final Model model, final Settings settings, final File file) {
 		final Logger logger = model.getLogger();
 		logger.log("Exporting to ISBI 2012 particle tracking challenge format.\n");
-		int ntracks = model.getTrackModel().nTracks(true);
+		final int ntracks = model.getTrackModel().nTracks(true);
 		if (ntracks == 0) {
 			logger.log("No visible track found. Aborting.\n");
 			return;
 		}
 
 		logger.log("  Preparing XML data.\n");
-		Element root = marshall(model, settings);
+		final Element root = marshall(model, settings);
 
 		logger.log("  Writing to file.\n");
-		Document document = new Document(root);
-		XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
+		final Document document = new Document(root);
+		final XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
 		try {
 			outputter.output(document, new FileOutputStream(file));
-		} catch (FileNotFoundException e) {
-			logger.error("Trouble writing to "+file+":\n" + e.getMessage());
-		} catch (IOException e) {
-			logger.error("Trouble writing to "+file+":\n" + e.getMessage());
+		} catch (final FileNotFoundException e) {
+			logger.error("Trouble writing to " + file + ":\n" + e.getMessage());
+		} catch (final IOException e) {
+			logger.error("Trouble writing to " + file + ":\n" + e.getMessage());
 		}
 		logger.log("Done.\n");
 	}
-	
 
 	@Override
 	public String getInfoText() {
@@ -107,24 +104,24 @@ public class ISBIChallengeExporter extends AbstractTMAction {
 		return NAME;
 	}
 
-	private static final Element marshall(Model model, Settings settings) {
+	private static final Element marshall(final Model model, final Settings settings) {
 		final Logger logger = model.getLogger();
-		
-		Element root = new Element("root");
-		Element content = new Element(CONTENT_KEY);
+
+		final Element root = new Element("root");
+		final Element content = new Element(CONTENT_KEY);
 
 		// Extract from file name
-		String filename = settings.imageFileName; // VIRUS snr 7 density mid.tif
-		String pattern = "^(\\w+) " + SNR_ATT +" (\\d+) " + DENSITY_ATT + " (\\w+)\\.";	
-		Pattern r = Pattern.compile(pattern);
-		Matcher m = r.matcher(filename);
+		final String filename = settings.imageFileName; // VIRUS snr 7 density mid.tif
+		final String pattern = "^(\\w+) " + SNR_ATT + " (\\d+) " + DENSITY_ATT + " (\\w+)\\.";
+		final Pattern r = Pattern.compile(pattern);
+		final Matcher m = r.matcher(filename);
 		String snr_val;
 		String density_val;
 		String scenario_val;
 		if (m.find()) {
-			scenario_val 	= m.group(1);
-			snr_val 		= m.group(2);
-			density_val 	= m.group(3);
+			scenario_val = m.group(1);
+			snr_val = m.group(2);
+			density_val = m.group(3);
 		} else {
 			scenario_val = filename;
 			snr_val = "?";
@@ -136,27 +133,27 @@ public class ISBIChallengeExporter extends AbstractTMAction {
 		content.setAttribute(DATE_ATT, new Date().toString());
 
 		logger.setStatus("Marshalling...");
-		Integer[] visibleTracks = model.getTrackModel().trackIDs(true).toArray(new Integer[] {});
-		for (int i = 0 ; i < model.getTrackModel().nTracks(true) ; i++) {
+		final Integer[] visibleTracks = model.getTrackModel().trackIDs(true).toArray(new Integer[] {});
+		for (int i = 0; i < model.getTrackModel().nTracks(true); i++) {
 
-			Element trackElement = new Element(TRACK_KEY);
-			int trackindex = visibleTracks[i];
-			Set<Spot> track = model.getTrackModel().trackSpots(trackindex);
-			// Sort them by time 
-			TreeSet<Spot> sortedTrack = new TreeSet<Spot>(Spot.timeComparator);
+			final Element trackElement = new Element(TRACK_KEY);
+			final int trackindex = visibleTracks[i];
+			final Set<Spot> track = model.getTrackModel().trackSpots(trackindex);
+			// Sort them by time
+			final TreeSet<Spot> sortedTrack = new TreeSet<Spot>(Spot.timeComparator);
 			sortedTrack.addAll(track);
-			
-			for (Spot spot : sortedTrack) {
-				int t = spot.getFeature(Spot.FRAME).intValue();
-				double x = spot.getFeature(Spot.POSITION_X);
-				double y = spot.getFeature(Spot.POSITION_Y);
-				double z = spot.getFeature(Spot.POSITION_Z);
 
-				Element spotElement = new Element(SPOT_KEY);
-				spotElement.setAttribute(T_ATT, ""+t);
-				spotElement.setAttribute(X_ATT, ""+x);
-				spotElement.setAttribute(Y_ATT, ""+y);
-				spotElement.setAttribute(Z_ATT, ""+z);
+			for (final Spot spot : sortedTrack) {
+				final int t = spot.getFeature(Spot.FRAME).intValue();
+				final double x = spot.getFeature(Spot.POSITION_X);
+				final double y = spot.getFeature(Spot.POSITION_Y);
+				final double z = spot.getFeature(Spot.POSITION_Z);
+
+				final Element spotElement = new Element(SPOT_KEY);
+				spotElement.setAttribute(T_ATT, "" + t);
+				spotElement.setAttribute(X_ATT, "" + x);
+				spotElement.setAttribute(Y_ATT, "" + y);
+				spotElement.setAttribute(Z_ATT, "" + z);
 				trackElement.addContent(spotElement);
 			}
 			content.addContent(trackElement);
@@ -168,7 +165,6 @@ public class ISBIChallengeExporter extends AbstractTMAction {
 		root.addContent(content);
 		return root;
 	}
-
 
 	/*
 	 * XML KEYS

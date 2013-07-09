@@ -17,13 +17,13 @@ import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.HyperSliceImgPlus;
 
-public class LogDetectorFactory<T extends RealType<T> & NativeType<T>>  implements SpotDetectorFactory<T> {
+public class LogDetectorFactory<T extends RealType<T> & NativeType<T>> implements SpotDetectorFactory<T> {
 
 	/*
 	 * CONSTANTS
 	 */
 
-	/** A string key identifying this factory. */ 
+	/** A string key identifying this factory. */
 	public static final String DETECTOR_KEY = "LOG_DETECTOR";
 	/** The pretty name of the target detector. */
 	public static final String NAME = "LoG detector";
@@ -41,7 +41,7 @@ public class LogDetectorFactory<T extends RealType<T> & NativeType<T>>  implemen
 	 * FIELDS
 	 */
 
-	/** The image to operate on. Multiple frames, single channel.	 */
+	/** The image to operate on. Multiple frames, single channel. */
 	protected ImgPlus<T> img;
 	protected Map<String, Object> settings;
 	protected String errorMessage;
@@ -51,7 +51,7 @@ public class LogDetectorFactory<T extends RealType<T> & NativeType<T>>  implemen
 	 */
 
 	@Override
-	public void setTarget(ImgPlus<T> img, Map<String, Object> settings) {
+	public void setTarget(final ImgPlus<T> img, final Map<String, Object> settings) {
 		this.img = img;
 		this.settings = settings;
 	}
@@ -65,7 +65,7 @@ public class LogDetectorFactory<T extends RealType<T> & NativeType<T>>  implemen
 		final double threshold = (Double) settings.get(KEY_THRESHOLD);
 		final boolean doMedian = (Boolean) settings.get(KEY_DO_MEDIAN_FILTERING);
 		final boolean doSubpixel = (Boolean) settings.get(KEY_DO_SUBPIXEL_LOCALIZATION);
-		LogDetector<T> detector = new LogDetector<T>(imgT, radius, threshold, doSubpixel, doMedian);
+		final LogDetector<T> detector = new LogDetector<T>(imgT, radius, threshold, doSubpixel, doMedian);
 		detector.setNumThreads(1); // in TrackMate context, we use 1 thread per detector but multiple detectors
 		return detector;
 	}
@@ -80,7 +80,6 @@ public class LogDetectorFactory<T extends RealType<T> & NativeType<T>>  implemen
 		return NAME;
 	}
 
-	
 	@Override
 	public String getErrorMessage() {
 		return errorMessage;
@@ -88,35 +87,38 @@ public class LogDetectorFactory<T extends RealType<T> & NativeType<T>>  implemen
 
 	@Override
 	public boolean checkInput() {
-		StringBuilder errorHolder = new StringBuilder();
-		boolean ok = checkInput(settings, errorHolder);
+		final StringBuilder errorHolder = new StringBuilder();
+		final boolean ok = checkInput(settings, errorHolder);
 		if (!ok) {
 			errorMessage = errorHolder.toString();
 		}
 		return ok;
 	}
-	
+
 	/**
 	 * Check that the given settings map is suitable for LoG based detectors.
-	 * @param settings  the map to test.
-	 * @param errorHolder  if not suitable, will contain an error message.
-	 * @return  true if the settings map is valid.
+	 *
+	 * @param settings
+	 *            the map to test.
+	 * @param errorHolder
+	 *            if not suitable, will contain an error message.
+	 * @return true if the settings map is valid.
 	 */
-	public static boolean checkInput(Map<String, Object> settings, StringBuilder errorHolder) {
+	public static boolean checkInput(final Map<String, Object> settings, final StringBuilder errorHolder) {
 		boolean ok = true;
 		ok = ok & checkParameter(settings, KEY_TARGET_CHANNEL, Integer.class, errorHolder);
-		ok = ok & checkParameter(settings, KEY_RADIUS, Double.class, errorHolder) ;
+		ok = ok & checkParameter(settings, KEY_RADIUS, Double.class, errorHolder);
 		ok = ok & checkParameter(settings, KEY_THRESHOLD, Double.class, errorHolder);
 		ok = ok & checkParameter(settings, KEY_DO_MEDIAN_FILTERING, Boolean.class, errorHolder);
 		ok = ok & checkParameter(settings, KEY_DO_SUBPIXEL_LOCALIZATION, Boolean.class, errorHolder);
-		List<String> mandatoryKeys = new ArrayList<String>();
+		final List<String> mandatoryKeys = new ArrayList<String>();
 		mandatoryKeys.add(KEY_TARGET_CHANNEL);
 		mandatoryKeys.add(KEY_RADIUS);
 		mandatoryKeys.add(KEY_THRESHOLD);
 		mandatoryKeys.add(KEY_DO_MEDIAN_FILTERING);
 		mandatoryKeys.add(KEY_DO_SUBPIXEL_LOCALIZATION);
 		ok = ok & checkMapKeys(settings, mandatoryKeys, null, errorHolder);
-		return ok;	
+		return ok;
 	}
 
 }

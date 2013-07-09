@@ -1,4 +1,3 @@
-
 package fiji.plugin.trackmate.gui.descriptors;
 
 import ij.ImagePlus;
@@ -27,55 +26,56 @@ import fiji.plugin.trackmate.providers.TrackAnalyzerProvider;
 import fiji.plugin.trackmate.util.TMUtils;
 import fiji.plugin.trackmate.visualization.hyperstack.HyperStackDisplayer;
 
-public class StartDialogDescriptor  implements WizardPanelDescriptor {
+public class StartDialogDescriptor implements WizardPanelDescriptor {
 
 	private static final String KEY = "Start";
 	private final StartDialogPanel panel;
-	private ArrayList<ActionListener> actionListeners = new ArrayList<ActionListener>();
+	private final ArrayList<ActionListener> actionListeners = new ArrayList<ActionListener>();
 	private final TrackMateGUIController controller;
-	/** The view that is launched immediately when this descriptor leaves. It will be used
-	 * as a central view.*/
+	/**
+	 * The view that is launched immediately when this descriptor leaves. It
+	 * will be used as a central view.
+	 */
 	private HyperStackDisplayer mainView;
-	
-	public StartDialogDescriptor(TrackMateGUIController controller) {
+
+	public StartDialogDescriptor(final TrackMateGUIController controller) {
 		this.controller = controller;
 		this.panel = new StartDialogPanel();
 		panel.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent event) {
+			public void actionPerformed(final ActionEvent event) {
 				fireAction(event);
 			}
 		});
 	}
-	
+
 	/*
 	 * METHODS
 	 */
-	
+
 	/**
-	 * Returns <code>true</code> if the {@link ImagePlus} selected is valid and can
-	 * be processed.
-	 * @return  a boolean flag.
+	 * Returns <code>true</code> if the {@link ImagePlus} selected is valid and
+	 * can be processed.
+	 *
+	 * @return a boolean flag.
 	 */
 	public boolean isImpValid() {
 		return panel.isImpValid();
 	}
-	
+
 	/*
 	 * WIZARDPANELDESCRIPTOR METHODS
 	 */
-
 
 	@Override
 	public StartDialogPanel getComponent() {
 		return panel;
 	}
 
-
 	@Override
 	public void aboutToDisplayPanel() {
 		ImagePlus imp;
-		TrackMate trackmate = controller.getPlugin();
+		final TrackMate trackmate = controller.getPlugin();
 		if (null == trackmate.getSettings().imp) {
 			imp = WindowManager.getCurrentImage();
 		} else {
@@ -86,68 +86,69 @@ public class StartDialogDescriptor  implements WizardPanelDescriptor {
 	}
 
 	@Override
-	public void displayingPanel() { }
+	public void displayingPanel() {
+	}
 
 	@Override
 	public void aboutToHidePanel() {
-		TrackMate trackmate = controller.getPlugin();
-		Settings settings = trackmate.getSettings();
-		Model model = trackmate.getModel();
-		
+		final TrackMate trackmate = controller.getPlugin();
+		final Settings settings = trackmate.getSettings();
+		final Model model = trackmate.getModel();
+
 		/*
-		 *  Get settings and pass them to the trackmate managed by the wizard
+		 * Get settings and pass them to the trackmate managed by the wizard
 		 */
-		
+
 		panel.updateTo(model, settings);
 		trackmate.getModel().getLogger().log(settings.toStringImageInfo());
-		
+
 		/*
-		 * Configure settings object with spot, edge and track analyzers as specified
-		 * in the providers.
+		 * Configure settings object with spot, edge and track analyzers as
+		 * specified in the providers.
 		 */
-		
-		ImgPlus<?> img = TMUtils.rawWraps(settings.imp);
+
+		final ImgPlus<?> img = TMUtils.rawWraps(settings.imp);
 		settings.clearSpotAnalyzerFactories();
-		SpotAnalyzerProvider spotAnalyzerProvider = controller.getSpotAnalyzerProvider();
-		List<String> spotAnalyzerKeys = spotAnalyzerProvider.getAvailableSpotFeatureAnalyzers();
-		for (String key : spotAnalyzerKeys) {
-			SpotAnalyzerFactory<?> spotFeatureAnalyzer = spotAnalyzerProvider.getSpotFeatureAnalyzer(key, img);
+		final SpotAnalyzerProvider spotAnalyzerProvider = controller.getSpotAnalyzerProvider();
+		final List<String> spotAnalyzerKeys = spotAnalyzerProvider.getAvailableSpotFeatureAnalyzers();
+		for (final String key : spotAnalyzerKeys) {
+			final SpotAnalyzerFactory<?> spotFeatureAnalyzer = spotAnalyzerProvider.getSpotFeatureAnalyzer(key, img);
 			settings.addSpotAnalyzerFactory(spotFeatureAnalyzer);
 		}
-		
+
 		settings.clearEdgeAnalyzers();
-		EdgeAnalyzerProvider edgeAnalyzerProvider = controller.getEdgeAnalyzerProvider();
-		List<String> edgeAnalyzerKeys = edgeAnalyzerProvider.getAvailableEdgeFeatureAnalyzers();
-		for (String key : edgeAnalyzerKeys) {
-			EdgeAnalyzer edgeAnalyzer = edgeAnalyzerProvider.getEdgeFeatureAnalyzer(key);
+		final EdgeAnalyzerProvider edgeAnalyzerProvider = controller.getEdgeAnalyzerProvider();
+		final List<String> edgeAnalyzerKeys = edgeAnalyzerProvider.getAvailableEdgeFeatureAnalyzers();
+		for (final String key : edgeAnalyzerKeys) {
+			final EdgeAnalyzer edgeAnalyzer = edgeAnalyzerProvider.getEdgeFeatureAnalyzer(key);
 			settings.addEdgeAnalyzer(edgeAnalyzer);
 		}
-		
+
 		settings.clearTrackAnalyzers();
-		TrackAnalyzerProvider trackAnalyzerProvider = controller.getTrackAnalyzerProvider();
-		List<String> trackAnalyzerKeys = trackAnalyzerProvider.getAvailableTrackFeatureAnalyzers();
-		for (String key : trackAnalyzerKeys) {
-			TrackAnalyzer trackAnalyzer = trackAnalyzerProvider.getTrackFeatureAnalyzer(key);
+		final TrackAnalyzerProvider trackAnalyzerProvider = controller.getTrackAnalyzerProvider();
+		final List<String> trackAnalyzerKeys = trackAnalyzerProvider.getAvailableTrackFeatureAnalyzers();
+		for (final String key : trackAnalyzerKeys) {
+			final TrackAnalyzer trackAnalyzer = trackAnalyzerProvider.getTrackFeatureAnalyzer(key);
 			settings.addTrackAnalyzer(trackAnalyzer);
 		}
-		
+
 		trackmate.getModel().getLogger().log(settings.toStringFeatureAnalyzersInfo());
-		
+
 		/*
 		 * Launch the ImagePlus view now.
 		 */
-		
+
 		// De-register old one, if any.
 		if (mainView != null) {
 			mainView.clear();
 			model.removeModelChangeListener(mainView);
 		}
-		
-		SelectionModel selectionModel = controller.getSelectionModel();
+
+		final SelectionModel selectionModel = controller.getSelectionModel();
 		mainView = new HyperStackDisplayer(model, selectionModel, settings.imp);
 		controller.getGuimodel().addView(mainView);
-		Map<String, Object> displaySettings = controller.getGuimodel().getDisplaySettings();
-		for (String key : displaySettings.keySet()) {
+		final Map<String, Object> displaySettings = controller.getGuimodel().getDisplaySettings();
+		for (final String key : displaySettings.keySet()) {
 			mainView.setDisplaySettings(key, displaySettings.get(key));
 		}
 		mainView.render();
@@ -157,39 +158,40 @@ public class StartDialogDescriptor  implements WizardPanelDescriptor {
 	public String getKey() {
 		return KEY;
 	}
-	
+
 	/*
 	 * LISTERNER METHODS
 	 */
-	
+
 	/**
-	 * Adds an {@link ActionListener} to this panel. These listeners will be notified when
-	 * a button is pushed or when the feature to color is changed.
+	 * Adds an {@link ActionListener} to this panel. These listeners will be
+	 * notified when a button is pushed or when the feature to color is changed.
 	 */
-	public void addActionListener(ActionListener listener) {
+	public void addActionListener(final ActionListener listener) {
 		actionListeners.add(listener);
 	}
-	
+
 	/**
-	 * Removes an ActionListener from this panel. 
-	 * @return true if the listener was in the ActionListener collection of this instance.
+	 * Removes an ActionListener from this panel.
+	 *
+	 * @return true if the listener was in the ActionListener collection of this
+	 *         instance.
 	 */
-	public boolean removeActionListener(ActionListener listener) {
+	public boolean removeActionListener(final ActionListener listener) {
 		return actionListeners.remove(listener);
 	}
-	
+
 	public Collection<ActionListener> getActionListeners() {
 		return actionListeners;
 	}
-	
 
-	/** 
-	 * Forward the given {@link ActionEvent} to all the {@link ActionListener} of this panel.
+	/**
+	 * Forward the given {@link ActionEvent} to all the {@link ActionListener}
+	 * of this panel.
 	 */
-	private void fireAction(ActionEvent e) {
-		for (ActionListener l : actionListeners)
+	private void fireAction(final ActionEvent e) {
+		for (final ActionListener l : actionListeners)
 			l.actionPerformed(e);
 	}
 
-	
 }

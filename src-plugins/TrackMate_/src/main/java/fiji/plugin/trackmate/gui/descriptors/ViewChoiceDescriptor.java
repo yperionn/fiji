@@ -17,46 +17,48 @@ public class ViewChoiceDescriptor implements WizardPanelDescriptor {
 	private final ViewProvider viewProvider;
 	private final TrackMateGUIModel guimodel;
 
-	public ViewChoiceDescriptor(ViewProvider viewProvider, TrackMateGUIModel guimodel) {
+	public ViewChoiceDescriptor(final ViewProvider viewProvider, final TrackMateGUIModel guimodel) {
 		this.viewProvider = viewProvider;
 		this.guimodel = guimodel;
-		List<String> viewerNames = viewProvider.getAvailableViews();
-		List<String> infoTexts = new ArrayList<String>(viewerNames.size());
-		for(String key : viewerNames) {
+		final List<String> viewerNames = viewProvider.getAvailableViews();
+		final List<String> infoTexts = new ArrayList<String>(viewerNames.size());
+		for (final String key : viewerNames) {
 			infoTexts.add(viewProvider.getInfoText(key));
 		}
 		this.component = new ListChooserPanel(viewerNames, infoTexts, "view");
 	}
-	
-	
+
 	/*
 	 * METHODS
 	 */
-	
+
 	@Override
 	public Component getComponent() {
 		return component;
 	}
 
 	@Override
-	public void aboutToDisplayPanel() {	}
+	public void aboutToDisplayPanel() {
+	}
 
 	@Override
-	public void displayingPanel() {	}
+	public void displayingPanel() {
+	}
 
 	@Override
 	public void aboutToHidePanel() {
 		final int index = component.getChoice();
 		new Thread("TrackMate view rendering thread") {
+			@Override
 			public void run() {
-				String viewName = viewProvider.getAvailableViews().get(index);
-				
+				final String viewName = viewProvider.getAvailableViews().get(index);
+
 				if (viewName.equals(HyperStackDisplayer.NAME)) {
 					return; // it is already on.
 				}
-				
-				TrackMateModelView view = viewProvider.getView(viewName);
-				for (String settingKey : guimodel.getDisplaySettings().keySet()) {
+
+				final TrackMateModelView view = viewProvider.getView(viewName);
+				for (final String settingKey : guimodel.getDisplaySettings().keySet()) {
 					view.setDisplaySettings(settingKey, guimodel.getDisplaySettings().get(settingKey));
 				}
 				guimodel.addView(view);

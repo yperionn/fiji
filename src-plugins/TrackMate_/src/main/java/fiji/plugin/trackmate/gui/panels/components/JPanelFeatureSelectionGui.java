@@ -28,7 +28,7 @@ public class JPanelFeatureSelectionGui extends javax.swing.JPanel {
 	private JButton jButtonRemove;
 	private JButton jButtonAdd;
 
-	private Stack<JPanelFeaturePenalty> featurePanels = new Stack<JPanelFeaturePenalty>();
+	private final Stack<JPanelFeaturePenalty> featurePanels = new Stack<JPanelFeaturePenalty>();
 	private List<String> features;
 	private Map<String, String> featureNames;
 	private int index;
@@ -44,25 +44,25 @@ public class JPanelFeatureSelectionGui extends javax.swing.JPanel {
 
 	/**
 	 * Set the features and their names that should be presented by this GUI.
-	 * The user will be allowed to choose amongst the given features. 
+	 * The user will be allowed to choose amongst the given features.
 	 */
-	public void setDisplayFeatures(Collection<String> features, Map<String, String> featureNames) {
+	public void setDisplayFeatures(final Collection<String> features, final Map<String, String> featureNames) {
 		this.features = new ArrayList<String>(features);
 		this.featureNames = featureNames;
 	}
 
-	public void setSelectedFeaturePenalties(Map<String, Double> penalties) {
+	public void setSelectedFeaturePenalties(final Map<String, Double> penalties) {
 		// Remove old features
 		while (!featurePanels.isEmpty()) {
-			JPanelFeaturePenalty panel = featurePanels.pop();
+			final JPanelFeaturePenalty panel = featurePanels.pop();
 			remove(panel);
 		}
-		// Remove buttons 
+		// Remove buttons
 		remove(jPanelButtons);
 		// Add new panels
-		for (String feature : penalties.keySet()) {
-			int localIndex = features.indexOf(feature);
-			JPanelFeaturePenalty panel = new JPanelFeaturePenalty(features, featureNames, localIndex);
+		for (final String feature : penalties.keySet()) {
+			final int localIndex = features.indexOf(feature);
+			final JPanelFeaturePenalty panel = new JPanelFeaturePenalty(features, featureNames, localIndex);
 			panel.setSelectedFeature(feature, penalties.get(feature));
 			add(panel);
 			featurePanels.push(panel);
@@ -71,22 +71,22 @@ public class JPanelFeatureSelectionGui extends javax.swing.JPanel {
 		add(jPanelButtons);
 	}
 
-	public Map<String, Double>	getFeaturePenalties() {
-		Map<String, Double> weights = new HashMap<String, Double>(featurePanels.size());
-		for (JPanelFeaturePenalty panel : featurePanels) 
+	public Map<String, Double> getFeaturePenalties() {
+		final Map<String, Double> weights = new HashMap<String, Double>(featurePanels.size());
+		for (final JPanelFeaturePenalty panel : featurePanels)
 			weights.put(panel.getSelectedFeature(), panel.getPenaltyWeight());
 		return weights;
 	}
 
 	@Override
-	public void setEnabled(boolean enabled) {
+	public void setEnabled(final boolean enabled) {
 		super.setEnabled(enabled);
-		ArrayList<Component> components = new ArrayList<Component>(3 + featurePanels.size());
+		final ArrayList<Component> components = new ArrayList<Component>(3 + featurePanels.size());
 		components.add(jPanelButtons);
 		components.add(jButtonAdd);
 		components.add(jButtonRemove);
 		components.addAll(featurePanels);
-		for(Component component : components)
+		for (final Component component : components)
 			component.setEnabled(enabled);
 	}
 
@@ -98,12 +98,12 @@ public class JPanelFeatureSelectionGui extends javax.swing.JPanel {
 		index = index + 1;
 		if (index >= features.size())
 			index = 0;
-		JPanelFeaturePenalty panel = new JPanelFeaturePenalty(features, featureNames, index);
+		final JPanelFeaturePenalty panel = new JPanelFeaturePenalty(features, featureNames, index);
 		featurePanels.push(panel);
 		remove(jPanelButtons);
 		add(panel);
 		add(jPanelButtons);
-		Dimension size = getSize();
+		final Dimension size = getSize();
 		setSize(size.width, size.height + panel.getSize().height);
 		revalidate();
 	}
@@ -111,16 +111,16 @@ public class JPanelFeatureSelectionGui extends javax.swing.JPanel {
 	private void removeButtonPushed() {
 		if (featurePanels.isEmpty())
 			return;
-		JPanelFeaturePenalty panel = featurePanels.pop();
+		final JPanelFeaturePenalty panel = featurePanels.pop();
 		remove(panel);
-		Dimension size = getSize();
+		final Dimension size = getSize();
 		setSize(size.width, size.height - panel.getSize().height);
 		revalidate();
 	}
 
 	private void initGUI() {
 		try {
-			BoxLayout layout = new BoxLayout(this, BoxLayout.Y_AXIS);
+			final BoxLayout layout = new BoxLayout(this, BoxLayout.Y_AXIS);
 			this.setLayout(layout);
 			{
 				jPanelButtons = new JPanel();
@@ -133,7 +133,8 @@ public class JPanelFeatureSelectionGui extends javax.swing.JPanel {
 					jButtonRemove.setIcon(new ImageIcon(TrackMateGUIController.class.getResource(REMOVE_ICON)));
 					jButtonRemove.setBounds(48, 5, 21, 22);
 					jButtonRemove.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
+						@Override
+						public void actionPerformed(final ActionEvent e) {
 							removeButtonPushed();
 
 						}
@@ -145,13 +146,14 @@ public class JPanelFeatureSelectionGui extends javax.swing.JPanel {
 					jButtonAdd.setIcon(new ImageIcon(TrackMateGUIController.class.getResource(ADD_ICON)));
 					jButtonAdd.setBounds(12, 5, 24, 22);
 					jButtonAdd.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
+						@Override
+						public void actionPerformed(final ActionEvent e) {
 							addButtonPushed();
 						}
 					});
 				}
 			}
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			e.printStackTrace();
 		}
 	}

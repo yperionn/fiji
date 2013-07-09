@@ -9,10 +9,10 @@ public class DogDetectorConfigurationPanel extends LogDetectorConfigurationPanel
 
 	private static final long serialVersionUID = 1L;
 
-	public DogDetectorConfigurationPanel(ImagePlus imp, String infoText, String detectorName, Model model) {
+	public DogDetectorConfigurationPanel(final ImagePlus imp, final String infoText, final String detectorName, final Model model) {
 		super(imp, infoText, detectorName, model);
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	@Override
 	protected SpotDetectorFactory<?> getDetectorFactory() {

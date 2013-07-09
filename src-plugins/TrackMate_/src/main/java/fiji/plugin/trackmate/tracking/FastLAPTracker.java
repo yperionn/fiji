@@ -8,7 +8,7 @@ import fiji.plugin.trackmate.tracking.hungarian.MunkresKuhnAlgorithm;
 public class FastLAPTracker extends LAPTracker {
 
 	public static final String TRACKER_KEY = "FAST_LAP_TRACKER";
-	public static final String NAME ="LAP Tracker";
+	public static final String NAME = "LAP Tracker";
 	public static final String INFO_TEXT = "<html>" +
 			"This tracker is based on the Linear Assignment Problem mathematical framework. <br>" +
 			"Its implementation is adapted from the following paper: <br>" +
@@ -27,15 +27,15 @@ public class FastLAPTracker extends LAPTracker {
 			"Solving the LAP relies on the Munkres-Kuhn solver, <br> " +
 			"that solves an assignment problem in O(n^3) instead of O(n^4)." +
 			" </html>";
-	
-	public FastLAPTracker(SpotCollection spots, Logger logger) {
+
+	public FastLAPTracker(final SpotCollection spots, final Logger logger) {
 		super(spots, logger);
 	}
-	
-	public FastLAPTracker(SpotCollection spots) {
+
+	public FastLAPTracker(final SpotCollection spots) {
 		this(spots, Logger.VOID_LOGGER);
 	}
-	
+
 	@Override
 	protected AssignmentAlgorithm createAssignmentProblemSolver() {
 		return new MunkresKuhnAlgorithm();
@@ -45,7 +45,7 @@ public class FastLAPTracker extends LAPTracker {
 	public String toString() {
 		return NAME;
 	}
-	
+
 	@Override
 	public String getKey() {
 		return TRACKER_KEY;

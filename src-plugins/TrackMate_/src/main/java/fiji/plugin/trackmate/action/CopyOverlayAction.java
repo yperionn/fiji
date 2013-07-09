@@ -27,44 +27,45 @@ public class CopyOverlayAction extends AbstractTMAction {
 			"This action copies the overlay (spots and tracks) to a new existing ImageJ window <br> " +
 			"or to a new 3D viewer window. This can be useful to have the tracks and spots <br> " +
 			"displayed on a modified image. <br> " +
-			"</html>" ;
-	
-	public CopyOverlayAction(TrackMate trackmate, TrackMateGUIController controller) {
+			"</html>";
+
+	public CopyOverlayAction(final TrackMate trackmate, final TrackMateGUIController controller) {
 		super(trackmate, controller);
 		icon = ICON;
-	}	
-	
+	}
+
 	@Override
 	public void execute() {
 		final ImagePlusChooser impChooser = new ImagePlusChooser();
 		impChooser.setLocationRelativeTo(null);
 		impChooser.setVisible(true);
-		final ActionListener copyOverlayListener = new ActionListener() {			
+		final ActionListener copyOverlayListener = new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(final ActionEvent e) {
 				if (e == impChooser.OK_BUTTON_PUSHED) {
 					new Thread("TrackMate copying thread") {
+						@Override
 						public void run() {
 							// Instantiate displayer
-							ImagePlus dest = impChooser.getSelectedImagePlus();
+							final ImagePlus dest = impChooser.getSelectedImagePlus();
 							impChooser.setVisible(false);
 							TrackMateModelView newDisplayer;
 							String title;
 							if (null == dest) {
 								logger.log("Copying data and overlay to new 3D viewer\n");
-								Image3DUniverse universe = new Image3DUniverse();
+								final Image3DUniverse universe = new Image3DUniverse();
 								newDisplayer = new SpotDisplayer3D(trackmate.getModel(), controller.getSelectionModel(), universe);
 								title = "3D viewer overlay";
 							} else {
-								logger.log("Copying overlay to "+dest.getShortTitle()+"\n");
-								SelectionModel selectionModel = new SelectionModel(trackmate.getModel());
-								newDisplayer = new HyperStackDisplayer(trackmate.getModel(), selectionModel , dest);
+								logger.log("Copying overlay to " + dest.getShortTitle() + "\n");
+								final SelectionModel selectionModel = new SelectionModel(trackmate.getModel());
+								newDisplayer = new HyperStackDisplayer(trackmate.getModel(), selectionModel, dest);
 								title = dest.getShortTitle() + " ctrl";
 							}
 							newDisplayer.render();
-							
+
 							final ConfigureViewsPanel newDisplayerPanel = new ConfigureViewsPanel(trackmate.getModel()); // TODO link view and panel
-							JFrame newFrame = new JFrame(); 
+							final JFrame newFrame = new JFrame();
 							newFrame.getContentPane().add(newDisplayerPanel);
 							newFrame.pack();
 							newFrame.setTitle(title);
@@ -72,7 +73,7 @@ public class CopyOverlayAction extends AbstractTMAction {
 							newFrame.setLocationRelativeTo(null);
 							newFrame.setVisible(true);
 							logger.log("Done.\n");
-							
+
 						}
 					}.start();
 				} else {
@@ -88,7 +89,7 @@ public class CopyOverlayAction extends AbstractTMAction {
 	public String getInfoText() {
 		return INFO_TEXT;
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME;

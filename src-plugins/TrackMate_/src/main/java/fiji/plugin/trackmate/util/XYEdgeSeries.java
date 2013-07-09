@@ -8,25 +8,25 @@ public class XYEdgeSeries extends Series {
 	/*
 	 * FIELDS
 	 */
-	
+
 	private static final long serialVersionUID = -3716934680176727207L;
-	private XYSeries startSeries = new XYSeries("StartPoints", false, true);
-	private XYSeries endSeries = new XYSeries("EndPoints", false, true);
-	
+	private final XYSeries startSeries = new XYSeries("StartPoints", false, true);
+	private final XYSeries endSeries = new XYSeries("EndPoints", false, true);
+
 	/*
 	 * CONSTRUCTOR
 	 */
-	
+
 	@SuppressWarnings("rawtypes")
-	public XYEdgeSeries(Comparable key) {
+	public XYEdgeSeries(final Comparable key) {
 		super(key);
 	}
-	
+
 	@SuppressWarnings("rawtypes")
-	public XYEdgeSeries(Comparable key, String description) {
+	public XYEdgeSeries(final Comparable key, final String description) {
 		super(key, description);
 	}
-	
+
 	/*
 	 * PUBLIC METHODS
 	 */
@@ -35,31 +35,26 @@ public class XYEdgeSeries extends Series {
 	public int getItemCount() {
 		return startSeries.getItemCount();
 	}
-	
-	public void addEdge(double x0, double y0, double x1, double y1) {
+
+	public void addEdge(final double x0, final double y0, final double x1, final double y1) {
 		startSeries.add(x0, y0, false);
 		endSeries.add(x1, y1, false);
 	}
-	
-	public Number getEdgeXStart(int index) {
+
+	public Number getEdgeXStart(final int index) {
 		return startSeries.getX(index);
 	}
-	
-	public Number getEdgeYStart(int index) {
+
+	public Number getEdgeYStart(final int index) {
 		return startSeries.getY(index);
 	}
-	
-	public Number getEdgeXEnd(int index) {
+
+	public Number getEdgeXEnd(final int index) {
 		return endSeries.getX(index);
 	}
-	
-	public Number getEdgeYEnd(int index) {
+
+	public Number getEdgeYEnd(final int index) {
 		return endSeries.getY(index);
 	}
-	
-	
-	
-	
-	
 
 }

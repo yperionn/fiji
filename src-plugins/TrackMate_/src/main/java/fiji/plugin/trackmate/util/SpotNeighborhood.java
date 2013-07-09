@@ -19,21 +19,21 @@ public class SpotNeighborhood<T extends RealType<T>> implements Neighborhood<T> 
 	/*
 	 * FIELDS
 	 */
-	
+
 	protected final double[] calibration;
 	protected final AbstractNeighborhood<T, ImgPlus<T>> neighborhood;
 	protected final long[] center;
-	
+
 	/*
 	 * CONSTRUCTOR
 	 */
-	
+
 	public SpotNeighborhood(final Spot spot, final ImgPlus<T> img) {
 		this.calibration = TMUtils.getSpatialCalibration(img);
 		// Center
 		this.center = new long[img.numDimensions()];
 		for (int d = 0; d < center.length; d++) {
-			center[d] = Math.round( spot.getFeature(Spot.POSITION_FEATURES[d]).doubleValue() / calibration[d]);
+			center[d] = Math.round(spot.getFeature(Spot.POSITION_FEATURES[d]).doubleValue() / calibration[d]);
 		}
 		// Span
 		final long[] span = new long[img.numDimensions()];
@@ -41,20 +41,19 @@ public class SpotNeighborhood<T extends RealType<T>> implements Neighborhood<T> 
 			span[d] = Math.round(spot.getFeature(Spot.RADIUS) / calibration[d]);
 		}
 		// Neighborhood
-		OutOfBoundsMirrorExpWindowingFactory<T, ImgPlus<T>> oob = new OutOfBoundsMirrorExpWindowingFactory<T, ImgPlus<T>>();
+		final OutOfBoundsMirrorExpWindowingFactory<T, ImgPlus<T>> oob = new OutOfBoundsMirrorExpWindowingFactory<T, ImgPlus<T>>();
 		if (img.numDimensions() == 2) {
 			this.neighborhood = new EllipseNeighborhood<T, ImgPlus<T>>(img, center, span, oob);
 		} else if (img.numDimensions() == 3) {
 			this.neighborhood = new EllipsoidNeighborhood<T, ImgPlus<T>>(img, center, span, oob);
 		} else {
-			throw new IllegalArgumentException("Source input must be 2D or 3D, got nDims = "+img.numDimensions());
+			throw new IllegalArgumentException("Source input must be 2D or 3D, got nDims = " + img.numDimensions());
 		}
-		
+
 	}
-	
+
 	/*
-	 * METHODS
-	 * We delegate everything to the wrapped neighborhood
+	 * METHODS We delegate everything to the wrapped neighborhood
 	 */
 
 	@Override
@@ -84,39 +83,39 @@ public class SpotNeighborhood<T extends RealType<T>> implements Neighborhood<T> 
 
 	@Override
 	@Deprecated
-	public boolean equalIterationOrder(IterableRealInterval<?> f) {
+	public boolean equalIterationOrder(final IterableRealInterval<?> f) {
 		return neighborhood.equalIterationOrder(f);
 	}
 
 	@Override
-	public double realMin(int d) {
+	public double realMin(final int d) {
 		return neighborhood.realMax(d);
 	}
 
 	@Override
-	public void realMin(double[] min) {
+	public void realMin(final double[] min) {
 		neighborhood.realMin(min);
-		
+
 	}
 
 	@Override
-	public void realMin(RealPositionable min) {
+	public void realMin(final RealPositionable min) {
 		neighborhood.realMin(min);
-		
+
 	}
 
 	@Override
-	public double realMax(int d) {
+	public double realMax(final int d) {
 		return neighborhood.realMax(d);
 	}
 
 	@Override
-	public void realMax(double[] max) {
+	public void realMax(final double[] max) {
 		neighborhood.realMax(max);
 	}
 
 	@Override
-	public void realMax(RealPositionable max) {
+	public void realMax(final RealPositionable max) {
 		neighborhood.realMax(max);
 	}
 
@@ -131,100 +130,100 @@ public class SpotNeighborhood<T extends RealType<T>> implements Neighborhood<T> 
 	}
 
 	@Override
-	public long min(int d) {
+	public long min(final int d) {
 		return neighborhood.min(d);
 	}
 
 	@Override
-	public void min(long[] min) {
+	public void min(final long[] min) {
 		neighborhood.min(min);
 	}
 
 	@Override
-	public void min(Positionable min) {
+	public void min(final Positionable min) {
 		neighborhood.min(min);
 	}
 
 	@Override
-	public long max(int d) {
+	public long max(final int d) {
 		return neighborhood.max(d);
 	}
 
 	@Override
-	public void max(long[] max) {
+	public void max(final long[] max) {
 		neighborhood.max(max);
 	}
 
 	@Override
-	public void max(Positionable max) {
+	public void max(final Positionable max) {
 		neighborhood.max(max);
 	}
 
 	@Override
-	public void dimensions(long[] dimensions) {
+	public void dimensions(final long[] dimensions) {
 		neighborhood.dimensions(dimensions);
 	}
 
 	@Override
-	public long dimension(int d) {
+	public long dimension(final int d) {
 		return neighborhood.dimension(d);
 	}
 
 	@Override
-	public void localize(int[] position) {
+	public void localize(final int[] position) {
 		for (int d = 0; d < position.length; d++) {
 			position[d] = (int) center[d];
 		}
 	}
 
 	@Override
-	public void localize(long[] position) {
+	public void localize(final long[] position) {
 		for (int d = 0; d < position.length; d++) {
 			position[d] = center[d];
 		}
 	}
 
 	@Override
-	public int getIntPosition(int d) {
+	public int getIntPosition(final int d) {
 		return (int) center[d];
 	}
 
 	@Override
-	public long getLongPosition(int d) {
+	public long getLongPosition(final int d) {
 		return center[d];
 	}
 
 	@Override
-	public void localize(float[] position) {
+	public void localize(final float[] position) {
 		for (int d = 0; d < position.length; d++) {
 			position[d] = center[d];
 		}
 	}
 
 	@Override
-	public void localize(double[] position) {
+	public void localize(final double[] position) {
 		for (int d = 0; d < position.length; d++) {
 			position[d] = center[d];
 		}
 	}
 
 	@Override
-	public float getFloatPosition(int d) {
+	public float getFloatPosition(final int d) {
 		return center[d];
 	}
 
 	@Override
-	public double getDoublePosition(int d) {
+	public double getDoublePosition(final int d) {
 		return center[d];
 	}
 
 	@Override
 	public Interval getStructuringElementBoundingBox() {
-		long[] min = new long[numDimensions()];
-		long[] max = new long[numDimensions()];
+		final long[] min = new long[numDimensions()];
+		final long[] max = new long[numDimensions()];
 		min(min);
 		max(max);
-		FinalInterval interval = new FinalInterval(min , max );
+		final FinalInterval interval = new FinalInterval(min, max);
 		return interval;
 	}
 

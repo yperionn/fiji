@@ -12,16 +12,16 @@ import net.imglib2.algorithm.MultiThreaded;
 import net.imglib2.multithreading.SimpleMultiThreading;
 import fiji.plugin.trackmate.Dimension;
 import fiji.plugin.trackmate.FeatureModel;
-import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.Model;
+import fiji.plugin.trackmate.Spot;
 
 public class TrackDurationAnalyzer implements TrackAnalyzer, MultiThreaded {
 
 	public static final String KEY = "Track duration";
-	public static final String 		TRACK_DURATION = "TRACK_DURATION";
-	public static final String 		TRACK_START = "TRACK_START";
-	public static final String 		TRACK_STOP = "TRACK_STOP";
-	public static final String 		TRACK_DISPLACEMENT = "TRACK_DISPLACEMENT";
+	public static final String TRACK_DURATION = "TRACK_DURATION";
+	public static final String TRACK_START = "TRACK_START";
+	public static final String TRACK_STOP = "TRACK_STOP";
+	public static final String TRACK_DISPLACEMENT = "TRACK_DISPLACEMENT";
 
 	public static final List<String> FEATURES = new ArrayList<String>(4);
 	public static final Map<String, String> FEATURE_NAMES = new HashMap<String, String>(4);
@@ -54,11 +54,11 @@ public class TrackDurationAnalyzer implements TrackAnalyzer, MultiThreaded {
 	private long processingTime;
 	private final Model model;
 
-	public TrackDurationAnalyzer(Model model) {
+	public TrackDurationAnalyzer(final Model model) {
 		this.model = model;
 		setNumThreads();
 	}
-	
+
 	@Override
 	public boolean isLocal() {
 		return true;
@@ -66,7 +66,7 @@ public class TrackDurationAnalyzer implements TrackAnalyzer, MultiThreaded {
 
 	@Override
 	public void process(final Collection<Integer> trackIDs) {
-		
+
 		if (trackIDs.isEmpty()) {
 			return;
 		}
@@ -74,7 +74,7 @@ public class TrackDurationAnalyzer implements TrackAnalyzer, MultiThreaded {
 		final ArrayBlockingQueue<Integer> queue = new ArrayBlockingQueue<Integer>(trackIDs.size(), false, trackIDs);
 		final FeatureModel fm = model.getFeatureModel();
 
-		Thread[] threads = SimpleMultiThreading.newThreads(numThreads);
+		final Thread[] threads = SimpleMultiThreading.newThreads(numThreads);
 		for (int i = 0; i < threads.length; i++) {
 			threads[i] = new Thread("TrackLocationAnalyzer thread " + i) {
 				@Override
@@ -83,13 +83,13 @@ public class TrackDurationAnalyzer implements TrackAnalyzer, MultiThreaded {
 					while ((trackID = queue.poll()) != null) {
 
 						// I love brute force.
-						Set<Spot> track = model.getTrackModel().trackSpots(trackID);
+						final Set<Spot> track = model.getTrackModel().trackSpots(trackID);
 						double minT = Double.POSITIVE_INFINITY;
 						double maxT = Double.NEGATIVE_INFINITY;
 						Double t;
 						Spot startSpot = null;
 						Spot endSpot = null;
-						for (Spot spot : track) {
+						for (final Spot spot : track) {
 							t = spot.getFeature(Spot.POSITION_T);
 							if (t < minT) {
 								minT = t;
@@ -101,19 +101,19 @@ public class TrackDurationAnalyzer implements TrackAnalyzer, MultiThreaded {
 							}
 						}
 
-						fm.putTrackFeature(trackID, TRACK_DURATION, (maxT-minT));
+						fm.putTrackFeature(trackID, TRACK_DURATION, (maxT - minT));
 						fm.putTrackFeature(trackID, TRACK_START, minT);
 						fm.putTrackFeature(trackID, TRACK_STOP, maxT);
-						fm.putTrackFeature(trackID, TRACK_DISPLACEMENT, (double) Math.sqrt(startSpot.squareDistanceTo(endSpot)));
+						fm.putTrackFeature(trackID, TRACK_DISPLACEMENT, Math.sqrt(startSpot.squareDistanceTo(endSpot)));
 
 					}
 				}
 			};
 		}
 
-		long start = System.currentTimeMillis();
+		final long start = System.currentTimeMillis();
 		SimpleMultiThreading.startAndJoin(threads);
-		long end = System.currentTimeMillis();
+		final long end = System.currentTimeMillis();
 		processingTime = end - start;
 	}
 
@@ -124,11 +124,11 @@ public class TrackDurationAnalyzer implements TrackAnalyzer, MultiThreaded {
 
 	@Override
 	public void setNumThreads() {
-		this.numThreads = Runtime.getRuntime().availableProcessors();  
+		this.numThreads = Runtime.getRuntime().availableProcessors();
 	}
 
 	@Override
-	public void setNumThreads(int numThreads) {
+	public void setNumThreads(final int numThreads) {
 		this.numThreads = numThreads;
 
 	}
@@ -137,7 +137,7 @@ public class TrackDurationAnalyzer implements TrackAnalyzer, MultiThreaded {
 	public long getProcessingTime() {
 		return processingTime;
 	}
-	
+
 	@Override
 	public List<String> getFeatures() {
 		return FEATURES;

@@ -12,12 +12,11 @@ import net.imglib2.view.HyperSliceImgPlus;
 
 public class DogDetectorFactory<T extends RealType<T> & NativeType<T>> extends LogDetectorFactory<T> {
 
-
 	/*
 	 * CONSTANTS
 	 */
-	
-	/** A string key identifying this factory. */ 
+
+	/** A string key identifying this factory. */
 	public static final String DETECTOR_KEY = "DOG_DETECTOR";
 	/** The pretty name of the target detector. */
 	public static final String NAME = "DoG detector";
@@ -30,7 +29,7 @@ public class DogDetectorFactory<T extends RealType<T> & NativeType<T>> extends L
 			"Spots found too close are suppressed. This segmenter can do sub-pixel <br>" +
 			"localization of spots using a quadratic fitting scheme. It is based on <br>" +
 			"the scale-space framework made by Stephan Preibisch for ImgLib. " +
-			"</html>";	
+			"</html>";
 
 	/*
 	 * METHODS
@@ -47,12 +46,12 @@ public class DogDetectorFactory<T extends RealType<T> & NativeType<T>> extends L
 		final boolean doSubpixel = (Boolean) settings.get(KEY_DO_SUBPIXEL_LOCALIZATION);
 		return new DogDetector<T>(imgT, radius, threshold, doSubpixel, doMedian);
 	}
-	
+
 	@Override
 	public String getKey() {
 		return DETECTOR_KEY;
 	}
-	
+
 	@Override
 	public String toString() {
 		return NAME;

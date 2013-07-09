@@ -12,20 +12,20 @@ public abstract class AbstractTMAction implements TrackMateAction {
 	protected ImageIcon icon = null;
 	protected final TrackMate trackmate;
 	protected final TrackMateGUIController controller;
-	
-	public AbstractTMAction(TrackMate trackmate, TrackMateGUIController controller) {
+
+	public AbstractTMAction(final TrackMate trackmate, final TrackMateGUIController controller) {
 		this.trackmate = trackmate;
 		this.controller = controller;
 	}
-	
+
 	@Override
-	public void setLogger(Logger logger) {
+	public void setLogger(final Logger logger) {
 		this.logger = logger;
 	}
-	
+
 	@Override
 	public ImageIcon getIcon() {
-		return icon ;
+		return icon;
 	}
-	
+
 }

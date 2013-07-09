@@ -11,44 +11,44 @@ import net.imglib2.outofbounds.OutOfBounds;
 
 public class SquareNeighborhoodCursor3x3<T> implements Cursor<T>, Bounded {
 
-	private final ExtendedRandomAccessibleInterval<T,RandomAccessibleInterval<T>> source;
+	private final ExtendedRandomAccessibleInterval<T, RandomAccessibleInterval<T>> source;
 	private final long[] center;
 	private final OutOfBounds<T> ra;
 	private int index = -1;
 	private boolean hasNext;
-	
+
 	/*
 	 * CONSTRUCTOR
 	 */
 
-	public SquareNeighborhoodCursor3x3(ExtendedRandomAccessibleInterval<T,RandomAccessibleInterval<T>> extendedSource,	long[] center) {
+	public SquareNeighborhoodCursor3x3(final ExtendedRandomAccessibleInterval<T, RandomAccessibleInterval<T>> extendedSource, final long[] center) {
 		this.source = extendedSource;
 		this.center = center;
 		this.ra = extendedSource.randomAccess();
 		reset();
 	}
-	
+
 	/*
 	 * METHODS
 	 */
 
 	@Override
-	public void localize(float[] position) {
+	public void localize(final float[] position) {
 		ra.localize(position);
 	}
 
 	@Override
-	public void localize(double[] position) {
+	public void localize(final double[] position) {
 		ra.localize(position);
 	}
 
 	@Override
-	public float getFloatPosition(int d) {
+	public float getFloatPosition(final int d) {
 		return ra.getFloatPosition(d);
 	}
 
 	@Override
-	public double getDoublePosition(int d) {
+	public double getDoublePosition(final int d) {
 		return ra.getDoublePosition(d);
 	}
 
@@ -68,7 +68,7 @@ public class SquareNeighborhoodCursor3x3<T> implements Cursor<T>, Bounded {
 	}
 
 	@Override
-	public void jumpFwd(long steps) {
+	public void jumpFwd(final long steps) {
 		for (int i = 0; i < steps; i++) {
 			fwd();
 		}
@@ -77,40 +77,40 @@ public class SquareNeighborhoodCursor3x3<T> implements Cursor<T>, Bounded {
 	@Override
 	public void fwd() {
 		index++;
-				
+
 		switch (index) {
 		case 0:
 			// already in place
 			break;
-			
+
 		case 1:
 			ra.bck(1);
 			break;
-			
+
 		case 2:
 			ra.bck(0);
 			break;
-			
+
 		case 3:
 			ra.fwd(1);
 			break;
-			
+
 		case 4:
 			ra.fwd(1);
 			break;
-			
+
 		case 5:
 			ra.fwd(0);
 			break;
-			
+
 		case 6:
 			ra.fwd(0);
 			break;
-			
+
 		case 7:
 			ra.bck(1);
 			break;
-			
+
 		case 8:
 			ra.bck(1);
 			hasNext = false;
@@ -145,22 +145,22 @@ public class SquareNeighborhoodCursor3x3<T> implements Cursor<T>, Bounded {
 	}
 
 	@Override
-	public void localize(int[] position) {
+	public void localize(final int[] position) {
 		ra.localize(position);
 	}
 
 	@Override
-	public void localize(long[] position) {
+	public void localize(final long[] position) {
 		ra.localize(position);
 	}
 
 	@Override
-	public int getIntPosition(int d) {
+	public int getIntPosition(final int d) {
 		return ra.getIntPosition(d);
 	}
 
 	@Override
-	public long getLongPosition(int d) {
+	public long getLongPosition(final int d) {
 		return ra.getLongPosition(d);
 	}
 

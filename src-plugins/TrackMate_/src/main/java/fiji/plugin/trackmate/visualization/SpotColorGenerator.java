@@ -7,10 +7,10 @@ import java.util.Set;
 
 import org.jfree.chart.renderer.InterpolatePaintScale;
 
+import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.ModelChangeEvent;
 import fiji.plugin.trackmate.ModelChangeListener;
 import fiji.plugin.trackmate.Spot;
-import fiji.plugin.trackmate.Model;
 
 public class SpotColorGenerator implements FeatureColorGenerator<Spot>, ModelChangeListener {
 
@@ -18,20 +18,20 @@ public class SpotColorGenerator implements FeatureColorGenerator<Spot>, ModelCha
 	private final Model model;
 	private String feature = null;
 
-	public SpotColorGenerator(Model model) {
+	public SpotColorGenerator(final Model model) {
 		this.model = model;
 		model.addModelChangeListener(this);
 	}
-	
+
 	@Override
-	public Color color(Spot spot) {
+	public Color color(final Spot spot) {
 		if (null == feature) {
 			return TrackMateModelView.DEFAULT_SPOT_COLOR;
 		} else {
 			return spotColorMap.get(spot);
 		}
 	}
-	
+
 	@Override
 	public String getFeature() {
 		return feature;
@@ -41,31 +41,31 @@ public class SpotColorGenerator implements FeatureColorGenerator<Spot>, ModelCha
 	public void terminate() {
 		model.removeModelChangeListener(this);
 	}
-	
 
 	@Override
-	public void modelChanged(ModelChangeEvent event) {
+	public void modelChanged(final ModelChangeEvent event) {
 		if (feature == null) {
 			return; // nothing to do.
 		}
-		if (event.getEventID() ==  ModelChangeEvent.MODEL_MODIFIED) {
-			Set<Spot> spots = event.getSpots();
+		if (event.getEventID() == ModelChangeEvent.MODEL_MODIFIED) {
+			final Set<Spot> spots = event.getSpots();
 			if (spots.size() > 0) {
 				computeSpotColors(feature);
-			} 
+			}
 		} else if (event.getEventID() == ModelChangeEvent.SPOTS_COMPUTED) {
 			computeSpotColors(feature);
 		}
 	}
 
 	/**
-	 * Sets the feature that will be used to color spots.
-	 * <code>null</code> is accepted; it will color all the spot with the 
-	 * same default color.
-	 * @param feature the feature to color spots with.
+	 * Sets the feature that will be used to color spots. <code>null</code> is
+	 * accepted; it will color all the spot with the same default color.
+	 *
+	 * @param feature
+	 *            the feature to color spots with.
 	 */
 	@Override
-	public void setFeature(String feature) {
+	public void setFeature(final String feature) {
 		if (null != feature && feature.equals(this.feature)) {
 			return;
 		}
@@ -75,11 +75,9 @@ public class SpotColorGenerator implements FeatureColorGenerator<Spot>, ModelCha
 		}
 	}
 
-	
 	/*
 	 * PRIVATE METHODS
 	 */
-	
 
 	private void computeSpotColors(final String feature) {
 		spotColorMap.clear();
@@ -87,23 +85,25 @@ public class SpotColorGenerator implements FeatureColorGenerator<Spot>, ModelCha
 		double min = Float.POSITIVE_INFINITY;
 		double max = Float.NEGATIVE_INFINITY;
 		Double val;
-		for (int ikey : model.getSpots().keySet()) {
-			for (Spot spot : model.getSpots().iterable(ikey, false)) {
+		for (final int ikey : model.getSpots().keySet()) {
+			for (final Spot spot : model.getSpots().iterable(ikey, false)) {
 				val = spot.getFeature(feature);
 				if (null == val)
 					continue;
-				if (val > max) max = val;
-				if (val < min) min = val;
+				if (val > max)
+					max = val;
+				if (val < min)
+					min = val;
 			}
 		}
 
-		for(Spot spot : model.getSpots().iterable(false)) {
+		for (final Spot spot : model.getSpots().iterable(false)) {
 			val = spot.getFeature(feature);
-			InterpolatePaintScale  colorMap = InterpolatePaintScale.Jet;
+			final InterpolatePaintScale colorMap = InterpolatePaintScale.Jet;
 			if (null == feature || null == val)
 				spotColorMap.put(spot, TrackMateModelView.DEFAULT_SPOT_COLOR);
 			else
-				spotColorMap.put(spot, colorMap .getPaint((val-min)/(max-min)) );
+				spotColorMap.put(spot, colorMap.getPaint((val - min) / (max - min)));
 		}
 	}
 }

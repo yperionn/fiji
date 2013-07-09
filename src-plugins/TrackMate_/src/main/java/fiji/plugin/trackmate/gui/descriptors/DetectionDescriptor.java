@@ -17,7 +17,7 @@ import fiji.plugin.trackmate.gui.TrackMateWizard;
 import fiji.plugin.trackmate.util.TMUtils;
 
 public class DetectionDescriptor implements WizardPanelDescriptor {
-	
+
 	private static final String KEY = "Detection";
 	protected static final String CANCEL_TEXT = "Cancel";
 	protected static final Icon CANCEL_ICON = new ImageIcon(TrackMateWizard.class.getResource("images/cancel.png"));
@@ -26,61 +26,62 @@ public class DetectionDescriptor implements WizardPanelDescriptor {
 	protected Thread motherThread;
 	protected TrackMateGUIController controller;
 
-
-	public DetectionDescriptor(TrackMateGUIController controller) {
+	public DetectionDescriptor(final TrackMateGUIController controller) {
 		this.controller = controller;
 		this.logPanel = controller.getGUI().getLogPanel();
 		this.trackmate = controller.getPlugin();
 	}
-	
+
 	@Override
 	public Component getComponent() {
 		return logPanel;
 	}
 
 	@Override
-	public void aboutToDisplayPanel() {	}
+	public void aboutToDisplayPanel() {
+	}
 
 	@Override
 	public void displayingPanel() {
 		controller.disableButtonsAndStoreState();
 		final Settings settings = trackmate.getSettings();
 		final Logger logger = logPanel.getLogger();
-		logger.log("Starting detection using "+settings.detectorFactory.toString()+"\n", Logger.BLUE_COLOR);
+		logger.log("Starting detection using " + settings.detectorFactory.toString() + "\n", Logger.BLUE_COLOR);
 		logger.log("with settings:\n");
 		logger.log(TMUtils.echoMap(settings.detectorSettings, 2));
-		
+
 		motherThread = new Thread("TrackMate detection mother thread") {
+			@Override
 			public void run() {
-				
+
 				// We have to tweak the GUI a bit from here
-				JButton nextButton = controller.getGUI().getNextButton();
-				ActionListener[] actionListeners = nextButton.getActionListeners();
-				for (ActionListener actionListener : actionListeners) {
+				final JButton nextButton = controller.getGUI().getNextButton();
+				final ActionListener[] actionListeners = nextButton.getActionListeners();
+				for (final ActionListener actionListener : actionListeners) {
 					nextButton.removeActionListener(actionListener);
 				}
 				nextButton.setText(CANCEL_TEXT);
 				nextButton.setIcon(CANCEL_ICON);
-				CancelListener cancel = new CancelListener();
+				final CancelListener cancel = new CancelListener();
 				nextButton.addActionListener(cancel);
 				nextButton.setEnabled(true);
-				
-				long start = System.currentTimeMillis();
+
+				final long start = System.currentTimeMillis();
 				try {
 					trackmate.execDetection();
-				} catch (Exception e) {
-					logger.error("An error occured:\n"+e+'\n');
+				} catch (final Exception e) {
+					logger.error("An error occured:\n" + e + '\n');
 					e.printStackTrace(logger);
 				} finally {
-					long end = System.currentTimeMillis();
-					logger.log(String.format("Detection done in %.1f s.\n", (end-start)/1e3f), Logger.BLUE_COLOR);
+					final long end = System.currentTimeMillis();
+					logger.log(String.format("Detection done in %.1f s.\n", (end - start) / 1e3f), Logger.BLUE_COLOR);
 				}
 				motherThread = null;
-				
+
 				// Restore
 				controller.restoreButtonsState();
 				nextButton.removeActionListener(cancel);
-				for (ActionListener actionListener : actionListeners) {
+				for (final ActionListener actionListener : actionListeners) {
 					nextButton.addActionListener(actionListener);
 				}
 				nextButton.setText(TrackMateWizard.NEXT_TEXT);
@@ -97,31 +98,31 @@ public class DetectionDescriptor implements WizardPanelDescriptor {
 			thread.interrupt();
 			try {
 				thread.join();
-			} catch (InterruptedException exc) {
+			} catch (final InterruptedException exc) {
 				// ignore
 			}
 		}
 	}
-	
+
 	@Override
 	public String getKey() {
 		return KEY;
 	}
-	
+
 	/*
 	 * INNER CLASS
 	 */
-	
+
 	private class CancelListener implements ActionListener {
 
 		@Override
-		public void actionPerformed(ActionEvent e) {
+		public void actionPerformed(final ActionEvent e) {
 			final Thread thread = motherThread;
 			if (thread != null) {
 				thread.interrupt();
 				try {
 					thread.join();
-				} catch (InterruptedException exc) {
+				} catch (final InterruptedException exc) {
 					// ignore
 				}
 			}
