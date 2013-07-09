@@ -12,27 +12,24 @@ public class ActionChooserDescriptor implements WizardPanelDescriptor {
 	public ActionChooserDescriptor(ActionProvider actionProvider) {
 		this.panel = new ActionChooserPanel(actionProvider);
 	}
-
+	
 	@Override
 	public ListChooserPanel getComponent() {
 		return panel.getPanel();
 	}
 
 	@Override
-	public void aboutToDisplayPanel() {
-	}
+	public void aboutToDisplayPanel() { }
 
 	@Override
-	public void displayingPanel() {
-	}
+	public void displayingPanel() { }
 
 	@Override
-	public void aboutToHidePanel() {
-	}
+	public void aboutToHidePanel() { }
 
 	@Override
 	public String getKey() {
 		return KEY;
 	}
-
+	
 }

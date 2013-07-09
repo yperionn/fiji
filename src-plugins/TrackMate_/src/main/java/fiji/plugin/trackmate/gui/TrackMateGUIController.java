@@ -1,5 +1,6 @@
 package fiji.plugin.trackmate.gui;
 
+
 import static fiji.plugin.trackmate.visualization.TrackMateModelView.DEFAULT_COLOR_MAP;
 import static fiji.plugin.trackmate.visualization.TrackMateModelView.DEFAULT_HIGHLIGHT_COLOR;
 import static fiji.plugin.trackmate.visualization.TrackMateModelView.DEFAULT_SPOT_COLOR;
@@ -86,13 +87,15 @@ import fiji.plugin.trackmate.visualization.trackscheme.TrackScheme;
 
 public class TrackMateGUIController implements ActionListener {
 
-	/* FIELDS */
+	/*
+	 * FIELDS
+	 */
 
 	private static final boolean DEBUG = false;
 	private final Logger logger;
 	/** The trackmate piloted here. */
 	private final TrackMate trackmate;
-	/** The GUI controlled by this controller. */
+	/** The GUI controlled by this controller.  */
 	private final TrackMateWizard gui;
 	private final TrackMateGUIModel guimodel;
 
@@ -129,12 +132,14 @@ public class TrackMateGUIController implements ActionListener {
 	protected PerEdgeFeatureColorGenerator edgeColorGenerator;
 	protected FeatureColorGenerator<Spot> spotColorGenerator;
 
-	/* CONSTRUCTOR */
+
+	/*
+	 * CONSTRUCTOR
+	 */
 
 	public TrackMateGUIController(final TrackMate trackmate) {
 
-		// I can't stand the metal look. If this is a problem, contact me
-		// (jeanyves.tinevez@gmail.com)
+		// I can't stand the metal look. If this is a problem, contact me (jeanyves.tinevez@gmail.com)
 		if (IJ.isMacOSX() || IJ.isWindows()) {
 			try {
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -149,12 +154,16 @@ public class TrackMateGUIController implements ActionListener {
 			}
 		}
 
+
 		this.trackmate = trackmate;
 
-		/* Instantiate GUI */
+		/*
+		 * Instantiate GUI
+		 */
 
 		this.gui = new TrackMateWizard(this);
 		this.logger = gui.getLogger();
+
 
 		// Feature updater
 		new ModelFeatureUpdater(trackmate.getModel(), trackmate.getSettings());
@@ -183,17 +192,17 @@ public class TrackMateGUIController implements ActionListener {
 		init();
 	}
 
-	/* PUBLIC METHODS */
+	/*
+	 * PUBLIC METHODS 
+	 */
+
 
 	/**
-	 * Creates a new {@link TrackMateGUIController} instance, set to operate on
-	 * the specified {@link TrackMate} instance and with the specified
-	 * {@link ImagePlus} as a starting source.
-	 * 
-	 * @param trackmate
-	 *        the instance that will be piloted by the new controller.
-	 * @param imp
-	 *        the {@link ImagePlus} that will be used as a source.
+	 * Creates a new {@link TrackMateGUIController} instance, set to operate on the
+	 * specified {@link TrackMate} instance and with the specified {@link ImagePlus}
+	 * as a starting source.
+	 * @param trackmate the instance that will be piloted by the new controller.
+	 * @param imp  the {@link ImagePlus} that will be used as a source.
 	 * @return a new instance of the controller.
 	 */
 	public TrackMateGUIController createOn(TrackMate trackmate) {
@@ -201,7 +210,7 @@ public class TrackMateGUIController implements ActionListener {
 	}
 
 	/**
-	 * Closes the GUI controlled by this instance.
+	 * Closes the GUI controlled by this instance. 
 	 */
 	public void quit() {
 		gui.dispose();
@@ -222,27 +231,24 @@ public class TrackMateGUIController implements ActionListener {
 	}
 
 	/**
-	 * Exposes the {@link SelectionModel} shared amongst all
-	 * {@link SelectionChangeListener}s controlled by this instance.
-	 * 
+	 * Exposes the {@link SelectionModel} shared amongst all {@link SelectionChangeListener}s
+	 * controlled by this instance.
 	 * @return the {@link SelectionModel}.
 	 */
 	public SelectionModel getSelectionModel() {
 		return selectionModel;
 	}
 
+
 	public TrackMateGUIModel getGuimodel() {
 		return guimodel;
 	}
 
 	/**
-	 * Sets the GUI current state via a key string. Registered descriptors are
-	 * parsed until one is found that has a matching key. Then it is displayed.
-	 * If a matching key is not found, nothing is done, and an error is logged
-	 * in the {@link LogPanel}.
-	 * 
-	 * @param stateKey
-	 *        the target state string.
+	 * Sets the GUI current state via a key string. Registered descriptors are parsed
+	 * until one is found that has a matching key. Then it is displayed. If a matching
+	 * key is not found, nothing is done, and an error is logged in the {@link LogPanel}.
+	 * @param stateKey the target state string. 
 	 */
 	public void setGUIStateString(String stateKey) {
 		for (WizardPanelDescriptor descriptor : registeredDescriptors) {
@@ -264,13 +270,12 @@ public class TrackMateGUIController implements ActionListener {
 			}
 		}
 
-		logger.error("Cannot move to state " + stateKey + ". Unknown state.\n");
+		logger.error("Cannot move to state " + stateKey +". Unknown state.\n");
 	}
 
 	/**
-	 * Returns the {@link ViewProvider} instance, serving
-	 * {@link TrackMateModelView}s to this GUI
-	 * 
+	 * Returns the {@link ViewProvider} instance, serving {@link TrackMateModelView}s to 
+	 * this GUI
 	 * @return the view provider.
 	 */
 	public ViewProvider getViewProvider() {
@@ -278,9 +283,8 @@ public class TrackMateGUIController implements ActionListener {
 	}
 
 	/**
-	 * Returns the {@link DetectorProvider} instance, serving
-	 * {@link SpotDetectorFactory}s to this GUI
-	 * 
+	 * Returns the {@link DetectorProvider} instance, serving {@link SpotDetectorFactory}s 
+	 * to this GUI 
 	 * @return the detector provider.
 	 */
 	public DetectorProvider getDetectorProvider() {
@@ -288,9 +292,8 @@ public class TrackMateGUIController implements ActionListener {
 	}
 
 	/**
-	 * Returns the {@link SpotAnalyzerProvider} instance, serving
-	 * {@link SpotAnalyzerFactory}s to this GUI.
-	 * 
+	 * Returns the {@link SpotAnalyzerProvider} instance, serving {@link SpotAnalyzerFactory}s
+	 * to this GUI.
 	 * @return the spot analyzer provider.
 	 */
 	public SpotAnalyzerProvider getSpotAnalyzerProvider() {
@@ -298,9 +301,8 @@ public class TrackMateGUIController implements ActionListener {
 	}
 
 	/**
-	 * Returns the {@link EdgeAnalyzerProvider} instance, serving
-	 * {@link EdgeAnalyzer}s to this GUI.
-	 * 
+	 * Returns the {@link EdgeAnalyzerProvider} instance, serving {@link EdgeAnalyzer}s
+	 * to this GUI.
 	 * @return the edge analyzer provider.
 	 */
 	public EdgeAnalyzerProvider getEdgeAnalyzerProvider() {
@@ -308,9 +310,8 @@ public class TrackMateGUIController implements ActionListener {
 	}
 
 	/**
-	 * Returns the {@link TrackAnalyzerProvider} instance, serving
-	 * {@link TrackAnalyzer}s to this GUI.
-	 * 
+	 * Returns the {@link TrackAnalyzerProvider} instance, serving {@link TrackAnalyzer}s
+	 * to this GUI.
 	 * @return the track analyzer provider.
 	 */
 	public TrackAnalyzerProvider getTrackAnalyzerProvider() {
@@ -318,16 +319,18 @@ public class TrackMateGUIController implements ActionListener {
 	}
 
 	/**
-	 * Returns the {@link TrackerProvider} instance, serving {@link SpotTracker}
-	 * s to this GUI.
-	 * 
+	 * Returns the {@link TrackerProvider} instance, serving {@link SpotTracker}s 
+	 * to this GUI.
 	 * @return the tracker provider.
 	 */
 	public TrackerProvider getTrackerProvider() {
 		return trackerProvider;
 	}
 
-	/* PROTECTED METHODS */
+	/*
+	 * PROTECTED METHODS
+	 */
+
 
 	protected void createSelectionModel() {
 		selectionModel = new SelectionModel(trackmate.getModel());
@@ -346,31 +349,34 @@ public class TrackMateGUIController implements ActionListener {
 		return generator;
 	}
 
+
 	protected void createProviders() {
 		spotAnalyzerProvider = new SpotAnalyzerProvider(trackmate.getModel());
 		edgeAnalyzerProvider = new EdgeAnalyzerProvider(trackmate.getModel());
 		trackAnalyzerProvider = new TrackAnalyzerProvider(trackmate.getModel());
-		detectorProvider = new DetectorProvider(trackmate.getModel());
-		viewProvider = new ViewProvider(trackmate.getModel(), trackmate.getSettings(), selectionModel);
-		trackerProvider = new TrackerProvider(trackmate.getModel());
-		actionProvider = new ActionProvider(trackmate, this);
+		detectorProvider 	= new DetectorProvider(trackmate.getModel()); 
+		viewProvider 		= new ViewProvider(trackmate.getModel(), trackmate.getSettings(), selectionModel);
+		trackerProvider 	= new TrackerProvider(trackmate.getModel());
+		actionProvider 		= new ActionProvider(trackmate, this);
 	}
 
 	/**
 	 * Creates the map of next descriptor for each descriptor.
-	 * 
-	 * @return
+	 * @return 
 	 */
 	protected Collection<WizardPanelDescriptor> createDescriptors() {
 
-		/* Logging panel: receive message, share with the TrackMateModel */
+		/*
+		 * Logging panel: receive message, share with the TrackMateModel
+		 */
 		LogPanel logPanel = gui.getLogPanel();
 		logPanelDescriptor = new LogPanelDescriptor(logPanel);
 
-		/* Start panel */
-		startDialoDescriptor = new StartDialogDescriptor(this);
-		// Listen if the selected imp is valid and toggle next button
-		// accordingly.
+		/*
+		 * Start panel
+		 */
+		startDialoDescriptor 		= new StartDialogDescriptor(this);
+		// Listen if the selected imp is valid and toggle next button accordingly.
 		startDialoDescriptor.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -382,24 +388,36 @@ public class TrackMateGUIController implements ActionListener {
 			}
 		});
 
-		/* Choose detector */
-		detectorChoiceDescriptor = new DetectorChoiceDescriptor(detectorProvider, trackmate);
+		/*
+		 * Choose detector
+		 */
+		detectorChoiceDescriptor 	= new DetectorChoiceDescriptor(detectorProvider, trackmate);
 
-		/* Configure chosen detector */
+		/*
+		 * Configure chosen detector
+		 */
 		detectorConfigurationDescriptor = new DetectorConfigurationDescriptor(detectorProvider, trackmate);
 
-		/* Execute and report detection progress */
-		detectionDescriptor = new DetectionDescriptor(this);
+		/*
+		 * Execute and report detection progress
+		 */
+		detectionDescriptor 		= new DetectionDescriptor(this);
 
-		/* Initial spot filter: discard obvious spurious spot based on quality. */
-		initFilterDescriptor = new InitFilterDescriptor(trackmate);
+		/*
+		 * Initial spot filter: discard obvious spurious spot based on quality.
+		 */
+		initFilterDescriptor		= new InitFilterDescriptor(trackmate);
 
-		/* Select and render a view */
+		/*
+		 * Select and render a view
+		 */
 		// We need the GUI model to register the created view there.
-		viewChoiceDescriptor = new ViewChoiceDescriptor(viewProvider, guimodel);
+		viewChoiceDescriptor		= new ViewChoiceDescriptor(viewProvider, guimodel);
 
-		/* Spot filtering */
-		spotFilterDescriptor = new SpotFilterDescriptor(trackmate, spotColorGenerator);
+		/*
+		 * Spot filtering
+		 */
+		spotFilterDescriptor 		= new SpotFilterDescriptor(trackmate, spotColorGenerator);
 		// display color changed
 		spotFilterDescriptor.addActionListener(new ActionListener() {
 
@@ -418,24 +436,31 @@ public class TrackMateGUIController implements ActionListener {
 		spotFilterDescriptor.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent event) {
-				// We set the thresholds field of the model but do not touch its
-				// selected spot field yet.
+				// We set the thresholds field of the model but do not touch its selected spot field yet.
 				trackmate.getSettings().setSpotFilters(spotFilterDescriptor.getComponent().getFeatureFilters());
 				trackmate.execSpotFiltering(false);
 			}
 		});
 
-		/* Choose a tracker */
-		trackerChoiceDescriptor = new TrackerChoiceDescriptor(trackerProvider, trackmate);
+		/*
+		 * Choose a tracker
+		 */
+		trackerChoiceDescriptor		= new TrackerChoiceDescriptor(trackerProvider, trackmate);
 
-		/* Configure chosen tracker */
+		/*
+		 * Configure chosen tracker
+		 */
 		trackerConfigurationDescriptor = new TrackerConfigurationDescriptor(trackerProvider, trackmate);
 
-		/* Execute tracking */
-		trackingDescriptor = new TrackingDescriptor(this);
+		/*
+		 * Execute tracking
+		 */
+		trackingDescriptor			= new TrackingDescriptor(this);
 
-		/* Track filtering */
-		trackFilterDescriptor = new TrackFilterDescriptor(trackmate, trackColorGenerator);
+		/*
+		 * Track filtering 
+		 */
+		trackFilterDescriptor		= new TrackFilterDescriptor(trackmate, trackColorGenerator);
 		trackFilterDescriptor.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -453,15 +478,16 @@ public class TrackMateGUIController implements ActionListener {
 		trackFilterDescriptor.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent event) {
-				// We set the thresholds field of the model but do not touch its
-				// selected spot field yet.
+				// We set the thresholds field of the model but do not touch its selected spot field yet.
 				trackmate.getSettings().setTrackFilters(trackFilterDescriptor.getComponent().getFeatureFilters());
 				trackmate.execTrackFiltering(false);
 			}
 		});
 
-		/* Finished, let's change the display settings. */
-		configureViewsDescriptor = new ConfigureViewsDescriptor(trackmate, spotColorGenerator, edgeColorGenerator, trackColorGenerator);
+		/*
+		 * Finished, let's change the display settings.
+		 */
+		configureViewsDescriptor	= new ConfigureViewsDescriptor(trackmate, spotColorGenerator, edgeColorGenerator, trackColorGenerator);
 		configureViewsDescriptor.getComponent().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -487,19 +513,29 @@ public class TrackMateGUIController implements ActionListener {
 			}
 		});
 
-		/* Export and graph features. */
-		grapherDescriptor = new GrapherDescriptor(trackmate);
+		/*
+		 * Export and graph features.
+		 */
+		grapherDescriptor			= new GrapherDescriptor(trackmate);
 
-		/* Offer to take some actions on the data. */
-		actionChooserDescriptor = new ActionChooserDescriptor(actionProvider);
+		/*
+		 * Offer to take some actions on the data.
+		 */
+		actionChooserDescriptor		= new ActionChooserDescriptor(actionProvider);
 
-		/* Save descriptor */
-		saveDescriptor = new SaveDescriptor(this, detectorProvider, trackerProvider);
+		/*
+		 * Save descriptor
+		 */
+		saveDescriptor 				= new SaveDescriptor(this, detectorProvider, trackerProvider);
 
-		/* Load descriptor */
-		loadDescriptor = new LoadDescriptor(this);
+		/*
+		 * Load descriptor
+		 */
+		loadDescriptor 				= new LoadDescriptor(this);
 
-		/* Store created descriptors */
+		/*
+		 * Store created descriptors
+		 */
 		ArrayList<WizardPanelDescriptor> descriptors = new ArrayList<WizardPanelDescriptor>(16);
 		descriptors.add(actionChooserDescriptor);
 		descriptors.add(configureViewsDescriptor);
@@ -528,7 +564,7 @@ public class TrackMateGUIController implements ActionListener {
 	protected WizardPanelDescriptor nextDescriptor(WizardPanelDescriptor currentDescriptor) {
 
 		if (currentDescriptor == startDialoDescriptor) {
-			return detectorChoiceDescriptor;
+			return  detectorChoiceDescriptor;
 
 		} else if (currentDescriptor == detectorChoiceDescriptor) {
 			return detectorConfigurationDescriptor;
@@ -583,7 +619,7 @@ public class TrackMateGUIController implements ActionListener {
 		}
 	}
 
-	protected WizardPanelDescriptor previousDescriptor(WizardPanelDescriptor currentDescriptor) {
+	protected  WizardPanelDescriptor previousDescriptor(WizardPanelDescriptor currentDescriptor) {
 
 		if (currentDescriptor == startDialoDescriptor) {
 			return null;
@@ -617,7 +653,7 @@ public class TrackMateGUIController implements ActionListener {
 
 		} else if (currentDescriptor == trackFilterDescriptor) {
 			if (null == trackmate.getSettings().tracker || trackmate.getSettings().tracker.getKey().equals(ManualTracker.TRACKER_KEY)) {
-				return trackerChoiceDescriptor;
+				return trackerChoiceDescriptor; 
 			} else {
 				return trackerConfigurationDescriptor;
 			}
@@ -636,6 +672,8 @@ public class TrackMateGUIController implements ActionListener {
 		}
 	}
 
+
+
 	/**
 	 * Display the first panel
 	 */
@@ -647,7 +685,8 @@ public class TrackMateGUIController implements ActionListener {
 		gui.setPreviousButtonEnabled(false);
 		WizardPanelDescriptor panelDescriptor = getFirstDescriptor();
 
-		String welcomeMessage = TrackMate.PLUGIN_NAME_STR + " v" + TrackMate.PLUGIN_NAME_VERSION + " started on:\n" + TMUtils.getCurrentTimeString() + '\n';
+		String welcomeMessage = TrackMate.PLUGIN_NAME_STR + " v" + TrackMate.PLUGIN_NAME_VERSION + " started on:\n" + 
+				TMUtils.getCurrentTimeString() + '\n';
 		// Log GUI processing start
 		gui.getLogger().log(welcomeMessage, Logger.BLUE_COLOR);
 
@@ -657,17 +696,14 @@ public class TrackMateGUIController implements ActionListener {
 		// Display matching panel
 		gui.show(panelDescriptor);
 
-		// Show the panel in the dialog, and execute action after display
-		panelDescriptor.displayingPanel();
+		//  Show the panel in the dialog, and execute action after display
+		panelDescriptor.displayingPanel();  
 	}
 
 	/**
 	 * Returns the starting display settings that will be passed to any new view
 	 * registered within this GUI.
-	 * 
-	 * @param model
-	 *        the model this GUI will configure; might be required by some
-	 *        display settings.
+	 * @param model  the model this GUI will configure; might be required by some display settings.
 	 * @return a map of display settings mappings.
 	 */
 	protected Map<String, Object> createDisplaySettings(Model model) {
@@ -686,12 +722,16 @@ public class TrackMateGUIController implements ActionListener {
 		return displaySettings;
 	}
 
-	/* ACTION LISTENER */
+
+
+	/*
+	 * ACTION LISTENER
+	 */
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		if (DEBUG)
-			System.out.println("[TrackMateGUIController] Caught event " + event);
+			System.out.println("[TrackMateGUIController] Caught event "+event);
 
 		if (event == gui.NEXT_BUTTON_PRESSED && guimodel.actionFlag) {
 
@@ -709,6 +749,7 @@ public class TrackMateGUIController implements ActionListener {
 			load();
 			restoreButtonsState();
 
+
 		} else if (event == gui.SAVE_BUTTON_PRESSED && guimodel.actionFlag) {
 
 			guimodel.actionFlag = false;
@@ -717,7 +758,10 @@ public class TrackMateGUIController implements ActionListener {
 			save();
 			restoreButtonsState();
 
-		} else if ((event == gui.NEXT_BUTTON_PRESSED || event == gui.PREVIOUS_BUTTON_PRESSED || event == gui.LOAD_BUTTON_PRESSED || event == gui.SAVE_BUTTON_PRESSED) && !guimodel.actionFlag) {
+		} else if ((event == gui.NEXT_BUTTON_PRESSED || 
+				event == gui.PREVIOUS_BUTTON_PRESSED || 
+				event == gui.LOAD_BUTTON_PRESSED ||
+				event == gui.SAVE_BUTTON_PRESSED) && !guimodel.actionFlag ) {
 
 			// Display previous panel, but do not execute its actions
 			guimodel.actionFlag = true;
@@ -746,6 +790,7 @@ public class TrackMateGUIController implements ActionListener {
 		}
 	}
 
+
 	private void next() {
 
 		gui.setNextButtonEnabled(false);
@@ -757,7 +802,7 @@ public class TrackMateGUIController implements ActionListener {
 		}
 
 		// Find and store new one to display
-		WizardPanelDescriptor panelDescriptor = nextDescriptor(oldDescriptor);
+		WizardPanelDescriptor panelDescriptor  = nextDescriptor(oldDescriptor);
 		guimodel.currentDescriptor = panelDescriptor;
 
 		// Re-enable the previous button, in case it was disabled
@@ -769,11 +814,10 @@ public class TrackMateGUIController implements ActionListener {
 		// Display matching panel
 		gui.show(panelDescriptor);
 
-		// Show the panel in the dialog, and execute action after display
+		//  Show the panel in the dialog, and execute action after display
 		panelDescriptor.displayingPanel();
 
-		// Check if the new panel has a next panel. If not, disable the next
-		// button
+		// Check if the new panel has a next panel. If not, disable the next button
 		if (null != nextDescriptor(panelDescriptor)) {
 			gui.setNextButtonEnabled(true);
 		}
@@ -787,8 +831,7 @@ public class TrackMateGUIController implements ActionListener {
 		gui.show(panelDescriptor);
 		guimodel.currentDescriptor = panelDescriptor;
 
-		// Check if the new panel has a next panel. If not, disable the next
-		// button
+		// Check if the new panel has a next panel. If not, disable the next button
 		if (null == previousDescriptor(panelDescriptor)) {
 			gui.setPreviousButtonEnabled(false);
 		}
@@ -821,15 +864,16 @@ public class TrackMateGUIController implements ActionListener {
 		saveDescriptor.displayingPanel();
 	}
 
+
 	/**
-	 * Disable the 4 bottom buttons and memorize their state to that they can be
-	 * restored when calling {@link #restoreButtonsState()}.
+	 * Disable the 4 bottom buttons and memorize their state to that they
+	 * can be restored when calling {@link #restoreButtonsState()}. 
 	 */
 	public void disableButtonsAndStoreState() {
-		guimodel.loadButtonState = gui.jButtonLoad.isEnabled();
-		guimodel.saveButtonState = gui.jButtonSave.isEnabled();
-		guimodel.previousButtonState = gui.jButtonPrevious.isEnabled();
-		guimodel.nextButtonState = gui.jButtonNext.isEnabled();
+		guimodel.loadButtonState 		= gui.jButtonLoad.isEnabled();
+		guimodel.saveButtonState 		= gui.jButtonSave.isEnabled();
+		guimodel.previousButtonState 	= gui.jButtonPrevious.isEnabled();
+		guimodel.nextButtonState 		= gui.jButtonNext.isEnabled();
 		gui.setLoadButtonEnabled(false);
 		gui.setSaveButtonEnabled(false);
 		gui.setPreviousButtonEnabled(false);
@@ -837,9 +881,8 @@ public class TrackMateGUIController implements ActionListener {
 	}
 
 	/**
-	 * Restore the button state saved when calling
-	 * {@link #disableButtonsAndStoreState()}. Do nothing if
-	 * {@link #disableButtonsAndStoreState()} was not called before.
+	 * Restore the button state saved when calling {@link #disableButtonsAndStoreState()}.
+	 * Do nothing if {@link #disableButtonsAndStoreState()} was not called before. 
 	 */
 	public void restoreButtonsState() {
 		gui.setLoadButtonEnabled(guimodel.loadButtonState);

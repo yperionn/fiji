@@ -20,13 +20,15 @@ import fiji.plugin.trackmate.Model;
 
 public class TrackBranchingAnalyzer implements TrackAnalyzer, MultiThreaded {
 
-	/* CONSTANTS */
-	public static final String KEY = "Branching analyzer";
-	public static final String NUMBER_GAPS = "NUMBER_GAPS";
-	public static final String NUMBER_SPLITS = "NUMBER_SPLITS";
-	public static final String NUMBER_MERGES = "NUMBER_MERGES";
-	public static final String NUMBER_COMPLEX = "NUMBER_COMPLEX";
-	public static final String NUMBER_SPOTS = "NUMBER_SPOTS";
+	/*
+	 * CONSTANTS
+	 */
+	public static final String 		KEY = "Branching analyzer";
+	public static final String 		NUMBER_GAPS = "NUMBER_GAPS";
+	public static final String 		NUMBER_SPLITS = "NUMBER_SPLITS";
+	public static final String 		NUMBER_MERGES = "NUMBER_MERGES";
+	public static final String 		NUMBER_COMPLEX = "NUMBER_COMPLEX";
+	public static final String 		NUMBER_SPOTS = "NUMBER_SPOTS";
 
 	private static final List<String> FEATURES = new ArrayList<String>(5);
 	private static final Map<String, String> FEATURE_NAMES = new HashMap<String, String>(5);
@@ -67,7 +69,7 @@ public class TrackBranchingAnalyzer implements TrackAnalyzer, MultiThreaded {
 		this.model = model;
 		setNumThreads();
 	}
-
+	
 	@Override
 	public boolean isLocal() {
 		return true;
@@ -75,7 +77,7 @@ public class TrackBranchingAnalyzer implements TrackAnalyzer, MultiThreaded {
 
 	@Override
 	public void process(final Collection<Integer> trackIDs) {
-
+		
 		if (trackIDs.isEmpty()) {
 			return;
 		}
@@ -97,15 +99,15 @@ public class TrackBranchingAnalyzer implements TrackAnalyzer, MultiThreaded {
 						int ncomplex = 0;
 						for (Spot spot : track) {
 							Set<DefaultWeightedEdge> edges = model.getTrackModel().edgesOf(spot);
-
+							
 							// get neighbors
 							Set<Spot> neighbors = new HashSet<Spot>();
-							for (DefaultWeightedEdge edge : edges) {
+							for(DefaultWeightedEdge edge : edges) {
 								neighbors.add(model.getTrackModel().getEdgeSource(edge));
 								neighbors.add(model.getTrackModel().getEdgeTarget(edge));
 							}
 							neighbors.remove(spot);
-
+							
 							// inspect neighbors relative time position
 							int earlier = 0;
 							int later = 0;
@@ -116,16 +118,16 @@ public class TrackBranchingAnalyzer implements TrackAnalyzer, MultiThreaded {
 									later++;
 								}
 							}
-
+							
 							// Test for classical spot
 							if (earlier == 1 && later == 1) {
 								continue;
 							}
-
+							
 							// classify spot
 							if (earlier <= 1 && later > 1) {
 								nsplits++;
-							} else if (later <= 1 && earlier > 1) {
+							} else if (later <=1 && earlier > 1) {
 								nmerges++;
 							} else if (later > 1 && earlier > 1) {
 								ncomplex++;
@@ -133,10 +135,10 @@ public class TrackBranchingAnalyzer implements TrackAnalyzer, MultiThreaded {
 						}
 
 						int ngaps = 0;
-						for (DefaultWeightedEdge edge : model.getTrackModel().trackEdges(trackID)) {
+						for(DefaultWeightedEdge edge : model.getTrackModel().trackEdges(trackID)) {
 							Spot source = model.getTrackModel().getEdgeSource(edge);
 							Spot target = model.getTrackModel().getEdgeTarget(edge);
-							if (Math.abs(target.diffTo(source, Spot.FRAME)) > 1) {
+							if (Math.abs( target.diffTo(source, Spot.FRAME)) > 1) {
 								ngaps++;
 							}
 						}
@@ -159,7 +161,7 @@ public class TrackBranchingAnalyzer implements TrackAnalyzer, MultiThreaded {
 		long end = System.currentTimeMillis();
 		processingTime = end - start;
 	}
-
+	
 	@Override
 	public int getNumThreads() {
 		return numThreads;
@@ -167,7 +169,7 @@ public class TrackBranchingAnalyzer implements TrackAnalyzer, MultiThreaded {
 
 	@Override
 	public void setNumThreads() {
-		this.numThreads = Runtime.getRuntime().availableProcessors();
+		this.numThreads = Runtime.getRuntime().availableProcessors();  
 	}
 
 	@Override

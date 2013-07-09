@@ -36,10 +36,16 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 	/** The name of the default, uniform painting style. */
 	public static final String UNIFORM_NAME = "Uniform color";
 
-	/* ENUM */
+
+	/*
+	 * ENUM
+	 */
 
 	public static enum Category {
-		SPOTS("spots"), EDGES("edges"), TRACKS("tracks"), DEFAULT("Default");
+		SPOTS("spots"),
+		EDGES("edges"),
+		TRACKS("tracks"),
+		DEFAULT("Default");
 
 		private String name;
 
@@ -54,13 +60,13 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 
 	}
 
-	/* FIELDS */
+	/*
+	 * FIELDS
+	 */
 
 	private static final long serialVersionUID = 1L;
-	/**
-	 * This action is fired when the feature to color in the
-	 * "Set color by feature" JComboBox is changed.
-	 */
+	/** This action is fired when the feature to color in the "Set color by feature"
+	 * JComboBox is changed. */
 	public final ActionEvent COLOR_FEATURE_CHANGED = new ActionEvent(this, 1, "ColorFeatureChanged");
 	private JLabel jLabelSetColorBy;
 	private CategoryJComboBox<Category, String> jComboBoxSetColorBy;
@@ -72,7 +78,9 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 	protected final Model model;
 	private final List<Category> categories;
 
-	/* CONSTRUCTOR */
+	/*
+	 * CONSTRUCTOR
+	 */
 
 	public ColorByFeatureGUIPanel(Model model, List<Category> categories) {
 		super();
@@ -81,7 +89,9 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 		initGUI();
 	}
 
-	/* PUBLIC METHODS */
+	/*
+	 * PUBLIC METHODS
+	 */
 
 	/**
 	 * Forward the enabled flag to all components off this panel.
@@ -94,11 +104,10 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 	}
 
 	/**
-	 * Returns a key to the color generator category selected in the combo box.
+	 * Returns a key to the color generator category selected in the combo box. 
 	 * Will be a {@link Category} enum type, as set in constructor.
-	 * 
 	 * @return the selected category.
-	 * @see #getColorFeature()
+	 * @see #getColorFeature() 
 	 */
 	public Category getColorGeneratorCategory() {
 		return jComboBoxSetColorBy.getSelectedCategory();
@@ -106,7 +115,6 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 
 	/**
 	 * Returns the selected feature in the combo box.
-	 * 
 	 * @return the selected feature.
 	 * @see #getColorGeneratorCategory()
 	 */
@@ -122,7 +130,10 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 		}
 	}
 
-	/* PRIVATE METHODS */
+	/*
+	 * PRIVATE METHODS
+	 */
+
 
 	/**
 	 * Forward the 'color by feature' action to the caller of this GUI.
@@ -148,17 +159,15 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 		double val;
 		for (int i = 0; i < values.length; i++) {
 			val = values[i];
-			if (val > max)
-				max = val;
-			if (val < min)
-				min = val;
+			if (val > max) max = val;
+			if (val < min) min = val;
 		}
 
 		final int width = canvasColor.getWidth();
 		final int height = canvasColor.getHeight();
 		float alpha;
 		for (int i = 0; i < width; i++) {
-			alpha = (float) i / (width - 1);
+			alpha = (float) i / (width-1);
 			g.setColor(colorMap.getPaint(alpha));
 			g.drawLine(i, 0, i, height);
 		}
@@ -167,9 +176,10 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 		FontMetrics fm = g.getFontMetrics();
 		String minStr = String.format("%.1f", min);
 		String maxStr = String.format("%.1f", max);
-		g.drawString(minStr, 1, height / 2 + fm.getHeight() / 2);
-		g.drawString(maxStr, width - fm.stringWidth(maxStr) - 1, height / 2 + fm.getHeight() / 2);
+		g.drawString(minStr, 1, height/2 + fm.getHeight()/2);
+		g.drawString(maxStr, width - fm.stringWidth(maxStr)-1, height/2 + fm.getHeight()/2);
 	}
+
 
 	private void initGUI() {
 
@@ -214,7 +224,6 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 			{
 				canvasColor = new Canvas() {
 					private static final long serialVersionUID = -2174317490066575040L;
-
 					@Override
 					public void paint(Graphics g) {
 						repaintColorCanvas(g);
@@ -241,17 +250,15 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 	}
 
 	/**
-	 * Return the {@link CategoryJComboBox} that configures this selector.
-	 * Subclasses can override this method to decide what items are in the combo
-	 * box list.
-	 * 
+	 * Return the {@link CategoryJComboBox} that configures this selector. 
+	 * Subclasses can override this method to decide what items are in the combo box list.
 	 * @return a new {@link CategoryJComboBox}.
 	 */
 	protected CategoryJComboBox<Category, String> createComboBoxSelector(List<Category> categories) {
 		LinkedHashMap<Category, Collection<String>> features = new LinkedHashMap<Category, Collection<String>>(categories.size());
 		HashMap<Category, String> categoryNames = new HashMap<Category, String>(categories.size());
 		HashMap<String, String> featureNames = new HashMap<String, String>();
-
+		
 		for (Category category : categories) {
 			switch (category) {
 			case SPOTS:
@@ -274,12 +281,12 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 				features.put(Category.TRACKS, trackFeatures);
 				featureNames.putAll(model.getFeatureModel().getTrackFeatureNames());
 				break;
-
+				
 			case DEFAULT:
 				categoryNames.put(Category.DEFAULT, "Default:");
 				Collection<String> defaultOptions = new ArrayList<String>();
 				defaultOptions.add(UNIFORM_KEY);
-				features.put(Category.DEFAULT, defaultOptions);
+				features.put(Category.DEFAULT, defaultOptions );
 				featureNames.put(UNIFORM_KEY, UNIFORM_NAME);
 				break;
 
@@ -290,12 +297,10 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 		return new CategoryJComboBox<Category, String>(features, featureNames, categoryNames);
 	}
 
+
 	/**
-	 * Returns the feature values for the item currently selected in the combo
-	 * box.
-	 * 
-	 * @param cb
-	 *        the {@link CategoryJComboBox} to interrogate.
+	 * Returns the feature values for the item currently selected in the combo box.
+	 * @param cb  the {@link CategoryJComboBox} to interrogate.
 	 * @return a new double array containing the feature values.
 	 */
 	protected double[] getValues(CategoryJComboBox<Category, String> cb) {

@@ -11,10 +11,13 @@ import javax.swing.JFrame;
 
 public class GuiUtils {
 
+	
+
 	/**
 	 * Positions a JFrame more or less cleverly next a {@link Component}.
 	 */
 	public static void positionWindow(JFrame gui, Component component) {
+
 
 		if (null != component) {
 
@@ -22,7 +25,7 @@ public class GuiUtils {
 			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 			GraphicsDevice[] gs = ge.getScreenDevices();
 			int screenWidth = 0;
-			for (int i = 0; i < gs.length; i++) {
+			for (int i=0; i<gs.length; i++) {
 				DisplayMode dm = gs[i].getDisplayMode();
 				screenWidth += dm.getWidth();
 			}
@@ -34,23 +37,16 @@ public class GuiUtils {
 				if (guiSize.width > screenWidth - (windowLoc.x + windowSize.width)) {
 					gui.setLocationRelativeTo(null); // give up
 				} else {
-					gui.setLocation(windowLoc.x + windowSize.width, windowLoc.y); // put
-																					// it
-																					// to
-																					// the
-																					// right
+					gui.setLocation(windowLoc.x+windowSize.width, windowLoc.y); // put it to the right
 				}
 			} else {
-				gui.setLocation(windowLoc.x - guiSize.width, windowLoc.y); // put
-																			// it
-																			// to
-																			// the
-																			// left
+				gui.setLocation(windowLoc.x-guiSize.width, windowLoc.y); // put it to the left
 			}
 
 		} else {
 			gui.setLocationRelativeTo(null);
 		}
 	}
-
+	
+	
 }

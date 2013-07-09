@@ -67,18 +67,18 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 	private final List<Category> categories;
 	private final Model model;
 	private final List<String> features;
-	/**
-	 * Holds the map of feature values. Is made final so that the instance can
-	 * be shared with the components of this panel.
-	 */
+	/** Holds the map of feature values. Is made final so that the instance can be shared with the components
+	 * of this panel. */
 	private final Map<String, double[]> featureValues;
 
-	/* CONSTRUCTOR */
+	/*
+	 * CONSTRUCTOR
+	 */
 
 	public FilterGuiPanel(Model model, List<Category> categories) {
 		this.model = model;
 		this.categories = categories;
-
+		
 		this.features = new ArrayList<String>();
 		this.featureNames = new HashMap<String, String>();
 		for (Category category : categories) {
@@ -116,11 +116,14 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 		initGUI();
 	}
 
-	/* PUBLIC METHODS */
+
+	/*
+	 * PUBLIC METHODS
+	 */
 
 	/**
 	 * Calls the re-calculation of the feature values displayed in the filter
-	 * panels.
+	 * panels. 
 	 */
 	public void refreshDisplayedFeatureValues() {
 		featureValues.clear();
@@ -143,12 +146,9 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 	}
 
 	/**
-	 * Set the feature filters to display and layout in this panel.
-	 * 
-	 * @param filters
-	 *        the list of {@link FeatureFilter}s that should be already present
-	 *        in the GUI (for loading purpose). Can be <code>null</code> or
-	 *        empty.
+	 * Set the feature filters to display and layout in this panel. 
+	 * @param filters  the list of {@link FeatureFilter}s that should be already present in the GUI 
+	 * (for loading purpose). Can be <code>null</code> or empty.
 	 */
 	public void setFilters(List<FeatureFilter> filters) {
 		// Clean current panels
@@ -165,7 +165,7 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 			if (filters.isEmpty())
 				newFeatureIndex = 0;
 			else
-				newFeatureIndex = this.features.indexOf(filters.get(filters.size() - 1).feature);
+				newFeatureIndex = this.features.indexOf(filters.get(filters.size()-1).feature);
 
 		}
 	}
@@ -186,7 +186,7 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 	}
 
 	/**
-	 * Returns the feature selected in the "color by feature" comb-box.
+	 * Returns the feature selected in the "color by feature" comb-box. 
 	 */
 	public String getColorFeature() {
 		return jPanelColorByFeatureGUI.getColorFeature();
@@ -201,18 +201,17 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 	}
 
 	/**
-	 * Add an {@link ChangeListener} to this panel. The {@link ChangeListener}
-	 * will be notified when a change happens to the thresholds displayed by
-	 * this panel, whether due to the slider being move, the auto-threshold
-	 * button being pressed, or the combo-box selection being changed.
+	 * Add an {@link ChangeListener} to this panel. The {@link ChangeListener} will
+	 * be notified when a change happens to the thresholds displayed by this panel, whether
+	 * due to the slider being move, the auto-threshold button being pressed, or
+	 * the combo-box selection being changed.
 	 */
 	public void addChangeListener(ChangeListener listener) {
 		changeListeners.add(listener);
 	}
 
 	/**
-	 * Remove a ChangeListener from this panel.
-	 * 
+	 * Remove a ChangeListener from this panel. 
 	 * @return true if the listener was in listener collection of this instance.
 	 */
 	public boolean removeChangeListener(ChangeListener listener) {
@@ -223,16 +222,18 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 		return changeListeners;
 	}
 
-	/* PRIVATE METHODS */
+	/*
+	 * PRIVATE METHODS
+	 */
 
 	private void fireThresholdChanged(ChangeEvent e) {
-		for (ChangeListener cl : changeListeners) {
+		for (ChangeListener cl : changeListeners)  {
 			cl.stateChanged(e);
 		}
 	}
 
 	public void addFilterPanel() {
-		addFilterPanel(features.get(newFeatureIndex));
+		addFilterPanel(features.get(newFeatureIndex));		
 	}
 
 	public void addFilterPanel(FeatureFilter filter) {
@@ -242,10 +243,10 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 		int filterIndex = features.indexOf(filter.feature);
 		FilterPanel tp = new FilterPanel(features, featureNames, featureValues, filterIndex);
 		tp.setThreshold(filter.value);
-		tp.setAboveThreshold(filter.isAbove);
+		tp.setAboveThreshold(filter.isAbove);		
 		tp.addChangeListener(this);
 		newFeatureIndex++;
-		if (newFeatureIndex >= features.size())
+		if (newFeatureIndex >= features.size()) 
 			newFeatureIndex = 0;
 		Component strut = Box.createVerticalStrut(5);
 		struts.push(strut);
@@ -256,13 +257,14 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 		stateChanged(CHANGE_EVENT);
 	}
 
+
 	public void addFilterPanel(String feature) {
 		if (null == featureValues)
 			return;
 		FilterPanel tp = new FilterPanel(features, featureNames, featureValues, features.indexOf(feature));
 		tp.addChangeListener(this);
 		newFeatureIndex++;
-		if (newFeatureIndex >= features.size())
+		if (newFeatureIndex >= features.size()) 
 			newFeatureIndex = 0;
 		Component strut = Box.createVerticalStrut(5);
 		struts.push(strut);
@@ -282,8 +284,7 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 			jPanelAllThresholds.remove(tp);
 			jPanelAllThresholds.repaint();
 			stateChanged(CHANGE_EVENT);
-		} catch (EmptyStackException ese) {
-		}
+		} catch (EmptyStackException ese) {	}
 	}
 
 	private void refresh() {
@@ -302,29 +303,25 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 		String info = "";
 		int nobjects = 0;
 
-		for (double[] values : featureValues.values()) { // bulletproof against
-															// unspecified
-															// features, which
-															// are signaled by
-															// empty arrays
+		for (double[] values : featureValues.values()) { // bulletproof against unspecified features, which are signaled by empty arrays
 			if (values.length > 0) {
 				nobjects = values.length;
 				break;
 			}
 		}
 
-		if (nobjects == 0) {
+		if (nobjects == 0)	{
 			info = "No objects.";
-		} else if (featureFilters == null || featureFilters.isEmpty()) {
-			info = "Keep all " + nobjects + " " + categories + ".";
+		} else if (featureFilters == null || featureFilters.isEmpty() ) {
+			info = "Keep all "+nobjects+" "+categories+".";
 		} else {
 			int nselected = 0;
 			double val;
 			for (int i = 0; i < nobjects; i++) {
 				boolean ok = true;
 				for (FeatureFilter filter : featureFilters) {
-					double[] values = featureValues.get(filter.feature);
-					if (i >= values.length || values.length == 0) { // bulletproof
+					double[] values =  featureValues.get(filter.feature);
+					if (i >= values.length || values.length == 0) { // bulletproof 
 						continue;
 					}
 					val = values[i];
@@ -343,11 +340,12 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 				if (ok)
 					nselected++;
 			}
-			info = "Keep " + nselected + " " + categories + " out of  " + nobjects + ".";
+			info = "Keep "+nselected+" "+categories+" out of  "+nobjects+".";
 		}
 		jLabelInfo.setText(info);
 
 	}
+
 
 	private void initGUI() {
 		try {
@@ -442,5 +440,6 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 			e.printStackTrace();
 		}
 	}
+
 
 }

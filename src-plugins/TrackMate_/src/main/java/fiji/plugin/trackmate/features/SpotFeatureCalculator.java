@@ -19,11 +19,10 @@ import fiji.plugin.trackmate.features.spot.SpotAnalyzer;
 import fiji.plugin.trackmate.features.spot.SpotAnalyzerFactory;
 
 /**
- * A class dedicated to centralizing the calculation of the numerical features
- * of spots, through {@link SpotAnalyzer}s.
- * 
+ * A class dedicated to centralizing the calculation of the numerical features of spots,
+ * through {@link SpotAnalyzer}s.  
  * @author Jean-Yves Tinevez - 2013
- * 
+ *
  */
 public class SpotFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 
@@ -35,9 +34,11 @@ public class SpotFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 		this.settings = settings;
 		this.model = model;
 	}
-
-	/* METHODS */
-
+	
+	/*
+	 * METHODS
+	 */
+		
 	@Override
 	public boolean checkInput() {
 		if (null == model) {
@@ -50,19 +51,19 @@ public class SpotFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 		}
 		return true;
 	}
-
+	
 	/**
-	 * Calculates the spot features configured in the {@link Settings} for all
-	 * the spots of this model,
+	 * Calculates the spot features configured in the {@link Settings} 
+	 * for all the spots of this model,
 	 * <p>
 	 * Features are calculated for each spot, using their location, and the raw
-	 * image. Since a {@link SpotAnalyzer} can compute more than a feature at
-	 * once, spots might received more data than required.
+	 * image. Since a {@link SpotAnalyzer} can compute more than a feature
+	 * at once, spots might received more data than required.
 	 */
 	@Override
 	public boolean process() {
 		long start = System.currentTimeMillis();
-
+		
 		// Declare what you do.
 		for (SpotAnalyzerFactory<?> factory : settings.getSpotAnalyzerFactories()) {
 			Collection<String> features = factory.getFeatures();
@@ -71,19 +72,20 @@ public class SpotFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 			Map<String, Dimension> featureDimensions = factory.getFeatureDimensions();
 			model.getFeatureModel().declareSpotFeatures(features, featureNames, featureShortNames, featureDimensions);
 		}
-
+		
 		// Do it.
 		computeSpotFeaturesAgent(model.getSpots(), settings.getSpotAnalyzerFactories(), true);
-
+		
 		long end = System.currentTimeMillis();
 		processingTime = end - start;
 		return true;
 	}
 
 	/**
-	 * Calculates all the spot features configured in the {@link Settings}
-	 * object for the specified spot collection. Features are calculated for
-	 * each spot, using their location, and the raw image.
+	 * Calculates all the spot features configured in the {@link Settings} object 
+	 * for the specified spot collection. 
+	 * Features are calculated for each spot, using their location, and the raw
+	 * image. 
 	 */
 	public void computeSpotFeatures(final SpotCollection toCompute, boolean doLogIt) {
 		List<SpotAnalyzerFactory<?>> spotFeatureAnalyzers = settings.getSpotAnalyzerFactories();
@@ -91,9 +93,8 @@ public class SpotFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 	}
 
 	/**
-	 * The method in charge of computing spot features with the given
-	 * {@link SpotAnalyzer}s, for the given {@link SpotCollection}.
-	 * 
+	 * The method in charge of computing spot features with the given {@link SpotAnalyzer}s, for the
+	 * given {@link SpotCollection}.
 	 * @param toCompute
 	 * @param analyzers
 	 */
@@ -102,14 +103,15 @@ public class SpotFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 		final Logger logger;
 		if (doLogIt) {
 			logger = model.getLogger();
-		} else {
+		}
+		else {
 			logger = Logger.VOID_LOGGER;
 		}
 
 		// Can't compute any spot feature without an image to compute on.
 		if (settings.imp == null)
 			return;
-
+		
 		// Do it.
 		final List<Integer> frameSet = new ArrayList<Integer>(toCompute.keySet());
 		final int numFrames = frameSet.size();

@@ -20,9 +20,7 @@ import fiji.plugin.trackmate.features.edges.EdgeVelocityAnalyzer;
 public class EdgeVelocityAnalyzerTest {
 
 	private static final int N_TRACKS = 10;
-	private static final int DEPTH = 9; // must be at least 6 to avoid tracks
-										// too shorts - may make this test fail
-										// sometimes
+	private static final int DEPTH = 9; // must be at least 6 to avoid tracks too shorts - may make this test fail sometimes
 	private Model model;
 	private HashMap<DefaultWeightedEdge, Double> edgeD;
 	private HashMap<DefaultWeightedEdge, Double> edgeV;
@@ -35,9 +33,9 @@ public class EdgeVelocityAnalyzerTest {
 
 		model = new Model();
 		model.beginUpdate();
-
+		
 		final String[] posFeats = Spot.POSITION_FEATURES;
-
+		
 		try {
 
 			for (int i = 0; i < N_TRACKS; i++) {
@@ -45,23 +43,21 @@ public class EdgeVelocityAnalyzerTest {
 				Spot previous = null;
 
 				for (int j = 0; j <= DEPTH; j++) {
-					Spot spot = new Spot(new double[3]);
-					spot.putFeature(posFeats[i % 3], Double.valueOf(i + j)); // rotate
-																				// displacement
-																				// dimension
-					spot.putFeature(Spot.POSITION_T, Double.valueOf(2 * j));
+					Spot spot = new Spot(new double[3]); 
+					spot.putFeature(posFeats[i%3], Double.valueOf(i+j)); // rotate displacement dimension
+					spot.putFeature(Spot.POSITION_T, Double.valueOf(2*j));
 					model.addSpotTo(spot, j);
 					if (null != previous) {
 						DefaultWeightedEdge edge = model.addEdge(previous, spot, j);
-						double d = spot.getFeature(posFeats[i % 3]).doubleValue() - previous.getFeature(posFeats[i % 3]).doubleValue();
+						double d = spot.getFeature(posFeats[i%3]).doubleValue() - previous.getFeature(posFeats[i%3]).doubleValue();
 						edgeD.put(edge, d);
-						edgeV.put(edge, d / 2);
+						edgeV.put(edge, d/2);
 
 					}
 					previous = spot;
-
+					
 					// save one middle spot
-					if (i == 0 && j == DEPTH / 2) {
+					if (i == 0 && j == DEPTH/2) {
 						aspot = spot;
 					}
 				}
@@ -79,7 +75,7 @@ public class EdgeVelocityAnalyzerTest {
 		analyzer.process(model.getTrackModel().edgeSet());
 
 		// Collect features
-		for (DefaultWeightedEdge edge : model.getTrackModel().edgeSet()) {
+		for (DefaultWeightedEdge edge :model.getTrackModel().edgeSet()) {
 			assertEquals(edgeV.get(edge).doubleValue(), model.getFeatureModel().getEdgeFeature(edge, EdgeVelocityAnalyzer.VELOCITY).doubleValue(), Double.MIN_VALUE);
 			assertEquals(edgeD.get(edge).doubleValue(), model.getFeatureModel().getEdgeFeature(edge, EdgeVelocityAnalyzer.DISPLACEMENT).doubleValue(), Double.MIN_VALUE);
 		}
@@ -103,7 +99,7 @@ public class EdgeVelocityAnalyzerTest {
 				}
 				if (analyzer.isLocal()) {
 
-					analyzer.process(edgesToUpdate);
+					analyzer.process(edgesToUpdate );
 
 				} else {
 
@@ -126,7 +122,7 @@ public class EdgeVelocityAnalyzerTest {
 		} finally {
 			model.endUpdate();
 		}
-
+		
 		// We must have received 2 edges to analyzer
 		assertTrue(analyzer.hasBeenRun);
 		assertEquals(2, analyzer.edges.size());
@@ -148,5 +144,5 @@ public class EdgeVelocityAnalyzerTest {
 			super.process(edges);
 		}
 
-	}
+	}	
 }

@@ -26,6 +26,7 @@ public class NearestNeighborTrackerSettingsPanel extends ConfigurationPanel {
 	private final String trackerName;
 	private final String spaceUnits;
 
+
 	public NearestNeighborTrackerSettingsPanel(String trackerName, String infoText, String spaceUnits) {
 		this.trackerName = trackerName;
 		this.infoText = infoText;
@@ -42,8 +43,9 @@ public class NearestNeighborTrackerSettingsPanel extends ConfigurationPanel {
 
 	@Override
 	public void setSettings(final Map<String, Object> settings) {
-		maxDistField.setText("" + settings.get(KEY_LINKING_MAX_DISTANCE));
+		maxDistField.setText(""+settings.get(KEY_LINKING_MAX_DISTANCE));
 	}
+
 
 	private void initGUI() {
 
@@ -54,6 +56,7 @@ public class NearestNeighborTrackerSettingsPanel extends ConfigurationPanel {
 		lblSettingsForTracker.setFont(FONT);
 		add(lblSettingsForTracker);
 
+
 		labelTracker = new JLabel(trackerName);
 		labelTracker.setFont(BIG_FONT);
 		labelTracker.setHorizontalAlignment(SwingConstants.CENTER);
@@ -63,7 +66,10 @@ public class NearestNeighborTrackerSettingsPanel extends ConfigurationPanel {
 		labelTrackerDescription = new JLabel("<tracker description>");
 		labelTrackerDescription.setFont(FONT.deriveFont(Font.ITALIC));
 		labelTrackerDescription.setBounds(10, 67, 280, 225);
-		labelTrackerDescription.setText(infoText.replace("<br>", "").replace("<p>", "<p align=\"justify\">").replace("<html>", "<html><p align=\"justify\">"));
+		labelTrackerDescription.setText(infoText
+				.replace("<br>", "")
+				.replace("<p>", "<p align=\"justify\">")
+				.replace("<html>", "<html><p align=\"justify\">"));
 		add(labelTrackerDescription);
 
 		JLabel lblMaximalLinkingDistance = new JLabel("Maximal linking distance: ");

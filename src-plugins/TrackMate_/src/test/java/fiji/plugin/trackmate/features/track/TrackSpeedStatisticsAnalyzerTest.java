@@ -32,18 +32,18 @@ public class TrackSpeedStatisticsAnalyzerTest {
 		model.beginUpdate();
 		try {
 
-			expectedVmean = new HashMap<Integer, Double>(N_TRACKS);
-			expectedVmax = new HashMap<Integer, Double>(N_TRACKS);
+			expectedVmean 		= new HashMap<Integer, Double>(N_TRACKS); 
+			expectedVmax 		= new HashMap<Integer, Double>(N_TRACKS); 
 
 			// Linear movement
-			for (int i = 1; i < N_TRACKS + 1; i++) {
+			for (int i = 1; i < N_TRACKS+1; i++) {
 
 				Spot previous = null;
 
 				HashSet<Spot> track = new HashSet<Spot>();
 				for (int j = 0; j <= DEPTH; j++) {
 					// We use deterministic locations
-					double[] location = new double[] { j * i, i, i };
+					double[] location = new double[] { j * i, i, i }; 
 					Spot spot = new Spot(location);
 					spot.putFeature(Spot.POSITION_T, Double.valueOf(j));
 					model.addSpotTo(spot, j);
@@ -55,7 +55,7 @@ public class TrackSpeedStatisticsAnalyzerTest {
 				}
 
 				int key = model.getTrackModel().trackIDOf(previous);
-				double speed = i;
+				double speed = i; 
 				expectedVmean.put(key, Double.valueOf(speed));
 				expectedVmax.put(key, Double.valueOf(speed));
 			}
@@ -92,7 +92,7 @@ public class TrackSpeedStatisticsAnalyzerTest {
 			HashSet<Spot> track = new HashSet<Spot>();
 			for (int j = 0; j <= DEPTH; j++) {
 				// We use deterministic locations
-				double[] location = new double[] { j * j, 0, 0 };
+				double[] location = new double[] { j * j, 0, 0 }; 
 				Spot spot = new Spot(location);
 				spot.putFeature(Spot.POSITION_T, Double.valueOf(j));
 				model2.addSpotTo(spot, j);
@@ -106,7 +106,7 @@ public class TrackSpeedStatisticsAnalyzerTest {
 		} finally {
 			model2.endUpdate();
 		}
-
+		
 		// Expected values
 		double meanV = 9;
 		double stdV = 5.477225575051661;
@@ -168,8 +168,7 @@ public class TrackSpeedStatisticsAnalyzerTest {
 		// The analyzer must have done something:
 		assertTrue(analyzer.hasBeenCalled);
 
-		// Check the track IDs the analyzer received - none of the old keys must
-		// be in it
+		// Check the track IDs the analyzer received - none of the old keys must be in it
 		for (Integer calledKey : analyzer.keys) {
 			if (oldKeys.contains(calledKey)) {
 				fail("Track with ID " + calledKey + " should not have been re-analyzed.");
@@ -199,11 +198,10 @@ public class TrackSpeedStatisticsAnalyzerTest {
 		};
 		model.addModelChangeListener(listener);
 
-		// New change: remove the first spot on the first track - the new track
-		// emerging should be re-analyzed
+		// New change: remove the first spot on the first track - the new track emerging should be re-analyzed
 		Integer firstKey = oldKeys.iterator().next();
 		TreeSet<Spot> sortedTrack = new TreeSet<Spot>(Spot.frameComparator);
-		sortedTrack.addAll(model.getTrackModel().trackSpots(firstKey));
+		sortedTrack.addAll( model.getTrackModel().trackSpots(firstKey));
 		Iterator<Spot> it = sortedTrack.iterator();
 		Spot firstSpot = it.next();
 		Spot secondSpot = it.next();
@@ -218,8 +216,7 @@ public class TrackSpeedStatisticsAnalyzerTest {
 		// The analyzer must have done something:
 		assertTrue(analyzer.hasBeenCalled);
 
-		// Check the track IDs: must be of size 1 since we removed the first
-		// spot of a track
+		// Check the track IDs: must be of size 1 since we removed the first spot of a track
 		assertEquals(1, analyzer.keys.size());
 		Integer newKey = analyzer.keys.iterator().next();
 		assertEquals(model.getTrackModel().trackIDOf(secondSpot).longValue(), newKey.longValue());
@@ -251,11 +248,10 @@ public class TrackSpeedStatisticsAnalyzerTest {
 		};
 		model.addModelChangeListener(listener);
 
-		// New change: we displace the last spot of first track, making the edge
-		// faster
+		// New change: we displace the last spot of first track, making the edge faster
 		Integer firstKey = oldKeys.iterator().next();
 		TreeSet<Spot> sortedTrack = new TreeSet<Spot>(Spot.frameComparator);
-		sortedTrack.addAll(model.getTrackModel().trackSpots(firstKey));
+		sortedTrack.addAll( model.getTrackModel().trackSpots(firstKey));
 		Iterator<Spot> it = sortedTrack.descendingIterator();
 		Spot lastSpot = it.next();
 		Spot penultimateSpot = it.next();
@@ -271,8 +267,7 @@ public class TrackSpeedStatisticsAnalyzerTest {
 		// The analyzer must have done something:
 		assertTrue(analyzer.hasBeenCalled);
 
-		// Check the track IDs: must be of size 1 since we removed the first
-		// spot of a track
+		// Check the track IDs: must be of size 1 since we removed the first spot of a track
 		assertEquals(1, analyzer.keys.size());
 		Integer newKey = analyzer.keys.iterator().next();
 		assertEquals(model.getTrackModel().trackIDOf(lastSpot).longValue(), newKey.longValue());
@@ -280,12 +275,12 @@ public class TrackSpeedStatisticsAnalyzerTest {
 		// Track must be faster now
 		assertTrue(expectedVmean.get(firstKey).doubleValue() < model.getFeatureModel().getTrackFeature(newKey, TrackSpeedStatisticsAnalyzer.TRACK_MEAN_SPEED).doubleValue());
 		// max speed is the one on this edge
-		double maxSpeed = lastSpot.getFeature(Spot.POSITION_X).doubleValue() - penultimateSpot.getFeature(Spot.POSITION_X).doubleValue();
+		double maxSpeed = lastSpot.getFeature(Spot.POSITION_X).doubleValue() - penultimateSpot.getFeature(Spot.POSITION_X).doubleValue(); 
 		assertEquals(maxSpeed, model.getFeatureModel().getTrackFeature(newKey, TrackSpeedStatisticsAnalyzer.TRACK_MAX_SPEED).doubleValue(), Double.MIN_VALUE);
 	}
 
 	/**
-	 * Subclass of {@link TrackIndexAnalyzer} to monitor method calls.
+	 *  Subclass of {@link TrackIndexAnalyzer} to monitor method calls.
 	 */
 	private static final class TestTrackSpeedStatisticsAnalyzer extends TrackSpeedStatisticsAnalyzer {
 
@@ -303,5 +298,6 @@ public class TrackSpeedStatisticsAnalyzerTest {
 			super.process(trackIDs);
 		}
 	}
+
 
 }

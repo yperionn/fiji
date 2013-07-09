@@ -17,7 +17,7 @@ import fiji.plugin.trackmate.gui.TrackMateWizard;
 import fiji.plugin.trackmate.util.TMUtils;
 
 public class DetectionDescriptor implements WizardPanelDescriptor {
-
+	
 	private static final String KEY = "Detection";
 	protected static final String CANCEL_TEXT = "Cancel";
 	protected static final Icon CANCEL_ICON = new ImageIcon(TrackMateWizard.class.getResource("images/cancel.png"));
@@ -26,33 +26,33 @@ public class DetectionDescriptor implements WizardPanelDescriptor {
 	protected Thread motherThread;
 	protected TrackMateGUIController controller;
 
+
 	public DetectionDescriptor(TrackMateGUIController controller) {
 		this.controller = controller;
 		this.logPanel = controller.getGUI().getLogPanel();
 		this.trackmate = controller.getPlugin();
 	}
-
+	
 	@Override
 	public Component getComponent() {
 		return logPanel;
 	}
 
 	@Override
-	public void aboutToDisplayPanel() {
-	}
+	public void aboutToDisplayPanel() {	}
 
 	@Override
 	public void displayingPanel() {
 		controller.disableButtonsAndStoreState();
 		final Settings settings = trackmate.getSettings();
 		final Logger logger = logPanel.getLogger();
-		logger.log("Starting detection using " + settings.detectorFactory.toString() + "\n", Logger.BLUE_COLOR);
+		logger.log("Starting detection using "+settings.detectorFactory.toString()+"\n", Logger.BLUE_COLOR);
 		logger.log("with settings:\n");
 		logger.log(TMUtils.echoMap(settings.detectorSettings, 2));
-
+		
 		motherThread = new Thread("TrackMate detection mother thread") {
 			public void run() {
-
+				
 				// We have to tweak the GUI a bit from here
 				JButton nextButton = controller.getGUI().getNextButton();
 				ActionListener[] actionListeners = nextButton.getActionListeners();
@@ -64,19 +64,19 @@ public class DetectionDescriptor implements WizardPanelDescriptor {
 				CancelListener cancel = new CancelListener();
 				nextButton.addActionListener(cancel);
 				nextButton.setEnabled(true);
-
+				
 				long start = System.currentTimeMillis();
 				try {
 					trackmate.execDetection();
 				} catch (Exception e) {
-					logger.error("An error occured:\n" + e + '\n');
+					logger.error("An error occured:\n"+e+'\n');
 					e.printStackTrace(logger);
 				} finally {
 					long end = System.currentTimeMillis();
-					logger.log(String.format("Detection done in %.1f s.\n", (end - start) / 1e3f), Logger.BLUE_COLOR);
+					logger.log(String.format("Detection done in %.1f s.\n", (end-start)/1e3f), Logger.BLUE_COLOR);
 				}
 				motherThread = null;
-
+				
 				// Restore
 				controller.restoreButtonsState();
 				nextButton.removeActionListener(cancel);
@@ -102,14 +102,16 @@ public class DetectionDescriptor implements WizardPanelDescriptor {
 			}
 		}
 	}
-
+	
 	@Override
 	public String getKey() {
 		return KEY;
 	}
-
-	/* INNER CLASS */
-
+	
+	/*
+	 * INNER CLASS
+	 */
+	
 	private class CancelListener implements ActionListener {
 
 		@Override

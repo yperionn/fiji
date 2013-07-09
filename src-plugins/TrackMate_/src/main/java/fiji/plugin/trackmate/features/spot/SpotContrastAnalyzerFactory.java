@@ -16,13 +16,15 @@ import fiji.plugin.trackmate.Model;
 
 public class SpotContrastAnalyzerFactory<T extends RealType<T> & NativeType<T>> implements SpotAnalyzerFactory<T> {
 
-	/* FIELDS */
-
+	/*
+	 * FIELDS
+	 */
+	
 	/** The single feature key name that this analyzer computes. */
-	public static final String KEY = "CONTRAST";
-	private static final ArrayList<String> FEATURES = new ArrayList<String>(1);
-	private static final HashMap<String, String> FEATURE_NAMES = new HashMap<String, String>(1);
-	private static final HashMap<String, String> FEATURE_SHORT_NAMES = new HashMap<String, String>(1);
+	public static final String						KEY = "CONTRAST";
+	private static final ArrayList<String> 			FEATURES = new ArrayList<String>(1);
+	private static final HashMap<String, String> 	FEATURE_NAMES = new HashMap<String, String>(1);
+	private static final HashMap<String, String> 	FEATURE_SHORT_NAMES = new HashMap<String, String>(1);
 	private static final HashMap<String, Dimension> FEATURE_DIMENSIONS = new HashMap<String, Dimension>(1);
 	static {
 		FEATURES.add(KEY);
@@ -30,19 +32,23 @@ public class SpotContrastAnalyzerFactory<T extends RealType<T> & NativeType<T>> 
 		FEATURE_SHORT_NAMES.put(KEY, "Contrast");
 		FEATURE_DIMENSIONS.put(KEY, Dimension.NONE);
 	}
-
+	
 	private final Model model;
 	private final ImgPlus<T> img;
-
-	/* CONSTRUCTOR */
-
+	
+	/*
+	 * CONSTRUCTOR
+	 */
+	
 	public SpotContrastAnalyzerFactory(final Model model, ImgPlus<T> img) {
 		this.model = model;
 		this.img = img;
 	}
-
-	/* METHODS */
-
+	
+	/*
+	 * METHODS
+	 */
+	
 	@Override
 	public final SpotContrastAnalyzer<T> getAnalyzer(final int frame, final int channel) {
 		final ImgPlus<T> imgC = HyperSliceImgPlus.fixChannelAxis(img, channel);

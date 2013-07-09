@@ -18,10 +18,10 @@ import fiji.plugin.trackmate.Model;
 public class TrackDurationAnalyzer implements TrackAnalyzer, MultiThreaded {
 
 	public static final String KEY = "Track duration";
-	public static final String TRACK_DURATION = "TRACK_DURATION";
-	public static final String TRACK_START = "TRACK_START";
-	public static final String TRACK_STOP = "TRACK_STOP";
-	public static final String TRACK_DISPLACEMENT = "TRACK_DISPLACEMENT";
+	public static final String 		TRACK_DURATION = "TRACK_DURATION";
+	public static final String 		TRACK_START = "TRACK_START";
+	public static final String 		TRACK_STOP = "TRACK_STOP";
+	public static final String 		TRACK_DISPLACEMENT = "TRACK_DISPLACEMENT";
 
 	public static final List<String> FEATURES = new ArrayList<String>(4);
 	public static final Map<String, String> FEATURE_NAMES = new HashMap<String, String>(4);
@@ -58,7 +58,7 @@ public class TrackDurationAnalyzer implements TrackAnalyzer, MultiThreaded {
 		this.model = model;
 		setNumThreads();
 	}
-
+	
 	@Override
 	public boolean isLocal() {
 		return true;
@@ -66,7 +66,7 @@ public class TrackDurationAnalyzer implements TrackAnalyzer, MultiThreaded {
 
 	@Override
 	public void process(final Collection<Integer> trackIDs) {
-
+		
 		if (trackIDs.isEmpty()) {
 			return;
 		}
@@ -101,7 +101,7 @@ public class TrackDurationAnalyzer implements TrackAnalyzer, MultiThreaded {
 							}
 						}
 
-						fm.putTrackFeature(trackID, TRACK_DURATION, (maxT - minT));
+						fm.putTrackFeature(trackID, TRACK_DURATION, (maxT-minT));
 						fm.putTrackFeature(trackID, TRACK_START, minT);
 						fm.putTrackFeature(trackID, TRACK_STOP, maxT);
 						fm.putTrackFeature(trackID, TRACK_DISPLACEMENT, (double) Math.sqrt(startSpot.squareDistanceTo(endSpot)));
@@ -124,7 +124,7 @@ public class TrackDurationAnalyzer implements TrackAnalyzer, MultiThreaded {
 
 	@Override
 	public void setNumThreads() {
-		this.numThreads = Runtime.getRuntime().availableProcessors();
+		this.numThreads = Runtime.getRuntime().availableProcessors();  
 	}
 
 	@Override
@@ -137,7 +137,7 @@ public class TrackDurationAnalyzer implements TrackAnalyzer, MultiThreaded {
 	public long getProcessingTime() {
 		return processingTime;
 	}
-
+	
 	@Override
 	public List<String> getFeatures() {
 		return FEATURES;

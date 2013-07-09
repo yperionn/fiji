@@ -11,15 +11,16 @@ import fiji.plugin.trackmate.SelectionModel;
 import fiji.plugin.trackmate.Spot;
 
 /**
- * An abstract class for spot displayers, that can overlay detected spots and
- * tracks on top of the image data.
+ * An abstract class for spot displayers, that can overlay detected spots and tracks on top
+ * of the image data.
  * <p>
- * 
  * @author Jean-Yves Tinevez <jeanyves.tinevez@gmail.com> Jan 2011
  */
 public abstract class AbstractTrackMateModelView implements SelectionChangeListener, TrackMateModelView, ModelChangeListener {
 
-	/* FIELDS */
+	/*
+	 * FIELDS
+	 */
 
 	/**
 	 * A map of String/Object that configures the look and feel of the display.
@@ -29,9 +30,12 @@ public abstract class AbstractTrackMateModelView implements SelectionChangeListe
 	/** The model displayed by this class. */
 	protected Model model;
 
-	protected final SelectionModel selectionModel;
+	protected final  SelectionModel selectionModel;
+	
 
-	/* PROTECTED CONSTRUCTOR */
+	/*
+	 * PROTECTED CONSTRUCTOR
+	 */
 
 	protected AbstractTrackMateModelView(Model model, SelectionModel selectionModel) {
 		this.selectionModel = selectionModel;
@@ -40,27 +44,29 @@ public abstract class AbstractTrackMateModelView implements SelectionChangeListe
 		model.addModelChangeListener(this);
 		selectionModel.addSelectionChangeListener(this);
 	}
+	
+	/*
+	 * PUBLIC METHODS
+	 */
 
-	/* PUBLIC METHODS */
-
+	
 	@Override
 	public void setDisplaySettings(final String key, final Object value) {
 		displaySettings.put(key, value);
 	}
-
-	@Override
+	
+	@Override 
 	public Object getDisplaySettings(final String key) {
 		return displaySettings.get(key);
 	}
 
-	@Override
+	@Override 
 	public Map<String, Object> getDisplaySettings() {
 		return displaySettings;
 	}
 
 	/**
-	 * This needs to be overriden for concrete implementation to display
-	 * selection.
+	 * This needs to be overriden for concrete implementation to display selection.
 	 */
 	@Override
 	public void selectionChanged(SelectionChangeEvent event) {
@@ -74,18 +80,16 @@ public abstract class AbstractTrackMateModelView implements SelectionChangeListe
 			}
 		}
 	}
-
+	
 	@Override
 	public Model getModel() {
 		return model;
 	}
-
+	
 	/**
 	 * Provides default display settings.
-	 * 
-	 * @param model
-	 *        the model this view operate on. Needed for some display settings.
-	 * @return
+	 * @param model  the model this view operate on. Needed for some display settings.
+	 * @return 
 	 */
 	protected Map<String, Object> initDisplaySettings(Model model) {
 		Map<String, Object> displaySettings = new HashMap<String, Object>(11);
@@ -102,5 +106,5 @@ public abstract class AbstractTrackMateModelView implements SelectionChangeListe
 		displaySettings.put(KEY_COLORMAP, DEFAULT_COLOR_MAP);
 		return displaySettings;
 	}
-
+	
 }

@@ -20,29 +20,30 @@ import com.mxgraph.view.mxCellState;
 /**
  * A text shape that draws edge label along the edge line and parallel to it.
  * Works only if the chosen edge style is {@link mxConnectorShape}.
- * 
  * @author Jean-Yves Tinevez <jeanyves.tinevez@gmail.com> Jun 30, 2011
- * 
+ *
  */
 public class mxSideTextShape extends mxDefaultTextShape {
 
-	public static final String SHAPE_NAME = "sideLabel";
+	public static final String SHAPE_NAME = "sideLabel"; 
 	public static final String STYLE_DISPLAY_COST = "displayCost";
-
-	public mxSideTextShape() {
-	}
+	
+	
+	public mxSideTextShape() {}
+	
 
 	@Override
 	public void paintShape(mxGraphics2DCanvas canvas, String text, mxCellState state, Map<String, Object> style) {
-
+		
 		mxCell cell = (mxCell) state.getCell();
-		boolean isEdgeLabel = cell.isEdge();
+		boolean isEdgeLabel = cell.isEdge(); 
 
 		Rectangle rect = state.getLabelBounds().getRectangle();
 		Graphics2D g = canvas.getGraphics();
 
 		if (g.getClipBounds() == null || g.getClipBounds().intersects(rect)) {
-			boolean horizontal = mxUtils.isTrue(style, mxConstants.STYLE_HORIZONTAL, true);
+			boolean horizontal = mxUtils.isTrue(style,
+					mxConstants.STYLE_HORIZONTAL, true);
 			double scale = canvas.getScale();
 			int x = rect.x;
 			int y = rect.y;
@@ -50,10 +51,10 @@ public class mxSideTextShape extends mxDefaultTextShape {
 			int h = rect.height;
 
 			if (isEdgeLabel) {
-
+				
 				if (!mxUtils.isTrue(style, STYLE_DISPLAY_COST, false))
 					return;
-
+				
 				List<mxPoint> points = state.getAbsolutePoints();
 				double px1 = points.get(0).getX();
 				double py1 = points.get(0).getY();
@@ -61,9 +62,9 @@ public class mxSideTextShape extends mxDefaultTextShape {
 				double py2 = points.get(1).getY();
 				double dx = px2 - px1;
 				double dy = py2 - py1;
-				double theta = dx > 0 ? Math.atan2(dy, dx) : Math.atan2(dy, dx) + Math.PI;
-				g.rotate(theta, x + w / 2, y + h / 2);
-			} else if (!horizontal) {
+				double theta = dx > 0 ? Math.atan2(dy, dx) : Math.atan2(dy, dx) + Math.PI; 
+				g.rotate(theta, x + w/2 , y + h/2); 
+			} else if (!horizontal)	{
 				g.rotate(-Math.PI / 2, x + w / 2, y + h / 2);
 				g.translate(w / 2 - h / 2, h / 2 - w / 2);
 			}
@@ -86,12 +87,12 @@ public class mxSideTextShape extends mxDefaultTextShape {
 			double fontScaleRatio = fontScaleFactor / scale;
 			// The y position has to be moved by (1 - ratio) * height / 2
 			if (!isEdgeLabel)
-				y += 2 * fm.getMaxAscent() - fm.getHeight() + mxConstants.LABEL_INSET * scale;
+				y += 2 * fm.getMaxAscent() - fm.getHeight()	+ mxConstants.LABEL_INSET * scale;
 
-			Object vertAlign = mxUtils.getString(style, mxConstants.STYLE_VERTICAL_ALIGN, mxConstants.ALIGN_MIDDLE);
+			Object vertAlign = mxUtils.getString(style,	mxConstants.STYLE_VERTICAL_ALIGN, mxConstants.ALIGN_MIDDLE);
 			double vertAlignProportion = 0.5;
 
-			if (vertAlign.equals(mxConstants.ALIGN_TOP)) {
+			if (vertAlign.equals(mxConstants.ALIGN_TOP))	{
 				vertAlignProportion = 0;
 			} else if (vertAlign.equals(mxConstants.ALIGN_BOTTOM)) {
 				vertAlignProportion = 1.0;
@@ -114,10 +115,10 @@ public class mxSideTextShape extends mxDefaultTextShape {
 			for (int i = 0; i < lines.length; i++) {
 				int dx = 0;
 
-				if (align.equals(mxConstants.ALIGN_CENTER)) {
+				if (align.equals(mxConstants.ALIGN_CENTER))	{
 					int sw = fm.stringWidth(lines[i]);
 
-					if (horizontal) {
+					if (horizontal)	{
 						dx = (w - sw) / 2;
 					} else {
 						dx = (h - sw) / 2;

@@ -13,16 +13,26 @@ public class BasicDetectorConfigurationPanel extends LogDetectorConfigurationPan
 
 	private static final long serialVersionUID = -1L;
 
-	public BasicDetectorConfigurationPanel(ImagePlus imp, String infoText, String detectorName, Model model) {
+	public BasicDetectorConfigurationPanel(ImagePlus imp, String infoText, String detectorName, Model model)  {
 		super(imp, infoText, detectorName, model);
-		final JComponent[] uselessComponents = new JComponent[] { super.sliderChannel, super.labelChannel, super.lblSegmentInChannel, super.jCheckBoxMedianFilter, super.jCheckSubPixel, super.jLabelThreshold, super.jTextFieldThreshold, super.jButtonRefresh, super.btnPreview };
-		for (JComponent c : uselessComponents)
+		final JComponent[] uselessComponents = new JComponent[] {
+				super.sliderChannel,
+				super.labelChannel,
+				super.lblSegmentInChannel,
+				super.jCheckBoxMedianFilter,
+				super.jCheckSubPixel, 
+				super.jLabelThreshold,
+				super.jTextFieldThreshold,
+				super.jButtonRefresh,
+				super.btnPreview };
+		for(JComponent c : uselessComponents)
 			c.setVisible(false);
 	}
 
+	
 	@Override
 	public void setSettings(final Map<String, Object> settings) {
-		jTextFieldBlobDiameter.setText("" + ((Double) settings.get(KEY_RADIUS) * 2));
+		jTextFieldBlobDiameter.setText("" + ( (Double) settings.get(KEY_RADIUS)* 2) );
 	}
 
 	@Override

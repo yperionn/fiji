@@ -37,36 +37,31 @@ public class TrackDisplayNode extends ContentNode implements TimelapseListener {
 	private final Model model;
 
 	/** Hold the color and transparency of all spots for a given track. */
-	private HashMap<Integer, Color> colors = new HashMap<Integer, Color>();
+	private HashMap<Integer,Color> colors = new HashMap<Integer, Color>();
 
 	private int displayDepth = TrackMateModelView.DEFAULT_TRACK_DISPLAY_DEPTH;
 	private int displayMode = TrackMateModelView.DEFAULT_TRACK_DISPLAY_MODE;
 
 	private int currentTimePoint = 0;
 
-	/**
-	 * Reference for each frame, then for each track, the line primitive indices
-	 * of edges present in that track and in that frame.
-	 * <p>
+	/** 
+	 * Reference for each frame, then for each track, the line primitive indices of edges 
+	 * present in that track and in that frame. <p>
 	 * For instance
-	 * 
 	 * <pre>
-	 * frameIndices.get(2).get(3)= { 5, 10 }
+	 *  frameIndices.get(2).get(3) = { 5, 10 }
 	 * </pre>
-	 * 
-	 * indicates that in the frame number 2, the track number 3 has 2 edges,
-	 * that are represented in the {@link LineArray} primitive by points with
-	 * indices 5 and 10.
+	 * indicates that in the frame number 2, the track number 3 has 2 edges, that 
+	 * are represented in the {@link LineArray} primitive by points with indices 5 and 10.
 	 */
-	private HashMap<Integer, HashMap<Integer, ArrayList<Integer>>> frameIndices;
-	/**
-	 * Dictionary referencing the line vertices corresponding to each edge, for
-	 * each track.
+	private HashMap<Integer, HashMap<Integer, ArrayList<Integer> > > frameIndices;
+	/** 
+	 * Dictionary referencing the line vertices corresponding to each edge, for each track. 
 	 */
 	private Map<Integer, HashMap<DefaultWeightedEdge, Integer>> edgeIndices;
 
-	/**
-	 * Primitives: one {@link LineArray} per track.
+	/** 
+	 * Primitives: one {@link LineArray} per track. 
 	 */
 	private Map<Integer, LineArray> lines;
 	/**
@@ -78,11 +73,14 @@ public class TrackDisplayNode extends ContentNode implements TimelapseListener {
 	 */
 	private BitSet switchMask;
 	/**
-	 * Maps track IDs to their index in the switch mask.
+	 * Maps track IDs to their index in the switch mask. 
 	 */
 	private HashMap<Integer, Integer> switchMaskIndex;
 
-	/* CONSTRUCTOR */
+
+	/*
+	 * CONSTRUCTOR
+	 */
 
 	public TrackDisplayNode(Model model) {
 		this.model = model;
@@ -97,11 +95,13 @@ public class TrackDisplayNode extends ContentNode implements TimelapseListener {
 		setTrackVisible(model.getTrackModel().trackIDs(true));
 	}
 
-	/* PUBLIC METHODS */
+	/*
+	 * PUBLIC METHODS
+	 */
 
 	/**
-	 * Set the visibility of the tracks which indices are given to true, and of
-	 * all other tracks to false.
+	 * Set the visibility of the tracks which indices are given to true, and of 
+	 * all other tracks to false. 
 	 */
 	public void setTrackVisible(Collection<Integer> trackIDs) {
 		switchMask.set(0, model.getTrackModel().nTracks(false), false);
@@ -118,7 +118,7 @@ public class TrackDisplayNode extends ContentNode implements TimelapseListener {
 			Color4f color = new Color4f();
 			for (Integer trackID : lines.keySet()) {
 				LineArray line = lines.get(trackID);
-
+					
 				for (int i = 0; i < line.getVertexCount(); i++) {
 					line.getColor(i, color);
 					color.w = 1f;
@@ -133,7 +133,7 @@ public class TrackDisplayNode extends ContentNode implements TimelapseListener {
 	}
 
 	void refresh() {
-		// Holder for passing values
+		// Holder for passing values 
 		Color4f color = new Color4f();
 		switch (displayMode) {
 
@@ -145,10 +145,10 @@ public class TrackDisplayNode extends ContentNode implements TimelapseListener {
 			float tp;
 			int frameDist;
 			for (int frame : frameIndices.keySet()) {
-				frameDist = Math.abs(frame - currentTimePoint);
+				frameDist = Math.abs(frame - currentTimePoint); 
 				if (frameDist > displayDepth)
 					tp = 0f;
-				else
+				else 
 					tp = 1f - (float) frameDist / displayDepth;
 
 				for (Integer trackID : lines.keySet()) {
@@ -157,21 +157,21 @@ public class TrackDisplayNode extends ContentNode implements TimelapseListener {
 						line.getColor(index, color);
 						color.w = tp;
 						line.setColor(index, color);
-						line.setColor(index + 1, color);
+						line.setColor(index+1, color);
 					}
 				}
 			}
 			break;
 		}
-
+		
 		case TrackMateModelView.TRACK_DISPLAY_MODE_LOCAL_QUICK: {
 			float tp;
 			int frameDist;
 			for (int frame : frameIndices.keySet()) {
-				frameDist = Math.abs(frame - currentTimePoint);
+				frameDist = Math.abs(frame - currentTimePoint); 
 				if (frameDist > displayDepth)
 					tp = 0f;
-				else
+				else 
 					tp = 1f;
 
 				for (Integer trackID : lines.keySet()) {
@@ -180,21 +180,21 @@ public class TrackDisplayNode extends ContentNode implements TimelapseListener {
 						line.getColor(index, color);
 						color.w = tp;
 						line.setColor(index, color);
-						line.setColor(index + 1, color);
+						line.setColor(index+1, color);
 					}
 				}
 			}
 			break;
 		}
-
+		
 		case TrackMateModelView.TRACK_DISPLAY_MODE_LOCAL_BACKWARD: {
 			float tp;
 			int frameDist;
 			for (int frame : frameIndices.keySet()) {
-				frameDist = currentTimePoint - frame;
+				frameDist = currentTimePoint - frame; 
 				if (frameDist <= 0 || frameDist > displayDepth)
 					tp = 0f;
-				else
+				else 
 					tp = 1f - (float) frameDist / displayDepth;
 
 				for (Integer trackID : lines.keySet()) {
@@ -203,85 +203,85 @@ public class TrackDisplayNode extends ContentNode implements TimelapseListener {
 						line.getColor(index, color);
 						color.w = tp;
 						line.setColor(index, color);
-						line.setColor(index + 1, color);
+						line.setColor(index+1, color);
 					}
 				}
 			}
 			break;
 		}
-
+		
 		case TrackMateModelView.TRACK_DISPLAY_MODE_LOCAL_BACKWARD_QUICK: {
 			float tp;
 			int frameDist;
 			for (int frame : frameIndices.keySet()) {
-				frameDist = currentTimePoint - frame;
+				frameDist = currentTimePoint - frame; 
 				if (frameDist <= 0 || frameDist > displayDepth)
 					tp = 0f;
-				else
+				else 
 					tp = 1f;
 
 				for (Integer trackID : lines.keySet()) {
 					final LineArray line = lines.get(trackID);
 					if (null == line) {
 						continue;
-					}
+					}	
 					for (Integer index : frameIndices.get(frame).get(trackID)) {
 						line.getColor(index, color);
 						color.w = tp;
 						line.setColor(index, color);
-						line.setColor(index + 1, color);
+						line.setColor(index+1, color);
 					}
 				}
 			}
 			break;
 		}
-
+		
 		case TrackMateModelView.TRACK_DISPLAY_MODE_LOCAL_FORWARD: {
 			float tp;
 			int frameDist;
 			for (int frame : frameIndices.keySet()) {
-				frameDist = frame - currentTimePoint;
+				frameDist = frame - currentTimePoint; 
 				if (frameDist < 0 || frameDist > displayDepth)
 					tp = 0f;
-				else
+				else 
 					tp = 1f - (float) frameDist / displayDepth;
 
 				for (Integer trackID : lines.keySet()) {
 					final LineArray line = lines.get(trackID);
 					if (null == line) {
 						continue;
-					}
+					}	
 					for (Integer index : frameIndices.get(frame).get(trackID)) {
 						line.getColor(index, color);
 						color.w = tp;
 						line.setColor(index, color);
-						line.setColor(index + 1, color);
+						line.setColor(index+1, color);
 					}
 				}
 			}
 			break;
 		}
-
+		
 		case TrackMateModelView.TRACK_DISPLAY_MODE_LOCAL_FORWARD_QUICK: {
 			float tp;
 			int frameDist;
 			for (int frame : frameIndices.keySet()) {
-				frameDist = frame - currentTimePoint;
+				frameDist = frame - currentTimePoint; 
 				if (frameDist < 0 || frameDist > displayDepth)
 					tp = 0f;
-				else
+				else 
 					tp = 1f;
 
 				for (Integer trackID : lines.keySet()) {
 					final LineArray line = lines.get(trackID);
 					if (null == line) {
 						continue;
-					}
+					}	
 					for (Integer index : frameIndices.get(frame).get(trackID)) {
 						line.getColor(index, color);
 						color.w = tp;
 						line.setColor(index, color);
-						line.setColor(index + 1, color);
+						line.setColor(index+1, color);
 					}
 				}
 			}
@@ -299,19 +299,19 @@ public class TrackDisplayNode extends ContentNode implements TimelapseListener {
 		int trackID = model.getTrackModel().trackIDOf(edge);
 
 		// Set color of corresponding line primitive
-		Color4f color4 = new Color4f();
+		Color4f color4 = new Color4f(); 
 		int index = edgeIndices.get(trackID).get(edge);
 		final LineArray line = lines.get(trackID);
 		if (null == line) {
 			return;
-		}
+		}	
 		line.getColor(index, color4);
 		float[] val = color.getRGBColorComponents(null);
 		color4.x = val[0];
 		color4.y = val[1];
 		color4.z = val[2];
 		line.setColor(index, color4);
-		line.setColor(index + 1, color4);
+		line.setColor(index+1, color4);
 	}
 
 	/**
@@ -326,12 +326,15 @@ public class TrackDisplayNode extends ContentNode implements TimelapseListener {
 		LineArray line = lines.get(trackID);
 		if (null == line) {
 			return null;
-		}
+		}	
 		line.getColor(index, color);
 		return color.get();
 	}
 
-	/* TIMELAPSE LISTENER */
+
+	/*
+	 * TIMELAPSE LISTENER
+	 */
 
 	@Override
 	public void timepointChanged(int timepoint) {
@@ -339,7 +342,9 @@ public class TrackDisplayNode extends ContentNode implements TimelapseListener {
 		refresh();
 	}
 
-	/* PRIVATE METHODS */
+	/*
+	 * PRIVATE METHODS
+	 */
 
 	private void makeMeshes() {
 
@@ -355,15 +360,14 @@ public class TrackDisplayNode extends ContentNode implements TimelapseListener {
 				frameIndices.get(frameIndex).put(trackID, new ArrayList<Integer>());
 			}
 		}
-		edgeIndices = new HashMap<Integer, HashMap<DefaultWeightedEdge, Integer>>(ntracks);
+		edgeIndices = new HashMap<Integer, HashMap<DefaultWeightedEdge,Integer>>(ntracks);
 		for (Integer trackID : model.getTrackModel().trackIDs(true)) {
 			final int nedges = model.getTrackModel().trackEdges(trackID).size();
 			edgeIndices.put(trackID, new HashMap<DefaultWeightedEdge, Integer>(nedges, 1));
 		}
 		lines = new HashMap<Integer, LineArray>(ntracks);
 
-		// Holder for coordinates (array ref will not be used, just its
-		// elements)
+		// Holder for coordinates (array ref will not be used, just its elements)
 		double[] coordinates = new double[3];
 
 		// Common line appearance
@@ -383,9 +387,9 @@ public class TrackDisplayNode extends ContentNode implements TimelapseListener {
 		int trackIndex = 0;
 		for (Integer trackID : model.getTrackModel().trackIDs(true)) {
 			switchMaskIndex.put(trackID, trackIndex++);
-
+			
 			Set<DefaultWeightedEdge> track = model.getTrackModel().trackEdges(trackID);
-
+			
 			// One line object to display all edges of one track
 			LineArray line = new LineArray(2 * track.size(), LineArray.COORDINATES | LineArray.COLOR_4);
 			line.setCapability(LineArray.ALLOW_COLOR_WRITE);
@@ -418,9 +422,9 @@ public class TrackDisplayNode extends ContentNode implements TimelapseListener {
 				edgeIndex++;
 
 				// Keep refs
-				edgeIndices.get(trackID).put(edge, edgeIndex - 2);
+				edgeIndices.get(trackID).put(edge, edgeIndex-2);
 				int frame = source.getFeature(Spot.FRAME).intValue();
-				frameIndices.get(frame).get(trackID).add(edgeIndex - 2);
+				frameIndices.get(frame).get(trackID).add(edgeIndex-2);
 
 			} // Finished building this track's line
 
@@ -430,7 +434,7 @@ public class TrackDisplayNode extends ContentNode implements TimelapseListener {
 
 		} // Finish iterating over tracks
 
-		// Add main switch to this content
+		// Add main switch to this content 
 		switchMask = new BitSet(ntracks);
 		switchMask.set(0, ntracks, true); // all visible
 		trackSwitch.setChildMask(switchMask);
@@ -438,21 +442,21 @@ public class TrackDisplayNode extends ContentNode implements TimelapseListener {
 		addChild(trackSwitch);
 	}
 
-	/* CONTENTNODE METHODS */
+
+	/*
+	 * CONTENTNODE METHODS
+	 */
 
 	/** Ignored for {@link TrackDisplayNode} */
 	@Override
-	public void channelsUpdated(boolean[] channels) {
-	}
+	public void channelsUpdated(boolean[] channels) {}
 
 	/** Ignored for {@link TrackDisplayNode} */
 	@Override
-	public void colorUpdated(Color3f color) {
-	}
+	public void colorUpdated(Color3f color) {}
 
 	@Override
-	public void eyePtChanged(View view) {
-	}
+	public void eyePtChanged(View view) {}
 
 	@Override
 	public void getCenter(Tuple3d center) {
@@ -527,37 +531,32 @@ public class TrackDisplayNode extends ContentNode implements TimelapseListener {
 
 	/** Ignored for {@link TrackDisplayNode} */
 	@Override
-	public void shadeUpdated(boolean shaded) {
-	}
+	public void shadeUpdated(boolean shaded) {}
 
 	/** Ignored for {@link TrackDisplayNode} */
 	@Override
-	public void thresholdUpdated(int threshold) {
-	}
+	public void thresholdUpdated(int threshold) {}
 
 	/** Ignored for {@link TrackDisplayNode} */
 	@Override
-	public void transparencyUpdated(float transparency) {
-	}
+	public void transparencyUpdated(float transparency) {}
 
 	/** Ignored for {@link TrackDisplayNode} */
 	@Override
-	public void lutUpdated(int[] r, int[] g, int[] b, int[] a) {
-	}
+	public void lutUpdated(int[] r, int[] g, int[] b, int[] a) {}
 
 	/** Ignored for {@link TrackDisplayNode} */
 	@Override
-	public void swapDisplayedData(String path, String name) {
-	}
+	public void swapDisplayedData(String path, String name) {}
 
 	/** Ignored for {@link TrackDisplayNode} */
 	@Override
-	public void restoreDisplayedData(String path, String name) {
-	}
+	public void restoreDisplayedData(String path, String name) {}
 
 	/** Ignored for {@link TrackDisplayNode} */
 	@Override
-	public void clearDisplayedData() {
-	}
+	public void clearDisplayedData() {}
+
+
 
 }

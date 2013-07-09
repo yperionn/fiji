@@ -20,26 +20,33 @@ import fiji.plugin.trackmate.TrackModel;
 
 public class GraphUtils {
 
+
 	/**
-	 * @return a pretty-print string representation of a {@link TrackModel}, as
-	 *         long it is a tree (each spot must not have more than one
-	 *         predecessor).
-	 * @throws IllegalArgumentException
-	 *         if the given graph is not a tree.
+	 * @return a pretty-print string representation of a {@link TrackModel}, as long it is 
+	 * a tree (each spot must not have more than one predecessor).
+	 * @throws IllegalArgumentException if the given graph is not a tree.
 	 */
 	public static final String toString(final TrackModel model) {
-		/* Get directed cache */
+		/*
+		 * Get directed cache
+		 */
 		TimeDirectedNeighborIndex cache = model.getDirectedNeighborIndex();
-
-		/* Check input */
+		
+		/*
+		 * Check input
+		 */
 		if (!isTree(model, cache)) {
 			throw new IllegalArgumentException("toString cannot be applied to graphs that are not trees (each vertex must have at most one predecessor).");
 		}
-
-		/* Get column widths */
+		
+		/*
+		 * Get column widths
+		 */
 		Map<Spot, Integer> widths = cumulativeBranchWidth(model);
-
-		/* By the way we compute the largest spot name */
+		
+		/*
+		 * By the way we compute the largest spot name
+		 */
 		int largestName = 0;
 		for (Spot spot : model.vertexSet()) {
 			if (spot.getName().length() > largestName) {
@@ -48,14 +55,19 @@ public class GraphUtils {
 		}
 		largestName += 2;
 
-		/* Find how many different frames we have */
+		/*
+		 * Find how many different frames we have
+		 */
 		TreeSet<Integer> frames = new TreeSet<Integer>();
 		for (Spot spot : model.vertexSet()) {
 			frames.add(spot.getFeature(Spot.FRAME).intValue());
 		}
 		int nframes = frames.size();
 
-		/* Build string, one StringBuilder per frame */
+
+		/*
+		 * Build string, one StringBuilder per frame
+		 */
 		HashMap<Integer, StringBuilder> strings = new HashMap<Integer, StringBuilder>(nframes);
 		for (Integer frame : frames) {
 			strings.put(frame, new StringBuilder());
@@ -66,17 +78,25 @@ public class GraphUtils {
 			below.put(frame, new StringBuilder());
 		}
 
-		/* Keep track of where the carret is for each spot */
-		Map<Spot, Integer> carretPos = new HashMap<Spot, Integer>(model.vertexSet().size());
+		/*
+		 * Keep track of where the carret is for each spot
+		 */
+		Map<Spot, Integer> carretPos = new HashMap<Spot, Integer>(model.vertexSet().size()); 
 
-		/* Comparator to have spots order by name */
+		/*
+		 * Comparator to have spots order by name
+		 */
 		Comparator<Spot> comparator = Spot.nameComparator;
-
-		/* Let's go! */
+		
+		/*
+		 * Let's go!
+		 */
 
 		for (Integer trackID : model.trackIDs(true)) {
-
-			/* Get the 'first' spot for an iterator that starts there */
+			
+			/*
+			 *  Get the 'first' spot for an iterator that starts there
+			 */
 			Set<Spot> track = model.trackSpots(trackID);
 			Iterator<Spot> it = track.iterator();
 			Spot first = it.next();
@@ -86,14 +106,18 @@ public class GraphUtils {
 				}
 			}
 
-			/* First, fill the linesBelow with spaces */
+			/*
+			 * First, fill the linesBelow with spaces
+			 */
 			for (Integer frame : frames) {
 				int columnWidth = widths.get(first);
-				below.get(frame).append(makeSpaces(columnWidth * largestName));
+				below.get(frame).append(makeSpaces(columnWidth*largestName));
 			}
-
-			/* Iterate down the tree */
-			SortedDepthFirstIterator<Spot, DefaultWeightedEdge> iterator = model.getSortedDepthFirstIterator(first, comparator, true);
+			
+			/*
+			 * Iterate down the tree
+			 */
+			SortedDepthFirstIterator<Spot,DefaultWeightedEdge> iterator = model.getSortedDepthFirstIterator(first, comparator, true);
 			while (iterator.hasNext()) {
 
 				Spot spot = iterator.next();
@@ -102,16 +126,16 @@ public class GraphUtils {
 
 				int columnWidth = widths.get(spot);
 				String str = spot.getName();
-				int nprespaces = largestName / 2 - str.length() / 2;
+				int nprespaces = largestName/2 - str.length()/2;
 				strings.get(frame).append(makeSpaces(columnWidth / 2 * largestName));
 				strings.get(frame).append(makeSpaces(nprespaces));
 				strings.get(frame).append(str);
 				// Store bar position - deal with bars below
-				int currentBranchingPosition = strings.get(frame).length() - str.length() / 2;
+				int currentBranchingPosition = strings.get(frame).length() - str.length()/2;
 				carretPos.put(spot, currentBranchingPosition);
 				// Resume filling the branch
 				strings.get(frame).append(makeSpaces(largestName - nprespaces - str.length()));
-				strings.get(frame).append(makeSpaces((columnWidth * largestName) - (columnWidth / 2 * largestName) - largestName));
+				strings.get(frame).append(makeSpaces( (columnWidth*largestName) - (columnWidth/2*largestName) - largestName));
 
 				// is leaf? then we fill all the columns below
 				if (isLeaf) {
@@ -120,22 +144,23 @@ public class GraphUtils {
 						strings.get(subsequentFrame).append(makeSpaces(columnWidth * largestName));
 					}
 				} else {
-					// Is there an empty slot below? Like when a link jumps
-					// above several frames?
+					// Is there an empty slot below? Like when a link jumps above several frames?
 					Set<Spot> successors = cache.successorsOf(spot);
 					for (Spot successor : successors) {
 						if (successor.diffTo(spot, Spot.FRAME) > 1) {
 							for (int subFrame = successor.getFeature(Spot.FRAME).intValue(); subFrame <= successor.getFeature(Spot.FRAME).intValue(); subFrame++) {
-								strings.get(subFrame - 1).append(makeSpaces(columnWidth * largestName));
+								strings.get(subFrame-1).append(makeSpaces(columnWidth * largestName));
 							}
 						}
 					}
 				}
+				
+				
 
 			} // Finished iterating over spot of the track
-
+			
 			// Fill remainder with spaces
-
+			
 			for (Integer frame : frames) {
 				int columnWidth = widths.get(first);
 				StringBuilder sb = strings.get(frame);
@@ -147,34 +172,37 @@ public class GraphUtils {
 			}
 
 		} // Finished iterating over the track
-
-		/* Second iteration over edges */
-
+		
+		
+		/*
+		 * Second iteration over edges
+		 */
+		
 		Set<DefaultWeightedEdge> edges = model.edgeSet();
 		for (DefaultWeightedEdge edge : edges) {
-
+			
 			Spot source = model.getEdgeSource(edge);
 			Spot target = model.getEdgeTarget(edge);
-
+			
 			int sourceCarret = carretPos.get(source) - 1;
 			int targetCarret = carretPos.get(target) - 1;
-
+			
 			int sourceFrame = source.getFeature(Spot.FRAME).intValue();
 			int targetFrame = target.getFeature(Spot.FRAME).intValue();
-
+			
 			for (int frame = sourceFrame; frame < targetFrame; frame++) {
 				below.get(frame).setCharAt(sourceCarret, '|');
 			}
-			for (int frame = sourceFrame + 1; frame < targetFrame; frame++) {
+			for (int frame = sourceFrame+1; frame < targetFrame; frame++) {
 				strings.get(frame).setCharAt(sourceCarret, '|');
 			}
-
+			
 			if (cache.successorsOf(source).size() > 1) {
 				// We have branching
 				int minC = Math.min(sourceCarret, targetCarret);
 				int maxC = Math.max(sourceCarret, targetCarret);
 				StringBuilder sb = below.get(sourceFrame);
-				for (int i = minC + 1; i < maxC; i++) {
+				for (int i = minC+1; i < maxC; i++) {
 					if (sb.charAt(i) == ' ') {
 						sb.setCharAt(i, '-');
 					}
@@ -183,8 +211,11 @@ public class GraphUtils {
 				sb.setCharAt(maxC, '+');
 			}
 		}
+		
 
-		/* Concatenate strings */
+		/*
+		 * Concatenate strings
+		 */
 
 		StringBuilder finalString = new StringBuilder();
 		for (Integer frame : frames) {
@@ -195,14 +226,20 @@ public class GraphUtils {
 			finalString.append('\n');
 		}
 
+
 		return finalString.toString();
 
 	}
-
+	
+	
+	
+	
 	public static final boolean isTree(TrackModel model, TimeDirectedNeighborIndex cache) {
 		return isTree(model.vertexSet(), cache);
 	}
+	
 
+	
 	public static final boolean isTree(Iterable<Spot> spots, TimeDirectedNeighborIndex cache) {
 		for (Spot spot : spots) {
 			if (cache.predecessorsOf(spot).size() > 1) {
@@ -211,10 +248,16 @@ public class GraphUtils {
 		}
 		return true;
 	}
-
+	
+	
+	
+	
 	public static final Map<Spot, Integer> cumulativeBranchWidth(final TrackModel model) {
 
-		/* Elements stored: 0. cumsum of leaf */
+		/*
+		 * Elements stored:
+		 * 	0. cumsum of leaf
+		 */
 		VertexFactory<int[]> factory = new VertexFactory<int[]>() {
 			@Override
 			public int[] createVertex() {
@@ -222,7 +265,9 @@ public class GraphUtils {
 			}
 		};
 
-		/* Build isleaf tree */
+		/*
+		 * Build isleaf tree
+		 */
 
 		final TimeDirectedNeighborIndex cache = model.getDirectedNeighborIndex();
 
@@ -237,14 +282,17 @@ public class GraphUtils {
 			}
 		};
 
+
 		Map<Spot, int[]> mappings = new HashMap<Spot, int[]>();
 		SimpleDirectedWeightedGraph<int[], DefaultWeightedEdge> leafTree = model.copy(factory, isLeafFun, mappings);
 
-		/* Find root spots & first spots Roots are spots without any ancestors.
-		 * There might be more than one per track. First spots are the first
-		 * root found in a track. There is only one per track.
+		/*
+		 * Find root spots & first spots
+		 * Roots are spots without any ancestors. There might be more than one per track.
+		 * First spots are the first root found in a track. There is only one per track.
 		 * 
-		 * By the way we compute the largest spot name */
+		 * By the way we compute the largest spot name
+		 */
 
 		Set<Spot> roots = new HashSet<Spot>(model.nTracks(false)); // approx
 		Set<Spot> firsts = new HashSet<Spot>(model.nTracks(false)); // exact
@@ -264,7 +312,9 @@ public class GraphUtils {
 			}
 		}
 
-		/* Build cumsum value */
+		/*
+		 * Build cumsum value
+		 */
 
 		Function2<int[], int[]> cumsumFun = new Function2<int[], int[]>() {
 			@Override
@@ -274,23 +324,29 @@ public class GraphUtils {
 		};
 
 		RecursiveCumSum<int[], DefaultWeightedEdge> cumsum = new RecursiveCumSum<int[], DefaultWeightedEdge>(leafTree, cumsumFun);
-		for (Spot root : firsts) {
+		for(Spot root : firsts) {
 			int[] current = mappings.get(root);
 			cumsum.apply(current);
 		}
-
-		/* Convert to map of spot vs integer */
+		
+		/*
+		 * Convert to map of spot vs integer 
+		 */
 		Map<Spot, Integer> widths = new HashMap<Spot, Integer>();
 		for (Spot spot : model.vertexSet()) {
 			widths.put(spot, mappings.get(spot)[0]);
 		}
-
+		
 		return widths;
 	}
+	
+	
+	
 
 	private static char[] makeSpaces(int width) {
 		return makeChars(width, ' ');
 	}
+
 
 	private static char[] makeChars(int width, char c) {
 		char[] chars = new char[width];
@@ -298,9 +354,10 @@ public class GraphUtils {
 		return chars;
 	}
 
+
 	/**
-	 * @return true only if the given model is a tree; that is: every spot has
-	 *         one or less predecessors.
+	 * @return true only if the given model is a tree; that is: every spot has one or less
+	 * predecessors.
 	 */
 	public static final Set<Spot> getSibblings(final DirectedNeighborIndex<Spot, DefaultWeightedEdge> cache, final Spot spot) {
 		HashSet<Spot> sibblings = new HashSet<Spot>();
@@ -310,5 +367,6 @@ public class GraphUtils {
 		}
 		return sibblings;
 	}
+
 
 }

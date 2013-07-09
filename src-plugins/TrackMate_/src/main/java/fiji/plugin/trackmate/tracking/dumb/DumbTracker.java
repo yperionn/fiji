@@ -20,21 +20,21 @@ public class DumbTracker implements SpotTracker {
 	public static final String KEY = "DUMB_TRACKER";
 	private static final String BASE_ERROR_MESSAGE = "[DumbTracker] ";
 	/**
-	 * How many times the std of previously created link distances we allow for
-	 * the creation of new links.
+	 * How many times the std of previously created link distances 
+	 * we allow for the creation of new links. 
 	 */
 	private static final double STD_FACTOR = 5d;
 	/**
-	 * The number of links to create before we apply limitations based on
-	 * previously created link distance statistics.
+	 * The number of links to create before we apply limitations based
+	 * on previously created link distance statistics.
 	 */
 	private static final int STATS_THRESHOLD = 3;
 	/**
-	 * Links shorter than this amount times the source spot will always be
-	 * allowed to be created.
+	 * Links shorter than this amount times the source spot will 
+	 * always be allowed to be created.
 	 */
 	private static final double RADIUS_FACTOR = 1d;
-
+	
 	private final SpotCollection spots;
 	private SimpleWeightedGraph<Spot, DefaultWeightedEdge> graph;
 	private String errorMessage;
@@ -68,36 +68,44 @@ public class DumbTracker implements SpotTracker {
 			graph.addVertex(spot);
 		}
 
-		/* Prepare frame array. Since we will need to go back and forth, an
-		 * array seems fine */
+		/*
+		 * Prepare frame array. 
+		 * Since we will need to go back and forth, an array seems fine
+		 */
 
 		NavigableSet<Integer> nkeys = spots.keySet();
 		int[] frames = new int[nkeys.size()];
 		int index = 0;
 		for (Integer frame : nkeys) {
-			frames[index++] = frame;
+			frames [ index++ ] = frame;
 		}
-
-		/* Prepare unlinked spots storage */
-
+		
+		/*
+		 * Prepare unlinked spots storage
+		 */
+		
 		HashMap<Integer, List<Spot>> openStarts = new HashMap<Integer, List<Spot>>(frames.length);
 		HashMap<Integer, List<Spot>> openEnds = new HashMap<Integer, List<Spot>>(frames.length);
 
-		/* Reset link stats. */
-
+		/*
+		 * Reset link stats.
+		 */
+		
 		mean = 0;
 		std = 0;
 		nstats = 0;
 		M2 = 0;
 
-		/* First step: we link spots frame to frame, using the closest pair,
-		 * then the second closest pair, etc... until all source spots or all
-		 * target spots have a link. */
+		/*
+		 * First step: we link spots frame to frame, using the closest pair,
+		 * then the second closest pair, etc... until all source spots or 
+		 * all target spots have a link.
+		 */
 
 		for (int i = 0; i < frames.length - 1; i++) {
 
 			int frameSource = frames[i];
-			int frameTarget = frames[i + 1];
+			int frameTarget = frames[i+1];
 
 			List<Spot> now = new ArrayList<Spot>(spots.getNSpots(frameSource, true));
 			for (Spot spot : spots.iterable(frameSource, true)) {
@@ -108,42 +116,49 @@ public class DumbTracker implements SpotTracker {
 				after.add(spot);
 			}
 
-			/* Find possible links between two sets. The method return the set
-			 * of spot indices that have not been linked. */
-
+			/*
+			 * Find possible links between two sets.
+			 * The method return the set of spot indices that have not been linked.
+			 */
+			
 			List<Set<Integer>> unmatchedIndices = link(now, after);
 			Set<Integer> indicesJ = unmatchedIndices.get(0);
 			Set<Integer> indicesK = unmatchedIndices.get(1);
-
-			/* We have finished this frame pair. We then store the spots that
-			 * have not been linked, either as a source or as a target. This
-			 * will be used later to make gap-closing links. */
-
+			
+			/*
+			 * We have finished this frame pair. We then store the spots that
+			 * have not been linked, either as a source or as a target. This 
+			 * will be used later to make gap-closing links.
+			 */
+			
 			List<Spot> sourceLeftOvers = new ArrayList<Spot>(indicesJ.size());
 			for (Integer is : indicesJ) {
 				sourceLeftOvers.add(now.get(is));
 			}
 			openEnds.put(frameSource, sourceLeftOvers);
-
+			
+			
 			List<Spot> targetLeftOvers = new ArrayList<Spot>(indicesK.size());
 			for (Integer is : indicesK) {
 				targetLeftOvers.add(after.get(is));
 			}
 			openStarts.put(frameTarget, targetLeftOvers);
-
+			
 		}
 
-		/* Second step: We re-iterate over the data, and this time we create
-		 * links over separated frames. We privilege close frames rather than
-		 * close spots. */
-
+		/*
+		 * Second step:
+		 * We re-iterate over the data, and this time we create links over 
+		 * separated frames. We privilege close frames rather than close spots. 
+		 */
+		
 		for (int delta = 2; delta < frames.length; delta++) {
-
+			
 			for (int i = 0; i < frames.length - delta; i++) {
-
+				
 				int frameSource = frames[i];
-				int frameTarget = frames[i + delta];
-
+				int frameTarget = frames[i+delta];
+				
 				List<Spot> sources = openEnds.get(frameSource);
 				List<Spot> targets = openStarts.get(frameTarget);
 
@@ -151,42 +166,49 @@ public class DumbTracker implements SpotTracker {
 				Set<Integer> indicesSources = unmatchedIndices.get(0);
 				Set<Integer> indicesTargets = unmatchedIndices.get(1);
 
-				/* Change the open ends and starts to only contain what has been
-				 * linked */
-
+				/*
+				 * Change the open ends and starts to only contain what has been linked
+				 */
+				
 				ArrayList<Spot> newSources = new ArrayList<Spot>(indicesSources.size());
 				for (Integer iJ : indicesSources) {
-					newSources.add(sources.get(iJ));
+					newSources.add( sources.get(iJ) );
 				}
 				openEnds.put(i, newSources);
 
 				ArrayList<Spot> newTargets = new ArrayList<Spot>(indicesTargets.size());
 				for (Integer iJ : indicesTargets) {
-					newTargets.add(targets.get(iJ));
+					newTargets.add( targets.get(iJ) );
 				}
 				openStarts.put(i, newTargets);
 
 			}
-
+			
 		}
-
+		
+		
 		return true;
 	}
 
+
 	private void addToStats(double dist) {
 		int n1 = nstats;
-		nstats++;
-		double delta = dist - mean;
-		double delta_n = delta / nstats;
-		double term1 = delta * delta_n * n1;
-		mean = mean + delta_n;
-		M2 = M2 + term1;
-		double var = M2 / nstats;
-		std = Math.sqrt(var);
+        nstats++;
+        double delta = dist - mean;
+        double delta_n = delta / nstats;
+        double term1 = delta * delta_n * n1;
+        mean = mean + delta_n;
+        M2 = M2 + term1;
+        double var = M2 / nstats;
+        std = Math.sqrt(var);
 	}
-
+	
+	
 	private List<Set<Integer>> link(List<Spot> now, List<Spot> after) {
-		/* Build cost matrix, using brute force. Takes O(nm) :( */
+		/*
+		 * Build cost matrix, using brute force. 
+		 * Takes O(nm) :(
+		 */
 
 		double[][] costs = new double[now.size()][after.size()];
 		for (int j = 0; j < now.size(); j++) {
@@ -196,15 +218,20 @@ public class DumbTracker implements SpotTracker {
 				costs[j][k] = sa.squareDistanceTo(sb);
 			}
 		}
-
-		/* Loop over possible links until source or target spots are exhausted. */
+		
+		/*
+		 * Loop over possible links until source or target spots are
+		 * exhausted.
+		 */
 
 		Set<Integer> indicesJ = getIndices(now.size());
 		Set<Integer> indicesK = getIndices(after.size());
 
 		while (!indicesJ.isEmpty() && !indicesK.isEmpty()) {
-
-			/* Find THE closest pair. In the non-pruned row and columns. */
+			
+			/*
+			 * Find THE closest pair. In the non-pruned row and columns.
+			 */
 
 			double minCost = Double.POSITIVE_INFINITY;
 			int minJ = -1, minK = -1;
@@ -217,45 +244,55 @@ public class DumbTracker implements SpotTracker {
 					}
 				}
 			}
-
-			/* Can we create a link in the graph? Check accumulated statistics.
-			 * A special case: the user might have created succeeding spots that
-			 * are at the same location. That way, the statistics would be
-			 * tricked towards 0-std, which would prevent any other link
-			 * creation. To avoid that, we say that a link will always be
-			 * created between two spots that are closer than the first spot
-			 * radius. */
+			
+			/*
+			 * Can we create a link in the graph? 
+			 * Check accumulated statistics. A special case: the user might have created
+			 * succeeding spots that are at the same location. That way, the statistics 
+			 * would be tricked towards 0-std, which would prevent any other link creation.
+			 * To avoid that, we say that a link will always be created between two spots
+			 * that are closer than the first spot radius.
+			 */
 
 			Spot source = now.get(minJ);
 			Spot target = after.get(minK);
 			double dist = Math.sqrt(minCost);
-			if (nstats < STATS_THRESHOLD || dist < mean + STD_FACTOR * std || dist < RADIUS_FACTOR * source.getFeature(Spot.RADIUS)) {
+			if (nstats < STATS_THRESHOLD || dist < mean + STD_FACTOR * std || dist < RADIUS_FACTOR * source.getFeature(Spot.RADIUS) ) {
 
-				/* Ok, then create a link in the graph. */
+				/*
+				 * Ok, then create a link in the graph.
+				 */
 
 				DefaultWeightedEdge edge = graph.addEdge(source, target);
 				graph.setEdgeWeight(edge, minCost);
 
-				/* Change the iterating indices so that we do not iterate over
-				 * the row and column that we have found now. That way, we empty
-				 * the cost matrix little by little. */
+				/*
+				 * Change the iterating indices so that we do not iterate over the 
+				 * row and column that we have found now. That way, we empty the cost
+				 * matrix little by little.
+				 */
 
 				indicesJ.remove(minJ);
 				indicesK.remove(minK);
-
-				/* Accumulate statistics */
-
+				
+				/*
+				 * Accumulate statistics
+				 */
+				
 				addToStats(dist);
-
+				
 			} else {
-
-				/* If the closest pair do not match the requirements, no other
-				 * pair will and we can stop here. */
+				
+				/*
+				 * If the closest pair do not match the requirements, no other pair
+				 * will and we can stop here.
+				 * 
+				 */
 				break;
-
+				
 			}
 		}
-
+		
 		List<Set<Integer>> unmatchedIndices = new ArrayList<Set<Integer>>(2);
 		unmatchedIndices.add(indicesJ);
 		unmatchedIndices.add(indicesK);
@@ -273,10 +310,12 @@ public class DumbTracker implements SpotTracker {
 	}
 
 	@Override
-	public void setSettings(Map<String, Object> settings) {
-	}
+	public void setSettings(Map<String, Object> settings) { }
 
-	/* STATIC METHODS */
+
+	/*
+	 * STATIC METHODS
+	 */
 
 	private static final Set<Integer> getIndices(final int n) {
 		Set<Integer> indices = new HashSet<Integer>(n);

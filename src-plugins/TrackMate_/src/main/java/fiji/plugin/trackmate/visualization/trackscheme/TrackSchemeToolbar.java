@@ -19,21 +19,22 @@ import javax.swing.JToolBar;
 public class TrackSchemeToolbar extends JToolBar {
 
 	private static final long serialVersionUID = 3442140463984241266L;
-	private static final ImageIcon LINKING_ON_ICON = new ImageIcon(TrackSchemeFrame.class.getResource("resources/connect.png"));
-	private static final ImageIcon LINKING_OFF_ICON = new ImageIcon(TrackSchemeFrame.class.getResource("resources/connect_bw.png"));
+	private static final ImageIcon LINKING_ON_ICON 	= new ImageIcon(TrackSchemeFrame.class.getResource("resources/connect.png")); 
+	private static final ImageIcon LINKING_OFF_ICON = new ImageIcon(TrackSchemeFrame.class.getResource("resources/connect_bw.png")); 
 	private static final ImageIcon THUMBNAIL_ON_ICON = new ImageIcon(TrackSchemeFrame.class.getResource("resources/images.png"));
 	private static final ImageIcon THUMBNAIL_OFF_ICON = new ImageIcon(TrackSchemeFrame.class.getResource("resources/images_bw.png"));;
-	private static final ImageIcon RESET_ZOOM_ICON = new ImageIcon(TrackSchemeFrame.class.getResource("resources/zoom.png"));
-	private static final ImageIcon ZOOM_IN_ICON = new ImageIcon(TrackSchemeFrame.class.getResource("resources/zoom_in.png"));
-	private static final ImageIcon ZOOM_OUT_ICON = new ImageIcon(TrackSchemeFrame.class.getResource("resources/zoom_out.png"));
-	private static final ImageIcon REFRESH_ICON = new ImageIcon(TrackSchemeFrame.class.getResource("resources/refresh.png"));
+	private static final ImageIcon RESET_ZOOM_ICON 	= new ImageIcon(TrackSchemeFrame.class.getResource("resources/zoom.png")); 
+	private static final ImageIcon ZOOM_IN_ICON 	= new ImageIcon(TrackSchemeFrame.class.getResource("resources/zoom_in.png")); 
+	private static final ImageIcon ZOOM_OUT_ICON 	= new ImageIcon(TrackSchemeFrame.class.getResource("resources/zoom_out.png")); 
+	private static final ImageIcon REFRESH_ICON		= new ImageIcon(TrackSchemeFrame.class.getResource("resources/refresh.png"));
 	private static final ImageIcon CAPTURE_UNDECORATED_ICON = new ImageIcon(TrackSchemeFrame.class.getResource("resources/camera_go.png"));
 	private static final ImageIcon CAPTURE_DECORATED_ICON = new ImageIcon(TrackSchemeFrame.class.getResource("resources/camera_edit.png"));
-	private static final ImageIcon DISPLAY_DECORATIONS_ON_ICON = new ImageIcon(TrackSchemeFrame.class.getResource("resources/application_view_columns.png"));
-	private static final ImageIcon DISPLAY_DECORATIONS_OFF_ICON = new ImageIcon(TrackSchemeFrame.class.getResource("resources/application.png"));
+	private static final ImageIcon DISPLAY_DECORATIONS_ON_ICON	= new ImageIcon(TrackSchemeFrame.class.getResource("resources/application_view_columns.png"));
+	private static final ImageIcon DISPLAY_DECORATIONS_OFF_ICON	= new ImageIcon(TrackSchemeFrame.class.getResource("resources/application.png"));
 	private static final ImageIcon SELECT_STYLE_ICON = new ImageIcon(TrackSchemeFrame.class.getResource("resources/theme.png"));
 
 	private final TrackScheme trackScheme;
+
 
 	public TrackSchemeToolbar(final TrackScheme trackScheme) {
 		super("Track Scheme toolbar", JToolBar.HORIZONTAL);
@@ -46,7 +47,9 @@ public class TrackSchemeToolbar extends JToolBar {
 
 		setFloatable(false);
 
-		/* Toggle Connect Mode */
+		/*
+		 *  Toggle Connect Mode
+		 */
 
 		boolean defaultLinkingEnabled = TrackScheme.DEFAULT_LINKING_ENABLED;
 		final Action toggleLinkingAction = new AbstractAction(null, defaultLinkingEnabled ? LINKING_ON_ICON : LINKING_OFF_ICON) {
@@ -65,7 +68,9 @@ public class TrackSchemeToolbar extends JToolBar {
 		final JButton toggleLinkingButton = new JButton(toggleLinkingAction);
 		toggleLinkingButton.setToolTipText("Toggle linking");
 
-		/* Toggle thumnail mode */
+		/*
+		 * Toggle thumnail mode
+		 */
 		boolean defaultThumbnailsEnabled = TrackScheme.DEFAULT_THUMBNAILS_ENABLED;
 		final Action toggleThumbnailAction = new AbstractAction(null, defaultThumbnailsEnabled ? THUMBNAIL_ON_ICON : THUMBNAIL_OFF_ICON) {
 			public void actionPerformed(ActionEvent e) {
@@ -81,21 +86,24 @@ public class TrackSchemeToolbar extends JToolBar {
 						}
 						putValue(SMALL_ICON, thumbnailIcon);
 					}
-
+					
 				}.start();
 			}
 		};
 		final JButton toggleThumbnailsButton = new JButton(toggleThumbnailAction);
-		toggleThumbnailsButton.setToolTipText("<html>If enabled, spot thumnails will be captured <br/>" + "Can take long for large models.</html>");
-
-		/* Zoom */
+		toggleThumbnailsButton.setToolTipText("<html>If enabled, spot thumnails will be captured <br/>" +
+				"Can take long for large models.</html>");
+		
+		/*
+		 *  Zoom 
+		 */
 
 		final Action zoomInAction;
 		final Action zoomOutAction;
 		final Action resetZoomAction;
 		final JButton zoomInButton = new JButton();
 		final JButton zoomOutButton = new JButton();
-		final JButton resetZoomButton = new JButton();
+		final JButton  resetZoomButton = new JButton();
 		zoomInAction = new AbstractAction(null, ZOOM_IN_ICON) {
 			public void actionPerformed(ActionEvent e) {
 				trackScheme.zoomIn();
@@ -106,7 +114,7 @@ public class TrackSchemeToolbar extends JToolBar {
 				trackScheme.zoomOut();
 			}
 		};
-		resetZoomAction = new AbstractAction(null, RESET_ZOOM_ICON) {
+		resetZoomAction  = new AbstractAction(null, RESET_ZOOM_ICON) {
 			public void actionPerformed(ActionEvent e) {
 				trackScheme.resetZoom();
 			}
@@ -119,7 +127,7 @@ public class TrackSchemeToolbar extends JToolBar {
 		resetZoomButton.setToolTipText("Reset zoom");
 
 		// Redo layout
-
+		
 		final JButton redoLayoutButton = new JButton("Layout", REFRESH_ICON);
 		redoLayoutButton.setFont(FONT);
 		redoLayoutButton.setToolTipText("Re-arrange the tracks.");
@@ -131,14 +139,14 @@ public class TrackSchemeToolbar extends JToolBar {
 			}
 		});
 
-		// Capture
-		final Action captureUndecoratedAction = new AbstractAction(null, CAPTURE_UNDECORATED_ICON) {
+		// Capture 
+		final Action captureUndecoratedAction = new AbstractAction(null, CAPTURE_UNDECORATED_ICON) {			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				trackScheme.captureUndecorated();
 			}
 		};
-		final Action captureDecoratedAction = new AbstractAction(null, CAPTURE_DECORATED_ICON) {
+		final Action captureDecoratedAction = new AbstractAction(null, CAPTURE_DECORATED_ICON) {			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				trackScheme.captureDecorated();
@@ -152,10 +160,12 @@ public class TrackSchemeToolbar extends JToolBar {
 		captureDecoratedButton.setToolTipText("Capture decorated track scheme");
 		saveButton.setToolTipText("Export to..");
 
-		/* display background decorations */
-		JButton toggleDisplayDecorationsButton;
+		/*
+		 * display background decorations
+		 */
+		JButton toggleDisplayDecorationsButton; 
 		{
-			boolean defaultDisplayDecorations = TrackScheme.DEFAULT_DO_PAINT_DECORATIONS;
+			boolean defaultDisplayDecorations= TrackScheme.DEFAULT_DO_PAINT_DECORATIONS;
 			final Action toggleDisplayDecorations = new AbstractAction(null, defaultDisplayDecorations ? DISPLAY_DECORATIONS_ON_ICON : DISPLAY_DECORATIONS_OFF_ICON) {
 				public void actionPerformed(ActionEvent e) {
 					boolean enabled = trackScheme.toggleDisplayDecoration();
@@ -172,14 +182,17 @@ public class TrackSchemeToolbar extends JToolBar {
 			toggleDisplayDecorationsButton.setToolTipText("Toggle display decorations");
 		}
 
-		/* styles */
+
+		/*
+		 * styles
+		 */
 		final JButton selectStyleButton;
 		{
 			selectStyleButton = new JButton("Style:", SELECT_STYLE_ICON);
 			selectStyleButton.setFont(FONT);
 			selectStyleButton.setToolTipText("Re-apply current style after model changes.");
 			selectStyleButton.addActionListener(new ActionListener() {
-
+				
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					new Thread("TrackScheme re-applying style thread") {
@@ -216,7 +229,9 @@ public class TrackSchemeToolbar extends JToolBar {
 
 		}
 
-		/* ADD TO TOOLBAR */
+		/*
+		 * ADD TO TOOLBAR
+		 */
 
 		// Layout
 		add(redoLayoutButton);
@@ -235,16 +250,16 @@ public class TrackSchemeToolbar extends JToolBar {
 		add(toggleLinkingButton);
 		// Separator
 		addSeparator();
-		// Folding - DISABLED until further notice
-		// add(toggleEnableFoldingButton);
-		// add(foldAllButton);
-		// add(unFoldAllButton);
-		// // Separator
-		// addSeparator();
+		// Folding  - DISABLED until further notice
+		//		add(toggleEnableFoldingButton);
+		//		add(foldAllButton);
+		//		add(unFoldAllButton);
+		//		// Separator
+		//		addSeparator();
 		// Zoom
 		add(zoomInButton);
 		add(zoomOutButton);
-		add(resetZoomButton);
+		add(resetZoomButton);	
 		// Separator
 		addSeparator();
 		// Capture / Export
@@ -254,7 +269,7 @@ public class TrackSchemeToolbar extends JToolBar {
 		// Separator
 		addSeparator();
 		// Display costs along edges
-		// add(toggleDisplayCostsButton);
+		//		add(toggleDisplayCostsButton);
 		// Display background decorations
 		add(toggleDisplayDecorationsButton);
 		add(Box.createHorizontalGlue());

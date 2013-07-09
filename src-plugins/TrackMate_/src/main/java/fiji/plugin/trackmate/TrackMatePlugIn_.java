@@ -11,28 +11,32 @@ public class TrackMatePlugIn_ implements PlugIn {
 
 	protected TrackMate trackmate;
 	protected Settings settings;
-
+	
+	
+	
 	@Override
 	public void run(String arg0) {
-
-		ImagePlus imp = WindowManager.getCurrentImage();
-		settings = createSettings(imp);
-		trackmate = createTrackMate();
-
-		/* Launch GUI. */
-
+		
+		ImagePlus imp = WindowManager.getCurrentImage(); 
+		settings 	= createSettings(imp);
+		trackmate 	= createTrackMate();
+		
+		/*
+		 * Launch GUI.
+		 */
+		
 		TrackMateGUIController controller = new TrackMateGUIController(trackmate);
 		if (imp != null) {
 			GuiUtils.positionWindow(controller.getGUI(), imp.getWindow());
 		}
 	}
 
+
 	/**
 	 * Hook for subclassers: <br>
-	 * Creates the {@link Settings} instance that will be used to tune the
-	 * {@link TrackMate} instance. It is iniatialized by default with values
-	 * taken from the current {@link ImagePlus}.
-	 * 
+	 * Creates the {@link Settings} instance that will be used to tune 
+	 * the {@link TrackMate} instance. It is iniatialized by default with
+	 * values taken from the current {@link ImagePlus}.
 	 * @return a new {@link Settings} instance.
 	 */
 	protected Settings createSettings(ImagePlus imp) {
@@ -44,15 +48,18 @@ public class TrackMatePlugIn_ implements PlugIn {
 	/**
 	 * Hook for subclassers: <br>
 	 * Creates the TrackMate instance that will be controlled in the GUI.
-	 * 
 	 * @return a new {@link TrackMate} instance.
 	 */
 	protected TrackMate createTrackMate() {
 		return new TrackMate(settings);
 	}
 
-	/* MAIN METHOD */
-
+	
+	
+	/*
+	 * MAIN METHOD
+	 */
+	
 	/**
 	 * @param args
 	 */

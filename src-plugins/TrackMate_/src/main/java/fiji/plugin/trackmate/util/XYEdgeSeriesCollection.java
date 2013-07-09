@@ -10,20 +10,25 @@ import org.jfree.data.xy.XYDataset;
 
 public class XYEdgeSeriesCollection extends AbstractSeriesDataset implements XYDataset {
 
-	/* FIELDS */
+	/*
+	 * FIELDS
+	 */
 
 	private static final long serialVersionUID = 1157323153460912998L;
 	private ArrayList<XYEdgeSeries> seriesList = new ArrayList<XYEdgeSeries>();
-
-	/* PUBLIC METHODS */
-
+	
+	
+	/*
+	 * PUBLIC METHODS
+	 */
+	
 	/**
 	 * Print out the content of this dataset
 	 */
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		for (XYEdgeSeries series : seriesList) {
+		for(XYEdgeSeries series : seriesList) {
 			sb.append(series.getKey() + ":\n");
 			for (int i = 0; i < series.getItemCount(); i++) {
 				sb.append("  x = " + series.getEdgeXStart(i) + " -> " + series.getEdgeXEnd(i) + ", y = " + series.getEdgeYStart(i) + " -> " + series.getEdgeYEnd(i) + '\n');
@@ -42,28 +47,30 @@ public class XYEdgeSeriesCollection extends AbstractSeriesDataset implements XYD
 	public Comparable getSeriesKey(int seriesIndex) {
 		return seriesList.get(seriesIndex).getKey();
 	}
-
+	
 	public XYEdgeSeries getSeries(int seriesIndex) {
 		return seriesList.get(seriesIndex);
 	}
-
+	
 	public void addSeries(XYEdgeSeries series) {
 		seriesList.add(series);
 	}
 
 	@SuppressWarnings("rawtypes")
 	public XYEdgeSeries getSeries(Comparable key) {
-		for (XYEdgeSeries s : seriesList)
-			if (s.getKey().equals(key))
+		for(XYEdgeSeries s : seriesList) 
+			if (s.getKey().equals(key)) 
 				return s;
-		throw new UnknownKeyException("Key not found: " + key);
+        throw new UnknownKeyException("Key not found: " + key);
 	}
-
+	
 	public List<XYEdgeSeries> getSeries() {
 		return seriesList;
 	}
-
-	/* XYDATASET METHODS */
+	
+	/*
+	 * XYDATASET METHODS
+	 */
 
 	@Override
 	public DomainOrder getDomainOrder() {
@@ -94,5 +101,5 @@ public class XYEdgeSeriesCollection extends AbstractSeriesDataset implements XYD
 	public double getYValue(int series, int item) {
 		return seriesList.get(series).getEdgeYStart(item).doubleValue();
 	}
-
+	
 }

@@ -22,15 +22,19 @@ import fiji.plugin.trackmate.visualization.trackscheme.TrackSchemeFrame;
 
 public class PlotNSpotsVsTimeAction extends AbstractTMAction {
 
+
 	public static final ImageIcon ICON = new ImageIcon(TrackSchemeFrame.class.getResource("resources/plots.png"));
 	public static final String NAME = "Plot N spots vs time";
-	public static final String INFO_TEXT = "<html>" + "Plot the number of spots in each frame as a function <br>" + "of time. Only the filtered spots are taken into account. " + "</html>";
+	public static final String INFO_TEXT =  "<html>" +
+			"Plot the number of spots in each frame as a function <br>" +
+			"of time. Only the filtered spots are taken into account. " +
+			"</html>";
 
 	public PlotNSpotsVsTimeAction(TrackMate trackmate, TrackMateGUIController controller) {
 		super(trackmate, controller);
 		this.icon = ICON;
 	}
-
+	
 	@Override
 	public void execute() {
 		// Collect data
@@ -44,28 +48,28 @@ public class PlotNSpotsVsTimeAction extends AbstractTMAction {
 			data[1][index] = spots.getNSpots(frame, true);
 			index++;
 		}
-
+		
 		// Plot data
-		String xAxisLabel = "Time (" + trackmate.getModel().getTimeUnits() + ")";
+		String xAxisLabel = "Time ("+trackmate.getModel().getTimeUnits()+")";
 		String yAxisLabel = "N spots";
-		String title = "Nspots vs Time for " + trackmate.getSettings().imp.getShortTitle();
+		String title = "Nspots vs Time for "+trackmate.getSettings().imp.getShortTitle();
 		DefaultXYDataset dataset = new DefaultXYDataset();
 		dataset.addSeries("Nspots", data);
-
+		
 		JFreeChart chart = ChartFactory.createXYLineChart(title, xAxisLabel, yAxisLabel, dataset, PlotOrientation.VERTICAL, true, true, false);
 		chart.getTitle().setFont(FONT);
 		chart.getLegend().setItemFont(SMALL_FONT);
 
 		// The plot
 		XYPlot plot = chart.getXYPlot();
-		// plot.setRenderer(0, pointRenderer);
+//		plot.setRenderer(0, pointRenderer);
 		plot.getRangeAxis().setLabelFont(FONT);
 		plot.getRangeAxis().setTickLabelFont(SMALL_FONT);
 		plot.getDomainAxis().setLabelFont(FONT);
 		plot.getDomainAxis().setTickLabelFont(SMALL_FONT);
-
+		
 		ExportableChartPanel panel = new ExportableChartPanel(chart);
-
+		
 		JFrame frame = new JFrame(title);
 		frame.setSize(500, 270);
 		frame.getContentPane().add(panel);
@@ -76,7 +80,7 @@ public class PlotNSpotsVsTimeAction extends AbstractTMAction {
 	public String getInfoText() {
 		return INFO_TEXT;
 	}
-
+	
 	@Override
 	public String toString() {
 		return NAME;

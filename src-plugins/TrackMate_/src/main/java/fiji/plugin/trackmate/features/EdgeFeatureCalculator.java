@@ -15,11 +15,10 @@ import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.features.edges.EdgeAnalyzer;
 
 /**
- * A class dedicated to centralizing the calculation of the numerical features
- * of spots, through {@link EdgeAnalyzer}s.
- * 
+ * A class dedicated to centralizing the calculation of the numerical features of spots,
+ * through {@link EdgeAnalyzer}s.  
  * @author Jean-Yves Tinevez - 2013
- * 
+ *
  */
 public class EdgeFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 
@@ -31,9 +30,11 @@ public class EdgeFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 		this.settings = settings;
 		this.model = model;
 	}
-
-	/* METHODS */
-
+	
+	/*
+	 * METHODS
+	 */
+	
 	@Override
 	public boolean checkInput() {
 		if (null == model) {
@@ -46,10 +47,10 @@ public class EdgeFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 		}
 		return true;
 	}
-
+	
 	/**
-	 * Calculates the edge features configured in the {@link Settings} for all
-	 * the edges of this model.
+	 * Calculates the edge features configured in the {@link Settings} 
+	 * for all the edges of this model.
 	 */
 	@Override
 	public boolean process() {
@@ -69,29 +70,35 @@ public class EdgeFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 
 		// Do it.
 		computeEdgeFeaturesAgent(model.getTrackModel().edgeSet(), settings.getEdgeAnalyzers(), true);
-
+		
 		long end = System.currentTimeMillis();
 		processingTime = end - start;
 		return true;
 	}
+	
+	
 
 	/**
-	 * Calculates all the edge features configured in the {@link Settings}
-	 * object for the specified edges.
+	 * Calculates all the edge features configured in the {@link Settings} object 
+	 * for the specified edges. 
 	 */
 	public void computeSpotFeatures(final Collection<DefaultWeightedEdge> edges, boolean doLogIt) {
 		List<EdgeAnalyzer> spotFeatureAnalyzers = settings.getEdgeAnalyzers();
 		computeEdgeFeaturesAgent(edges, spotFeatureAnalyzers, doLogIt);
 	}
+	
+	
 
-	/* PRIVATE METHODS */
-
+	/*
+	 * PRIVATE METHODS
+	 */
+	
 	private void computeEdgeFeaturesAgent(final Collection<DefaultWeightedEdge> edges, final List<EdgeAnalyzer> analyzers, boolean doLogIt) {
 		final Logger logger = model.getLogger();
 		if (doLogIt) {
-			logger.log("Computing edge features:\n", Logger.BLUE_COLOR);
+			logger.log("Computing edge features:\n", Logger.BLUE_COLOR);		
 		}
-
+		
 		for (EdgeAnalyzer analyzer : analyzers) {
 			analyzer.setNumThreads(numThreads);
 			analyzer.process(edges);

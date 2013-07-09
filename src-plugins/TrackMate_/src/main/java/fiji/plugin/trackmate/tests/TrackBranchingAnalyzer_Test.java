@@ -16,12 +16,12 @@ public class TrackBranchingAnalyzer_Test {
 
 		File file = new File(AppUtils.getBaseDirectory(TrackMate.class), "samples/FakeTracks.xml");
 		TmXmlReader reader = new TmXmlReader(file);
-
+		
 		// Analyze
 		TrackBranchingAnalyzer analyzer = new TrackBranchingAnalyzer(reader.getModel());
 		analyzer.process(reader.getModel().getTrackModel().trackIDs(false));
 		System.out.println("Analysis done in " + analyzer.getProcessingTime() + " ms.");
-
+		
 	}
 
 }

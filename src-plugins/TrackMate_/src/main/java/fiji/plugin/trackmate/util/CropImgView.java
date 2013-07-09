@@ -17,12 +17,11 @@ import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 
 /**
- * A simple wrapper that exploits {@link Views} to return a cropped view of a
- * source {@link Img} as an {@link Img}.
- * 
+ * A simple wrapper that exploits {@link Views} to return a cropped view of a source {@link Img}
+ * as an {@link Img}.
  * @author Jean-Yves Tinevez <jeanyves.tinevez@gmail.com> - Sep 2012
  */
-public class CropImgView<T extends Type<T>> implements Img<T> {
+public class CropImgView<T  extends Type<T>> implements Img<T> {
 
 	protected final IntervalView<T> interval;
 	protected final IterableInterval<T> iterable;
@@ -39,7 +38,7 @@ public class CropImgView<T extends Type<T>> implements Img<T> {
 		this.min = min;
 		this.max = max;
 	}
-
+	
 	public CropImgView(final Img<T> source, final long[] min, final long[] max) {
 		this(source, min, max, source.factory());
 	}
@@ -172,15 +171,16 @@ public class CropImgView<T extends Type<T>> implements Img<T> {
 
 	@Override
 	public Img<T> copy() {
-		final Img<T> copy = factory.create(this, iterable.firstElement().createVariable());
+		final Img< T > copy = factory.create( this, iterable.firstElement().createVariable() );
 
-		Cursor<T> srcCursor = localizingCursor();
-		RandomAccess<T> resAccess = copy.randomAccess();
+		Cursor< T > srcCursor = localizingCursor();
+		RandomAccess< T > resAccess = copy.randomAccess();
 
-		while (srcCursor.hasNext()) {
+		while ( srcCursor.hasNext() )
+		{
 			srcCursor.fwd();
-			resAccess.setPosition(srcCursor);
-			resAccess.get().set(srcCursor.get());
+			resAccess.setPosition( srcCursor );
+			resAccess.get().set( srcCursor.get() );
 		}
 
 		return copy;

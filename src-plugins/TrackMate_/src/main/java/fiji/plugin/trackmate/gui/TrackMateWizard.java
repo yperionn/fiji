@@ -21,9 +21,8 @@ import fiji.plugin.trackmate.gui.descriptors.WizardPanelDescriptor;
 import fiji.plugin.trackmate.visualization.TrackMateModelView;
 
 /**
- * A view for the TrackMate_ trackmate, strongly inspired from the spots
- * detection GUI of the Imaris® software from <a
- * href="http://www.bitplane.com/">Bitplane</a>.
+ * A view for the TrackMate_ trackmate, strongly inspired from the spots detection GUI of the Imaris® software 
+ * from <a href="http://www.bitplane.com/">Bitplane</a>.
  * 
  * @author Jean-Yves Tinevez <tinevez@pasteur.fr> - September 2010 - 2011
  */
@@ -34,17 +33,21 @@ public class TrackMateWizard extends JFrame implements ActionListener {
 	JButton jButtonPrevious;
 	JButton jButtonNext;
 
-	/* DEFAULT VISIBILITY & PUBLIC CONSTANTS */
+	/*
+	 * DEFAULT VISIBILITY & PUBLIC CONSTANTS
+	 */
 
 	public static final Font FONT = new Font("Arial", Font.PLAIN, 10);
 	public static final Font BIG_FONT = new Font("Arial", Font.PLAIN, 14);
 	public static final Font SMALL_FONT = FONT.deriveFont(8);
-	public static final Dimension TEXTFIELD_DIMENSION = new Dimension(40, 18);
+	public static final Dimension TEXTFIELD_DIMENSION = new Dimension(40,18);
 	public static final Icon NEXT_ICON = new ImageIcon(TrackMateWizard.class.getResource("images/arrow_right.png"));
 	public static final String NEXT_TEXT = "Next";
 	public static final String RESUME_TEXT = "Resume";
 
-	/* PRIVATE CONSTANTS */
+	/*
+	 * PRIVATE CONSTANTS
+	 */
 
 	private static final long serialVersionUID = -4092131926852771798L;
 	private static final Icon PREVIOUS_ICON = new ImageIcon(TrackMateWizard.class.getResource("images/arrow_left.png"));
@@ -53,7 +56,9 @@ public class TrackMateWizard extends JFrame implements ActionListener {
 	private static final ImageIcon TRACKMATE_ICON = new ImageIcon(TrackMateWizard.class.getResource("images/TrackIcon_small.png"));
 	private static final Icon LOG_ICON = new ImageIcon(TrackMateWizard.class.getResource("images/information.png"));;
 
-	/* DEFAULT VISIBILITY FIELDS */
+	/*
+	 * DEFAULT VISIBILITY FIELDS
+	 */
 
 	/** This {@link ActionEvent} is fired when the 'next' button is pressed. */
 	final ActionEvent NEXT_BUTTON_PRESSED = new ActionEvent(this, 0, "NextButtonPressed");
@@ -66,7 +71,9 @@ public class TrackMateWizard extends JFrame implements ActionListener {
 	/** This {@link ActionEvent} is fired when the 'log' button is pressed. */
 	final ActionEvent LOG_BUTTON_PRESSED = new ActionEvent(this, 4, "LogButtonPressed");
 
-	/* FIELDS */
+	/*
+	 * FIELDS
+	 */
 
 	private ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
 
@@ -78,52 +85,55 @@ public class TrackMateWizard extends JFrame implements ActionListener {
 	@SuppressWarnings("unused")
 	private JButton jButtonLog;
 
-	/* CONSTRUCTOR */
+
+	/*
+	 * CONSTRUCTOR
+	 */
 
 	public TrackMateWizard(TrackMateGUIController controller) {
 		this.controller = controller;
 		initGUI();
 	}
 
-	/* PUBLIC METHODS */
+	/*
+	 * PUBLIC METHODS
+	 */
 
 	/** Expose the controller managing this GUI. */
 	public TrackMateGUIController getController() {
 		return controller;
 	}
 
-	/**
-	 * Add an {@link ActionListener} to the list of listeners of this GUI, that
-	 * will be notified when one the of push buttons is pressed.
+	/** 
+	 * Add an {@link ActionListener} to the list of listeners of this GUI, that will be notified 
+	 * when one the of push buttons is pressed.
 	 */
 	public void addActionListener(ActionListener listener) {
 		listeners.add(listener);
 	}
 
-	/**
+	/** 
 	 * Remove an {@link ActionListener} from the list of listeners of this GUI.
-	 * 
-	 * @return true if the listener was present in the list for this GUI and was
-	 *         successfully removed from it.
+	 * @return  true if the listener was present in the list for this GUI and was successfully removed from it.
 	 */
 	public boolean removeActionListener(ActionListener listener) {
 		return listeners.remove(listener);
 	}
 
-	/**
+	/** 
 	 * Return a {@link Logger} suitable for use with this view.
 	 */
 	public Logger getLogger() {
 		return logPanel.getLogger();
 	}
 
+
 	public LogPanel getLogPanel() {
 		return logPanel;
 	}
 
 	/**
-	 * @return a reference to the {@link TrackMateModelView} linked to this
-	 *         wizard.
+	 * @return a reference to the {@link TrackMateModelView} linked to this wizard.
 	 */
 	public TrackMateModelView getDisplayer() {
 		return displayer;
@@ -136,7 +146,7 @@ public class TrackMateWizard extends JFrame implements ActionListener {
 		this.displayer = displayer;
 	}
 
-	/**
+	/** 
 	 * Simply forward the caught event to listeners of this main frame.
 	 */
 	@Override
@@ -144,14 +154,12 @@ public class TrackMateWizard extends JFrame implements ActionListener {
 		fireAction(event);
 	}
 
+
 	/**
-	 * Sets the current panel to that identified by the String passed in. It
-	 * must be the {@link WizardPanelDescriptor} string ID, not the component
-	 * string ID.
-	 * 
-	 * @param descriptorID
-	 *        String-based panel identifier
-	 */
+	 * Sets the current panel to that identified by the String passed in.
+	 * It must be the {@link WizardPanelDescriptor} string ID, not the component string ID.
+	 * @param descriptorID String-based panel identifier
+	 */    
 	public void show(final WizardPanelDescriptor descriptor) {
 
 		SwingUtilities.invokeLater(new Runnable() {
@@ -167,13 +175,13 @@ public class TrackMateWizard extends JFrame implements ActionListener {
 		});
 	}
 
+	
 	public void setNextButtonEnabled(final boolean b) {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
-			public void run() {
+			public void run() { 
 				jButtonNext.setEnabled(b);
-				if (b)
-					jButtonNext.requestFocusInWindow();
+				if (b) jButtonNext.requestFocusInWindow();
 			}
 		});
 	}
@@ -181,31 +189,27 @@ public class TrackMateWizard extends JFrame implements ActionListener {
 	public void setPreviousButtonEnabled(final boolean b) {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
-			public void run() {
-				jButtonPrevious.setEnabled(b);
-			}
+			public void run() { jButtonPrevious.setEnabled(b); }
 		});
 	}
 
 	public void setSaveButtonEnabled(final boolean b) {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
-			public void run() {
-				jButtonSave.setEnabled(b);
-			}
+			public void run() { jButtonSave.setEnabled(b); }
 		});
 	}
 
 	public void setLoadButtonEnabled(final boolean b) {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
-			public void run() {
-				jButtonLoad.setEnabled(b);
-			}
+			public void run() { jButtonLoad.setEnabled(b); }
 		});
 	}
 
-	/* PRIVATE METHODS */
+	/*
+	 * PRIVATE METHODS
+	 */
 
 	/**
 	 * Forward the given {@link ActionEvent} to the listeners of this GUI.
@@ -224,7 +228,7 @@ public class TrackMateWizard extends JFrame implements ActionListener {
 		try {
 			setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 			setIconImage(TRACKMATE_ICON.getImage());
-			setTitle(fiji.plugin.trackmate.TrackMate.PLUGIN_NAME_STR + " v" + fiji.plugin.trackmate.TrackMate.PLUGIN_NAME_VERSION);
+			setTitle(fiji.plugin.trackmate.TrackMate.PLUGIN_NAME_STR + " v"+fiji.plugin.trackmate.TrackMate.PLUGIN_NAME_VERSION);
 			{
 				jPanelMain = new JPanel();
 				getContentPane().add(jPanelMain, BorderLayout.CENTER);
@@ -240,8 +244,7 @@ public class TrackMateWizard extends JFrame implements ActionListener {
 			jButtonPrevious = addButton(null, PREVIOUS_ICON, 190, 2, 30, 25, PREVIOUS_BUTTON_PRESSED);
 			jButtonNext = addButton(NEXT_TEXT, NEXT_ICON, 220, 2, 73, 25, NEXT_BUTTON_PRESSED);
 			pack();
-			// Only instantiate the logger panel, the rest will be done by the
-			// controller
+			// Only instantiate the logger panel, the rest will be done by the controller
 			{
 				logPanel = new LogPanel();
 			}

@@ -30,16 +30,29 @@ public class ISBIChallengeExporter extends AbstractTMAction {
 
 	public static final ImageIcon ICON = new ImageIcon(TrackMateWizard.class.getResource("images/ISBIlogo.png"));
 	public static final String NAME = "Export to ISBI challenge format";
-	public static final String INFO_TEXT = "<html>" + "Export the current model content to a XML file following the " + "ISBI 2012 particle tracking challenge format, as specified on " + "<a href='http://bioimageanalysis.org/track/'></a>. " + "<p> " + "Only tracks are exported. If there is no track, this action " + "does nothing. " + "</html>";
+	public static final String INFO_TEXT = "<html>" +
+				"Export the current model content to a XML file following the " +
+				"ISBI 2012 particle tracking challenge format, as specified on " +
+				"<a href='http://bioimageanalysis.org/track/'></a>. " +
+				"<p> " +
+				"Only tracks are exported. If there is no track, this action " +
+				"does nothing. " +
+				"</html>";
 
-	/* CONSTRUCTOR */
 
+	/*
+	 * CONSTRUCTOR
+	 */
+	
 	public ISBIChallengeExporter(TrackMate trackmate, TrackMateGUIController controller) {
 		super(trackmate, controller);
 		this.icon = ICON;
 	}
 
-	/* METHODS */
+
+	/*
+	 * METHODS
+	 */
 
 	@Override
 	public void execute() {
@@ -49,7 +62,7 @@ public class ISBIChallengeExporter extends AbstractTMAction {
 		try {
 			String filename = trackmate.getSettings().imageFileName;
 			filename = filename.substring(0, filename.indexOf("."));
-			file = new File(folder.getPath() + File.separator + filename + "_ISBI.xml");
+			file = new File(folder.getPath() + File.separator + filename +"_ISBI.xml");
 		} catch (NullPointerException npe) {
 			file = new File(folder.getPath() + File.separator + "ISBIChallenge2012Result.xml");
 		}
@@ -57,7 +70,7 @@ public class ISBIChallengeExporter extends AbstractTMAction {
 
 		exportToFile(model, trackmate.getSettings(), file);
 	}
-
+	
 	public static void exportToFile(final Model model, Settings settings, final File file) {
 		final Logger logger = model.getLogger();
 		logger.log("Exporting to ISBI 2012 particle tracking challenge format.\n");
@@ -76,12 +89,13 @@ public class ISBIChallengeExporter extends AbstractTMAction {
 		try {
 			outputter.output(document, new FileOutputStream(file));
 		} catch (FileNotFoundException e) {
-			logger.error("Trouble writing to " + file + ":\n" + e.getMessage());
+			logger.error("Trouble writing to "+file+":\n" + e.getMessage());
 		} catch (IOException e) {
-			logger.error("Trouble writing to " + file + ":\n" + e.getMessage());
+			logger.error("Trouble writing to "+file+":\n" + e.getMessage());
 		}
 		logger.log("Done.\n");
 	}
+	
 
 	@Override
 	public String getInfoText() {
@@ -95,22 +109,22 @@ public class ISBIChallengeExporter extends AbstractTMAction {
 
 	private static final Element marshall(Model model, Settings settings) {
 		final Logger logger = model.getLogger();
-
+		
 		Element root = new Element("root");
 		Element content = new Element(CONTENT_KEY);
 
 		// Extract from file name
 		String filename = settings.imageFileName; // VIRUS snr 7 density mid.tif
-		String pattern = "^(\\w+) " + SNR_ATT + " (\\d+) " + DENSITY_ATT + " (\\w+)\\.";
+		String pattern = "^(\\w+) " + SNR_ATT +" (\\d+) " + DENSITY_ATT + " (\\w+)\\.";	
 		Pattern r = Pattern.compile(pattern);
 		Matcher m = r.matcher(filename);
 		String snr_val;
 		String density_val;
 		String scenario_val;
 		if (m.find()) {
-			scenario_val = m.group(1);
-			snr_val = m.group(2);
-			density_val = m.group(3);
+			scenario_val 	= m.group(1);
+			snr_val 		= m.group(2);
+			density_val 	= m.group(3);
 		} else {
 			scenario_val = filename;
 			snr_val = "?";
@@ -123,15 +137,15 @@ public class ISBIChallengeExporter extends AbstractTMAction {
 
 		logger.setStatus("Marshalling...");
 		Integer[] visibleTracks = model.getTrackModel().trackIDs(true).toArray(new Integer[] {});
-		for (int i = 0; i < model.getTrackModel().nTracks(true); i++) {
+		for (int i = 0 ; i < model.getTrackModel().nTracks(true) ; i++) {
 
 			Element trackElement = new Element(TRACK_KEY);
 			int trackindex = visibleTracks[i];
 			Set<Spot> track = model.getTrackModel().trackSpots(trackindex);
-			// Sort them by time
+			// Sort them by time 
 			TreeSet<Spot> sortedTrack = new TreeSet<Spot>(Spot.timeComparator);
 			sortedTrack.addAll(track);
-
+			
 			for (Spot spot : sortedTrack) {
 				int t = spot.getFeature(Spot.FRAME).intValue();
 				double x = spot.getFeature(Spot.POSITION_X);
@@ -139,10 +153,10 @@ public class ISBIChallengeExporter extends AbstractTMAction {
 				double z = spot.getFeature(Spot.POSITION_Z);
 
 				Element spotElement = new Element(SPOT_KEY);
-				spotElement.setAttribute(T_ATT, "" + t);
-				spotElement.setAttribute(X_ATT, "" + x);
-				spotElement.setAttribute(Y_ATT, "" + y);
-				spotElement.setAttribute(Z_ATT, "" + z);
+				spotElement.setAttribute(T_ATT, ""+t);
+				spotElement.setAttribute(X_ATT, ""+x);
+				spotElement.setAttribute(Y_ATT, ""+y);
+				spotElement.setAttribute(Z_ATT, ""+z);
 				trackElement.addContent(spotElement);
 			}
 			content.addContent(trackElement);
@@ -155,7 +169,10 @@ public class ISBIChallengeExporter extends AbstractTMAction {
 		return root;
 	}
 
-	/* XML KEYS */
+
+	/*
+	 * XML KEYS
+	 */
 
 	private static final String CONTENT_KEY = "TrackContestISBI2012";
 	private static final String DATE_ATT = "generationDateTime";

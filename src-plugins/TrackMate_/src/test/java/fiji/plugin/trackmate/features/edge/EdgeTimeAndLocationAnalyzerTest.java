@@ -22,9 +22,7 @@ import fiji.plugin.trackmate.features.edges.EdgeTimeLocationAnalyzer;
 public class EdgeTimeAndLocationAnalyzerTest {
 
 	private static final int N_TRACKS = 10;
-	private static final int DEPTH = 9; // must be at least 6 to avoid tracks
-										// too shorts - may make this test fail
-										// sometimes
+	private static final int DEPTH = 9; // must be at least 6 to avoid tracks too shorts - may make this test fail sometimes
 	private Model model;
 	private HashMap<DefaultWeightedEdge, Double> edgeTime;
 	private HashMap<DefaultWeightedEdge, Double> edgePos;
@@ -37,35 +35,35 @@ public class EdgeTimeAndLocationAnalyzerTest {
 
 		model = new Model();
 		model.beginUpdate();
-
+		
 		try {
+
 
 			for (int i = 0; i < N_TRACKS; i++) {
 
 				Spot previous = null;
 
 				for (int j = 0; j <= DEPTH; j++) {
-					Spot spot = new Spot(new double[] { i + j, i + j, i + j }); // Same
-																				// x,y,z
-																				// coords
+					Spot spot = new Spot(new double[] { i+j, i+j, i+j }); // Same x,y,z coords
 					spot.putFeature(Spot.POSITION_T, Double.valueOf(j));
 					model.addSpotTo(spot, j);
 					if (null != previous) {
 						DefaultWeightedEdge edge = model.addEdge(previous, spot, j);
 						double xcurrent = spot.getFeature(Spot.POSITION_X).doubleValue();
 						double xprevious = previous.getFeature(Spot.POSITION_X).doubleValue();
-						edgePos.put(edge, 0.5 * (xcurrent + xprevious));
-						edgeTime.put(edge, 0.5 * (spot.getFeature(Spot.POSITION_T) + previous.getFeature(Spot.POSITION_T)));
+						edgePos.put(edge, 0.5 * ( xcurrent + xprevious ) );
+						edgeTime.put(edge, 0.5 * ( spot.getFeature(Spot.POSITION_T) + previous.getFeature(Spot.POSITION_T) ) );
 
 					}
 					previous = spot;
-
+					
 					// save one middle spot
-					if (i == 0 && j == DEPTH / 2) {
+					if (i == 0 && j == DEPTH/2) {
 						aspot = spot;
 					}
 				}
 			}
+			
 
 		} finally {
 			model.endUpdate();
@@ -86,7 +84,7 @@ public class EdgeTimeAndLocationAnalyzerTest {
 		analyzer.process(model.getTrackModel().edgeSet());
 
 		// Collect features
-		for (DefaultWeightedEdge edge : model.getTrackModel().edgeSet()) {
+		for (DefaultWeightedEdge edge :model.getTrackModel().edgeSet()) {
 			assertEquals(edgePos.get(edge).doubleValue(), model.getFeatureModel().getEdgeFeature(edge, EdgeTimeLocationAnalyzer.X_LOCATION).doubleValue(), Double.MIN_VALUE);
 			assertEquals(edgeTime.get(edge).doubleValue(), model.getFeatureModel().getEdgeFeature(edge, EdgeTimeLocationAnalyzer.TIME).doubleValue(), Double.MIN_VALUE);
 		}
@@ -117,7 +115,7 @@ public class EdgeTimeAndLocationAnalyzerTest {
 				}
 				if (analyzer.isLocal()) {
 
-					analyzer.process(edgesToUpdate);
+					analyzer.process(edgesToUpdate );
 
 				} else {
 
@@ -140,7 +138,7 @@ public class EdgeTimeAndLocationAnalyzerTest {
 		} finally {
 			model.endUpdate();
 		}
-
+		
 		// We must have received 2 edges to analyzer
 		assertTrue(analyzer.hasBeenRun);
 		assertEquals(2, analyzer.edges.size());
@@ -162,5 +160,5 @@ public class EdgeTimeAndLocationAnalyzerTest {
 			super.process(edges);
 		}
 
-	}
+	}	
 }

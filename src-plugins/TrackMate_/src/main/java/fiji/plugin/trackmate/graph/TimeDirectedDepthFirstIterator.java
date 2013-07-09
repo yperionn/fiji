@@ -14,27 +14,31 @@ public class TimeDirectedDepthFirstIterator extends SortedDepthFirstIterator<Spo
 	public TimeDirectedDepthFirstIterator(Graph<Spot, DefaultWeightedEdge> g, Spot startVertex) {
 		super(g, startVertex, null);
 	}
+	
+	
+	
+    protected void addUnseenChildrenOf(Spot vertex) {
+    	
+    	int ts = vertex.getFeature(Spot.FRAME).intValue();
+        for (DefaultWeightedEdge edge : specifics.edgesOf(vertex)) {
+            if (nListeners != 0) {
+                fireEdgeTraversed(createEdgeTraversalEvent(edge));
+            }
 
-	protected void addUnseenChildrenOf(Spot vertex) {
+            Spot oppositeV = Graphs.getOppositeVertex(graph, edge, vertex);
+            int tt = oppositeV.getFeature(Spot.FRAME).intValue();
+            if (tt <= ts) {
+            	continue;
+            }
 
-		int ts = vertex.getFeature(Spot.FRAME).intValue();
-		for (DefaultWeightedEdge edge : specifics.edgesOf(vertex)) {
-			if (nListeners != 0) {
-				fireEdgeTraversed(createEdgeTraversalEvent(edge));
-			}
+            if ( seen.containsKey(oppositeV)) {
+                encounterVertexAgain(oppositeV, edge);
+            } else {
+                encounterVertex(oppositeV, edge);
+            }
+        }
+    }
 
-			Spot oppositeV = Graphs.getOppositeVertex(graph, edge, vertex);
-			int tt = oppositeV.getFeature(Spot.FRAME).intValue();
-			if (tt <= ts) {
-				continue;
-			}
-
-			if (seen.containsKey(oppositeV)) {
-				encounterVertexAgain(oppositeV, edge);
-			} else {
-				encounterVertex(oppositeV, edge);
-			}
-		}
-	}
-
+	
+	
 }

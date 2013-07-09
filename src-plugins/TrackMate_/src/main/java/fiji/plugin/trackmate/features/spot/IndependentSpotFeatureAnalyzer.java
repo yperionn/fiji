@@ -17,7 +17,8 @@ public abstract class IndependentSpotFeatureAnalyzer<T extends RealType<T>> impl
 		this.img = img;
 		this.spots = spots;
 	}
-
+	
+	
 	public abstract void process(final Spot spot);
 
 	@Override

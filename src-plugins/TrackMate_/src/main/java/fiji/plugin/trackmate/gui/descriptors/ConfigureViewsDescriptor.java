@@ -19,6 +19,7 @@ public class ConfigureViewsDescriptor implements WizardPanelDescriptor {
 		panel.setTrackColorGenerator(trackColorGenerator);
 	}
 
+
 	@Override
 	public ConfigureViewsPanel getComponent() {
 		return panel;
@@ -30,13 +31,14 @@ public class ConfigureViewsDescriptor implements WizardPanelDescriptor {
 	}
 
 	@Override
-	public void displayingPanel() {
+	public void displayingPanel() { 
 		panel.refreshColorFeatures();
 	}
 
+
 	@Override
-	public void aboutToHidePanel() {
-	}
+	public void aboutToHidePanel() { }
+
 
 	@Override
 	public String getKey() {

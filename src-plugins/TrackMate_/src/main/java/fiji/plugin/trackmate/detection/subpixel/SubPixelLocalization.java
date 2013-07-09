@@ -3,19 +3,17 @@ package fiji.plugin.trackmate.detection.subpixel;
 import net.imglib2.Localizable;
 import net.imglib2.type.numeric.NumericType;
 
-public class SubPixelLocalization<T extends NumericType<T> & Comparable<T>> implements Localizable, Comparable<SubPixelLocalization<T>> {
+public class SubPixelLocalization< T extends NumericType<T> & Comparable<T>> implements Localizable, Comparable<SubPixelLocalization<T>> {
 
-	public static enum LocationType {
-		INVALID, MIN, MAX
-	};
-
+	public static enum LocationType { INVALID, MIN, MAX };
+	
 	protected long[] pixelCoordinates;
 	protected double[] subPixelLocationOffset;
 	protected T value;
 	protected T interpolatedValue;
 	protected String errorMessage = "";
 	protected LocationType locationType;
-
+	
 	public SubPixelLocalization(final long[] position, final T value, final LocationType locationType) {
 		this.locationType = locationType;
 		this.pixelCoordinates = position;
@@ -85,7 +83,7 @@ public class SubPixelLocalization<T extends NumericType<T> & Comparable<T>> impl
 	public T getValue() {
 		return value;
 	}
-
+	
 	public void setValue(T value) {
 		this.value = value;
 	}
@@ -97,7 +95,7 @@ public class SubPixelLocalization<T extends NumericType<T> & Comparable<T>> impl
 	public void setErrorMessage(String error) {
 		this.errorMessage = error;
 	}
-
+	
 	public String getErrorMessage() {
 		return errorMessage;
 	}
@@ -110,14 +108,17 @@ public class SubPixelLocalization<T extends NumericType<T> & Comparable<T>> impl
 		this.locationType = locationType;
 	}
 
+	
 	@Override
 	public int compareTo(final SubPixelLocalization<T> inPeak) {
-		/* You're probably wondering why this is negated. It is because
-		 * Collections.sort() sorts only in the forward direction. I want these
-		 * to be sorted in the descending order, and the Collections.sort method
-		 * is the only thing that should ever touch Peak.compareTo. This is
-		 * faster than sorting, then reversing. */
-		if (value.compareTo(inPeak.value) == 1) {
+		/*
+		 * You're probably wondering why this is negated.
+		 * It is because Collections.sort() sorts only in the forward direction.
+		 * I want these to be sorted in the descending order, and the Collections.sort
+		 * method is the only thing that should ever touch Peak.compareTo.
+		 * This is faster than sorting, then reversing.
+		 */
+		if (value.compareTo(inPeak.value) == 1) 	{
 			return -1;
 		} else if (value.compareTo(inPeak.value) == 0) {
 			return 0;

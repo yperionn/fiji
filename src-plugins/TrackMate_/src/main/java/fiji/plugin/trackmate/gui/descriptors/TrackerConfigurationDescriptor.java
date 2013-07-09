@@ -13,17 +13,19 @@ public class TrackerConfigurationDescriptor implements WizardPanelDescriptor {
 	private final TrackMate trackmate;
 	private ConfigurationPanel configPanel;
 	private final TrackerProvider trackerProvider;
-
+	
 	public TrackerConfigurationDescriptor(TrackerProvider trackerProvider, TrackMate trackmate) {
 		this.trackmate = trackmate;
 		this.trackerProvider = trackerProvider;
 	}
-
-	/* METHODS */
+	
+	
+	/*
+	 * METHODS
+	 */
 
 	/**
-	 * Regenerate the config panel to reflect current settings stored in the
-	 * trackmate.
+	 * Regenerate the config panel to reflect current settings stored in the trackmate.
 	 */
 	private void updateComponent() {
 		// Regenerate panel
@@ -35,7 +37,7 @@ public class TrackerConfigurationDescriptor implements WizardPanelDescriptor {
 		}
 		configPanel.setSettings(settings);
 	}
-
+	
 	@Override
 	public ConfigurationPanel getComponent() {
 		return configPanel;
@@ -47,7 +49,7 @@ public class TrackerConfigurationDescriptor implements WizardPanelDescriptor {
 	}
 
 	@Override
-	public void displayingPanel() {
+	public void displayingPanel() {	
 		if (null == configPanel) {
 			// happens after loading.
 			aboutToDisplayPanel();
@@ -60,12 +62,12 @@ public class TrackerConfigurationDescriptor implements WizardPanelDescriptor {
 		boolean settingsOk = trackerProvider.checkSettingsValidity(settings);
 		if (!settingsOk) {
 			Logger logger = trackmate.getModel().getLogger();
-			logger.error("Config panel returned bad settings map:\n" + trackerProvider.getErrorMessage() + "Using defaults settings.\n");
+			logger.error("Config panel returned bad settings map:\n"+trackerProvider.getErrorMessage()+"Using defaults settings.\n");
 			settings = trackerProvider.getDefaultSettings();
 		}
 		trackmate.getSettings().trackerSettings = settings;
 	}
-
+	
 	@Override
 	public String getKey() {
 		return KEY;

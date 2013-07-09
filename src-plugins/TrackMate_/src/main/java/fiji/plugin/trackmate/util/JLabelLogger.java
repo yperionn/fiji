@@ -8,7 +8,7 @@ import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.gui.TrackMateWizard;
 
 public class JLabelLogger extends JLabel {
-
+	
 	private static final long serialVersionUID = 1L;
 	private final MyLogger logger;
 
@@ -16,13 +16,18 @@ public class JLabelLogger extends JLabel {
 		this.logger = new MyLogger(this);
 		setFont(TrackMateWizard.SMALL_FONT);
 	}
-
+	
 	public Logger getLogger() {
 		return logger;
 	}
 
-	/* INNER CLASS */
-
+	
+	
+	
+	/*
+	 * INNER CLASS
+	 */
+	
 	private class MyLogger extends Logger {
 
 		private final JLabelLogger label;
@@ -44,13 +49,12 @@ public class JLabelLogger extends JLabel {
 
 		/** Ignored. */
 		@Override
-		public void setProgress(double val) {
-		}
+		public void setProgress(double val) {}
 
 		@Override
 		public void setStatus(String status) {
 			log(status, Logger.BLUE_COLOR);
 		}
-
+		
 	}
 }

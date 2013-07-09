@@ -13,9 +13,9 @@ import fiji.plugin.trackmate.Model;
 
 /**
  * A utility class that listens to the change occurring in a model, and updates
- * its spot, edge and track features accordingly. Useful to keep the model in
+ * its spot, edge and track features accordingly. Useful to keep the model in 
  * sync with manual editing.
- * 
+ *    
  * @author Jean-Yves Tinevez - 2013
  */
 public class ModelFeatureUpdater implements ModelChangeListener {
@@ -26,14 +26,11 @@ public class ModelFeatureUpdater implements ModelChangeListener {
 	private final Model model;
 
 	/**
-	 * Constructs and activate a {@link ModelFeatureUpdater}. The new instance
-	 * is registered to listen to model changes, and update its feature.
-	 * 
-	 * @param model
-	 *        the model to listen to.
-	 * @param settings
-	 *        the {@link Settings} the model is built against. Required to
-	 *        access the raw data.
+	 * Constructs and activate a {@link ModelFeatureUpdater}. The new instance is 
+	 * registered to listen to model changes, and update its feature.
+	 * @param model  the model to listen to. 
+	 * @param settings the {@link Settings} the model is built against. Required 
+	 * to access the raw data.
 	 */
 	public ModelFeatureUpdater(Model model, Settings settings) {
 		this.model = model;
@@ -44,8 +41,9 @@ public class ModelFeatureUpdater implements ModelChangeListener {
 	}
 
 	/**
-	 * Updates the model features against the change notified here. If the event
-	 * is not a {@link ModelChangeEvent#MODEL_MODIFIED}, does nothing.
+	 * Updates the model features against the change notified here.
+	 * If the event is not a {@link ModelChangeEvent#MODEL_MODIFIED},
+	 * does nothing.
 	 */
 	@Override
 	public void modelChanged(ModelChangeEvent event) {
@@ -61,7 +59,7 @@ public class ModelFeatureUpdater implements ModelChangeListener {
 			}
 		}
 		SpotCollection sc = SpotCollection.fromCollection(spots);
-
+		
 		// Build edge list
 		ArrayList<DefaultWeightedEdge> edges = new ArrayList<DefaultWeightedEdge>(event.getEdges().size());
 		for (DefaultWeightedEdge edge : event.getEdges()) {
@@ -72,14 +70,14 @@ public class ModelFeatureUpdater implements ModelChangeListener {
 
 		// Update spot features
 		spotFeatureCalculator.computeSpotFeatures(sc, false);
-
+		
 		// Update edge features
 		edgeFeatureCalculator.computeSpotFeatures(edges, false);
-
+		
 		// Update track features
 		trackFeatureCalculator.computeTrackFeatures(event.getTrackUpdated(), false);
 	}
-
+	
 	/**
 	 * Re-registers this instance from the listeners of the model, and stop
 	 * updating its features.

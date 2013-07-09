@@ -15,15 +15,17 @@ import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.Model;
 
 public class SpotContrastAndSNRAnalyzerFactory<T extends RealType<T> & NativeType<T>> implements SpotAnalyzerFactory<T> {
-
-	/* FIELDS */
-
+	
+	/*
+	 * FIELDS
+	 */
+	
 	/** The single feature key name that this analyzer computes. */
-	public static final String CONTRAST = "CONTRAST";
-	public static final String SNR = "SNR";
-	public static final ArrayList<String> FEATURES = new ArrayList<String>(2);
-	public static final HashMap<String, String> FEATURE_NAMES = new HashMap<String, String>(2);
-	public static final HashMap<String, String> FEATURE_SHORT_NAMES = new HashMap<String, String>(2);
+	public static final String						CONTRAST = 	"CONTRAST";
+	public static final String						SNR = 		"SNR";
+	public static final ArrayList<String> 			FEATURES = new ArrayList<String>(2);
+	public static final HashMap<String, String> 	FEATURE_NAMES = new HashMap<String, String>(2);
+	public static final HashMap<String, String> 	FEATURE_SHORT_NAMES = new HashMap<String, String>(2);
 	public static final HashMap<String, Dimension> FEATURE_DIMENSIONS = new HashMap<String, Dimension>(2);
 	static {
 		FEATURES.add(CONTRAST);
@@ -35,20 +37,24 @@ public class SpotContrastAndSNRAnalyzerFactory<T extends RealType<T> & NativeTyp
 		FEATURE_DIMENSIONS.put(CONTRAST, Dimension.NONE);
 		FEATURE_DIMENSIONS.put(SNR, Dimension.NONE);
 	}
-	public static final String KEY = "Spot contrast and SNR";
+	public static final String KEY = "Spot contrast and SNR"; 
 
 	private final Model model;
 	private final ImgPlus<T> img;
 
-	/* CONSTRUCTOR */
-
+	/*
+	 * CONSTRUCTOR
+	 */
+	
 	public SpotContrastAndSNRAnalyzerFactory(final Model model, final ImgPlus<T> img) {
 		this.model = model;
 		this.img = img;
 	}
-
-	/* METHODS */
-
+	
+	/*
+	 * METHODS
+	 */
+	
 	@Override
 	public SpotContrastAndSNRAnalyzer<T> getAnalyzer(int frame, int channel) {
 		final ImgPlus<T> imgC = HyperSliceImgPlus.fixChannelAxis(img, channel);

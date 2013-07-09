@@ -27,7 +27,9 @@ import com.itextpdf.text.DocumentException;
 
 public class ExportableChartPanel extends ChartPanel {
 
-	/* CONSTRUCTORS */
+	/*
+	 * CONSTRUCTORS
+	 */
 
 	private static final long serialVersionUID = -6556930372813672992L;
 
@@ -35,19 +37,37 @@ public class ExportableChartPanel extends ChartPanel {
 		super(chart);
 	}
 
-	public ExportableChartPanel(JFreeChart chart, boolean properties, boolean save, boolean print, boolean zoom, boolean tooltips) {
+	public ExportableChartPanel(JFreeChart chart,
+			boolean properties,
+			boolean save,
+			boolean print,
+			boolean zoom,
+			boolean tooltips) {
 		super(chart, properties, save, print, zoom, tooltips);
 	}
 
-	public ExportableChartPanel(JFreeChart chart, int width, int height, int minimumDrawWidth, int minimumDrawHeight, int maximumDrawWidth, int maximumDrawHeight, boolean useBuffer, boolean properties, boolean save, boolean print, boolean zoom, boolean tooltips) {
-		super(chart, width, height, minimumDrawWidth, minimumDrawHeight, maximumDrawWidth, maximumDrawHeight, useBuffer, properties, save, print, zoom, tooltips);
+	public ExportableChartPanel(JFreeChart chart, int width, int height,
+			int minimumDrawWidth, int minimumDrawHeight, int maximumDrawWidth,
+			int maximumDrawHeight, boolean useBuffer, boolean properties,
+			boolean save, boolean print, boolean zoom, boolean tooltips) {
+		super(chart, width, height, minimumDrawWidth, minimumDrawHeight, 
+				maximumDrawWidth, maximumDrawHeight,
+				useBuffer, properties, save, print, zoom, tooltips);
 	}
 
-	public ExportableChartPanel(JFreeChart chart, int width, int height, int minimumDrawWidth, int minimumDrawHeight, int maximumDrawWidth, int maximumDrawHeight, boolean useBuffer, boolean properties, boolean copy, boolean save, boolean print, boolean zoom, boolean tooltips) {
-		super(chart, width, height, minimumDrawWidth, minimumDrawHeight, maximumDrawWidth, maximumDrawHeight, useBuffer, properties, copy, save, print, zoom, tooltips);
+	public ExportableChartPanel(JFreeChart chart, int width, int height,
+			int minimumDrawWidth, int minimumDrawHeight, int maximumDrawWidth,
+			int maximumDrawHeight, boolean useBuffer, boolean properties,
+			boolean copy, boolean save, boolean print, boolean zoom,
+			boolean tooltips) {
+		super(chart, width, height, minimumDrawWidth, minimumDrawHeight, 
+				maximumDrawWidth, maximumDrawHeight,
+				useBuffer, properties, copy, save, print, zoom, tooltips);	
 	}
 
-	/* METHODS */
+	/*
+	 * METHODS
+	 */
 
 	@Override
 	protected JPopupMenu createPopupMenu(boolean properties, boolean copy, boolean save, boolean print, boolean zoom) {
@@ -69,6 +89,7 @@ public class ExportableChartPanel extends ChartPanel {
 		return menu;
 	}
 
+
 	public void createDataTable() {
 		XYPlot plot = null;
 		try {
@@ -79,15 +100,14 @@ public class ExportableChartPanel extends ChartPanel {
 
 		String xColumnName = plot.getDomainAxis().getLabel();
 
-		ResultsTable table = new ResultsTable(); // In OUR case this will work:
-													// there is one common X
-													// axis
+		ResultsTable table = new ResultsTable(); // In OUR case this will work: there is one common X axis
 
 		int nPoints = plot.getDataset(0).getItemCount(0);
 		for (int k = 0; k < nPoints; k++) {
 			table.incrementCounter();
 
-			double xVal = plot.getDataset(0).getXValue(0, k);
+
+			double xVal =  plot.getDataset(0).getXValue(0, k);
 			table.addValue(xColumnName, xVal);
 
 			int nSets = plot.getDatasetCount();
@@ -102,7 +122,7 @@ public class ExportableChartPanel extends ChartPanel {
 
 					@SuppressWarnings("rawtypes")
 					Comparable seriesKey = dataset.getSeriesKey(j);
-					String yColumnName = seriesKey.toString() + "(" + plot.getRangeAxis().getLabel() + ")";
+					String yColumnName = seriesKey.toString() + "("+plot.getRangeAxis().getLabel()+")";
 					double yVal = dataset.getYValue(j, k);
 					table.addValue(yColumnName, yVal);
 				}
@@ -112,26 +132,27 @@ public class ExportableChartPanel extends ChartPanel {
 		table.show(getChart().getTitle().getText());
 	}
 
+
+
 	/**
 	 * Opens a file chooser and gives the user an opportunity to save the chart
 	 * in PNG, PDF or SVG format.
-	 * 
-	 * @throws IOException
-	 *         if there is an I/O error.
+	 *
+	 * @throws IOException if there is an I/O error.
 	 */
 	public void doSaveAs() throws IOException {
 
 		File file = null;
 
-		if (IJ.isMacintosh()) {
+		if(IJ.isMacintosh()) {
 			// use the native file dialog on the mac
 			Container dialogParent = getParent();
-			while (!(dialogParent instanceof Frame)) {
+			while ( !(dialogParent instanceof Frame)) {
 				dialogParent = dialogParent.getParent();
 			}
 			Frame frame = (Frame) dialogParent;
 
-			FileDialog dialog = new FileDialog(frame, "Export chart to PNG, PDF or SVG", FileDialog.SAVE);
+			FileDialog dialog =	new FileDialog(frame, "Export chart to PNG, PDF or SVG", FileDialog.SAVE);
 			String defaultDir = null;
 			if (getDefaultDirectoryForSaveAs() != null) {
 				defaultDir = getDefaultDirectoryForSaveAs().getPath();
@@ -166,7 +187,7 @@ public class ExportableChartPanel extends ChartPanel {
 
 			int option = fileChooser.showSaveDialog(this);
 			if (option == JFileChooser.APPROVE_OPTION) {
-				file = fileChooser.getSelectedFile();
+				file =  fileChooser.getSelectedFile();
 
 			} else {
 				return;

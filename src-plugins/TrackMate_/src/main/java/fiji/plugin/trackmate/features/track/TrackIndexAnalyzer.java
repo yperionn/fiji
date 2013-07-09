@@ -13,7 +13,7 @@ import fiji.plugin.trackmate.Model;
 public class TrackIndexAnalyzer implements TrackAnalyzer {
 
 	/** The key for this analyzer. */
-	public static final String KEY = "Track index";
+	public static final String 		KEY = "Track index";
 	/** The key for the feature TRACK_INDEX */
 	public static final String TRACK_INDEX = "TRACK_INDEX";
 	public static final String TRACK_ID = "TRACK_ID";
@@ -22,7 +22,7 @@ public class TrackIndexAnalyzer implements TrackAnalyzer {
 	private static final Map<String, String> FEATURE_NAMES = new HashMap<String, String>(1);
 	private static final Map<String, String> FEATURE_SHORT_NAMES = new HashMap<String, String>(1);
 	private static final Map<String, Dimension> FEATURE_DIMENSIONS = new HashMap<String, Dimension>(1);
-
+	
 	static {
 		FEATURES.add(TRACK_INDEX);
 		FEATURES.add(TRACK_ID);
@@ -36,23 +36,22 @@ public class TrackIndexAnalyzer implements TrackAnalyzer {
 		FEATURE_DIMENSIONS.put(TRACK_INDEX, Dimension.NONE);
 		FEATURE_DIMENSIONS.put(TRACK_ID, Dimension.NONE);
 	}
-
+	
 	private final Model model;
 	private long processingTime;
-
+	
 	public TrackIndexAnalyzer(final Model model) {
 		this.model = model;
 	}
-
+	
 	/**
-	 * {@link TrackIndexAnalyzer} is not local, since the indices are
-	 * re-arranged according to names.
+	 * {@link TrackIndexAnalyzer} is not local, since the indices are re-arranged according to names.
 	 */
 	@Override
 	public boolean isLocal() {
 		return false;
 	}
-
+	
 	@Override
 	public void process(Collection<Integer> trackIDs) {
 		long start = System.currentTimeMillis();
@@ -70,7 +69,7 @@ public class TrackIndexAnalyzer implements TrackAnalyzer {
 	public long getProcessingTime() {
 		return processingTime;
 	}
-
+	
 	@Override
 	public String getKey() {
 		return KEY;
@@ -107,8 +106,7 @@ public class TrackIndexAnalyzer implements TrackAnalyzer {
 	 * Ignored. This analyzer is single-threaded.
 	 */
 	@Override
-	public void setNumThreads(int numThreads) {
-	}
+	public void setNumThreads(int numThreads) {}
 
 	/**
 	 * Ignore. This analyzer is single-threaded.

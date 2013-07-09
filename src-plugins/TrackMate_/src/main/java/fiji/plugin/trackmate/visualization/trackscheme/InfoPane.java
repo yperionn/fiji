@@ -61,25 +61,26 @@ public class InfoPane extends JPanel implements SelectionChangeListener {
 	private boolean doHighlightSelection = true;
 	private final Model model;
 	private final SelectionModel selectionModel;
-	/**
-	 * A copy of the last spot collection highlighted in this infopane, sorted
-	 * by frame order.
-	 */
+	/** A copy of the last spot collection highlighted in this infopane, sorted by frame order. */
 	private Collection<Spot> spotSelection;
 	private final OnRequestUpdater updater;
 	/** The table headers, taken from spot feature names. */
 	private final String[] headers;
 
-	/* CONSTRUCTOR */
+
+
+
+
+	/*
+	 * CONSTRUCTOR
+	 */
 
 	/**
-	 * Creates a new Info pane that displays information on the current spot
-	 * selection in a table.
+	 * Creates a new Info pane that displays information on the current spot selection in 
+	 * a table. 
 	 * 
-	 * @param model
-	 *        the {@link Model} from which the spot collection is taken.
-	 * @param settings
-	 *        the {@link Settings} object we use to retrieve spot feature names.
+	 * @param model the {@link Model} from which the spot collection is taken.
+	 * @param settings  the {@link Settings} object we use to retrieve spot feature names.
 	 */
 	public InfoPane(Model model, SelectionModel selectionModel) {
 		this.model = model;
@@ -93,37 +94,32 @@ public class InfoPane extends JPanel implements SelectionChangeListener {
 			public void refresh() {
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
-					public void run() {
-						update();
-					}
+					public void run() { update(); }
 				});
 			}
 		});
-		// Add a listener to ensure we remove this panel from the listener list
-		// of the model
-		addAncestorListener(new AncestorListener() {
+		// Add a listener to ensure we remove this panel from the listener list of the model
+		addAncestorListener(new AncestorListener() {			
 			@Override
 			public void ancestorRemoved(AncestorEvent event) {
 				InfoPane.this.selectionModel.removeSelectionChangeListener(InfoPane.this);
 			}
-
 			@Override
-			public void ancestorMoved(AncestorEvent event) {
-			}
-
+			public void ancestorMoved(AncestorEvent event) {}
 			@Override
-			public void ancestorAdded(AncestorEvent event) {
-			}
+			public void ancestorAdded(AncestorEvent event) {}
 		});
 		selectionModel.addSelectionChangeListener(this);
 		init();
 	}
 
-	/* PUBLIC METHODS */
+	/*
+	 * PUBLIC METHODS
+	 */
 
 	@Override
 	public void selectionChanged(SelectionChangeEvent event) {
-		// Echo changed in a different thread for performance
+		// Echo changed in a different thread for performance 
 		new Thread("TrackScheme info pane thread") {
 			public void run() {
 				highlightSpots(selectionModel.getSpotSelection());
@@ -132,8 +128,7 @@ public class InfoPane extends JPanel implements SelectionChangeListener {
 	}
 
 	/**
-	 * Show the given spot selection as a table displaying their individual
-	 * features.
+	 * Show the given spot selection as a table displaying their individual features. 
 	 */
 	private void highlightSpots(final Collection<Spot> spots) {
 		if (!doHighlightSelection)
@@ -143,23 +138,21 @@ public class InfoPane extends JPanel implements SelectionChangeListener {
 			return;
 		}
 
-		// Copy and sort selection by frame
+		// Copy and sort selection by frame 
 		spotSelection = spots;
 		updater.doUpdate();
 	}
 
 	private void update() {
 		/* Sort using a list; TreeSet does not allow several identical frames,
-		 * which is likely to happen. */
+		 * which is likely to happen.  */
 		List<Spot> sortedSpots = new ArrayList<Spot>(spotSelection);
 		Collections.sort(sortedSpots, Spot.frameComparator);
-
+		
 		@SuppressWarnings("serial")
 		DefaultTableModel dm = new DefaultTableModel() { // Un-editable model
 			@Override
-			public boolean isCellEditable(int row, int column) {
-				return false;
-			}
+			public boolean isCellEditable(int row, int column) { return false; }
 		};
 
 		List<String> features = new ArrayList<String>(model.getFeatureModel().getSpotFeatures());
@@ -178,10 +171,7 @@ public class InfoPane extends JPanel implements SelectionChangeListener {
 		// Tune look
 		@SuppressWarnings("serial")
 		DefaultTableCellRenderer headerRenderer = new DefaultTableCellRenderer() {
-			public boolean isOpaque() {
-				return false;
-			};
-
+			public boolean isOpaque() { return false; };
 			@Override
 			public Color getBackground() {
 				return Color.BLUE;
@@ -196,10 +186,10 @@ public class InfoPane extends JPanel implements SelectionChangeListener {
 		renderer.setFont(SMALL_FONT);
 
 		FontMetrics fm = table.getGraphics().getFontMetrics(FONT);
-		for (int i = 0; i < table.getColumnCount(); i++) {
+		for(int i=0; i<table.getColumnCount(); i++) {
 			table.setDefaultRenderer(table.getColumnClass(i), renderer);
 			// Set width auto
-			table.getColumnModel().getColumn(i).setWidth(fm.stringWidth(dm.getColumnName(i)));
+			table.getColumnModel().getColumn(i).setWidth(fm.stringWidth( dm.getColumnName(i) ) );
 		}
 		for (Component c : scrollTable.getColumnHeader().getComponents()) {
 			c.setBackground(getBackground());
@@ -209,7 +199,9 @@ public class InfoPane extends JPanel implements SelectionChangeListener {
 		validate();
 	}
 
-	/* PRIVATE METHODS */
+	/*
+	 * PRIVATE METHODS
+	 */
 
 	private void displayPopupMenu(Point point) {
 		// Prepare menu
@@ -217,9 +209,7 @@ public class InfoPane extends JPanel implements SelectionChangeListener {
 		JMenuItem exportItem = menu.add("Export to ImageJ table");
 		exportItem.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				exportTableToImageJ();
-			}
+			public void actionPerformed(ActionEvent arg0) {	exportTableToImageJ(); 	}
 		});
 		// Display it
 		menu.show(table, (int) point.getX(), (int) point.getY());
@@ -228,22 +218,22 @@ public class InfoPane extends JPanel implements SelectionChangeListener {
 	private void exportTableToImageJ() {
 		ResultsTable table = new ResultsTable();
 		List<String> features = new ArrayList<String>(model.getFeatureModel().getSpotFeatures());
-
+		
 		int ncols = spotSelection.size();
 		int nrows = headers.length;
-		Spot[] spotArray = spotSelection.toArray(new Spot[] {});
+		Spot[] spotArray = spotSelection.toArray(new Spot[] {} );
 
 		for (int j = 0; j < nrows; j++) {
 			table.incrementCounter();
 			String feature = features.get(j);
 			table.setLabel(feature, j);
 			for (int i = 0; i < ncols; i++) {
-				Spot spot = spotArray[i];
+				Spot spot =  spotArray[i]; 
 				Double val = spot.getFeature(feature);
 				if (val == null) {
 					val = Double.NaN;
 				}
-				table.addValue(spot.getName(), val);
+				table.addValue(spot.getName(),  val);
 			}
 		}
 
@@ -274,16 +264,16 @@ public class InfoPane extends JPanel implements SelectionChangeListener {
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
-				if (e.isPopupTrigger())
+				if (e.isPopupTrigger()) 
 					displayPopupMenu(e.getPoint());
 			}
-
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				if (e.isPopupTrigger())
+				if (e.isPopupTrigger()) 
 					displayPopupMenu(e.getPoint());
 			}
 		});
+
 
 		JList rowHeader = new JList(lm);
 		rowHeader.setFixedCellHeight(table.getRowHeight());
@@ -315,16 +305,14 @@ public class InfoPane extends JPanel implements SelectionChangeListener {
 			}
 		});
 
+
 	}
 
 	/**
-	 * Reads the content of the current spot selection and plot the selected
-	 * features in this {@link InfoPane} for the target spots.
-	 * 
-	 * @param xFeature
-	 *        the feature to use as X axis.
-	 * @param yFeatures
-	 *        the features to plot as Y axis.
+	 * Reads the content of the current spot selection and plot the selected features 
+	 * in this {@link InfoPane} for the target spots. 
+	 * @param xFeature  the feature to use as X axis.
+	 * @param yFeatures  the features to plot as Y axis.
 	 */
 	private void plotSelectionData(String xFeature, Set<String> yFeatures) {
 		Set<Spot> spots = selectionModel.getSpotSelection();
@@ -335,9 +323,11 @@ public class InfoPane extends JPanel implements SelectionChangeListener {
 		SpotFeatureGrapher grapher = new SpotFeatureGrapher(xFeature, yFeatures, spots, model);
 		grapher.render();
 	}
-
-	/* INNER CLASS */
-
+	
+	/*
+	 * INNER CLASS
+	 */
+	
 	private class RowHeaderRenderer extends JLabel implements ListCellRenderer, Serializable {
 
 		private static final long serialVersionUID = -1L;
@@ -349,7 +339,7 @@ public class InfoPane extends JPanel implements SelectionChangeListener {
 			setForeground(header.getForeground());
 			setBackground(header.getBackground());
 			setFont(SMALL_FONT.deriveFont(9.0f));
-			setHorizontalAlignment(SwingConstants.LEFT);
+			setHorizontalAlignment(SwingConstants.LEFT);				
 		}
 
 		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {

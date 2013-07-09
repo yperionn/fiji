@@ -122,35 +122,33 @@ import fiji.plugin.trackmate.tracking.SpotTracker;
 import fiji.plugin.trackmate.util.TMUtils;
 import fiji.plugin.trackmate.visualization.TrackMateModelView;
 
+
 public class TmXmlReader {
 
 	protected static final boolean DEBUG = true;
 
 	protected Document document = null;
 	protected final File file;
-	/**
-	 * A map of all spots loaded. We need this for performance, since we need to
-	 * recreate both the filtered spot collection and the tracks graph from the
-	 * same spot objects that the main spot collection.. In the file, they are
-	 * referenced by their {@link Spot#ID()}, and parsing them all to retrieve
-	 * the one with the right ID is a drag. We made this cache a
-	 * {@link ConcurrentHashMap} because we hope to load large data in a
+	/** A map of all spots loaded. We need this for performance, since we need to recreate 
+	 * both the filtered spot collection and the tracks graph from the same spot objects 
+	 * that the main spot collection.. In the file, they are referenced by their {@link Spot#ID()},
+	 * and parsing them all to retrieve the one with the right ID is a drag.
+	 * We made this cache a {@link ConcurrentHashMap} because we hope to load large data in a 
 	 * multi-threaded way.
 	 */
 	protected ConcurrentHashMap<Integer, Spot> cache;
 	protected StringBuilderLogger logger = new StringBuilderLogger();
 	protected final Element root;
-	/**
-	 * If <code>false</code>, an error occured during reading.
-	 * 
-	 * @see #getErrorMessage().
-	 */
+	/** If <code>false</code>, an error occured during reading. 
+	 * @see #getErrorMessage(). */
 	protected boolean ok = true;
 
-	/* CONSTRUCTORS */
+	/*
+	 * CONSTRUCTORS
+	 */
 
 	/**
-	 * Initialize this reader to read the file given in argument.
+	 * Initialize this reader to read the file given in argument. 
 	 */
 	public TmXmlReader(File file) {
 		this.file = file;
@@ -158,22 +156,26 @@ public class TmXmlReader {
 		Element r = null;
 		try {
 			document = sb.build(file);
-			r = document.getRootElement();
+			r  = document.getRootElement();
 		} catch (JDOMException e) {
 			ok = false;
-			logger.error("Problem parsing " + file.getName() + ", it is not a valid TrackMate XML file.\nError message is:\n" + e.getLocalizedMessage() + '\n');
+			logger.error("Problem parsing "+file.getName()+", it is not a valid TrackMate XML file.\nError message is:\n"
+					+e.getLocalizedMessage()+'\n');
 		} catch (IOException e) {
-			logger.error("Problem reading " + file.getName() + ".\nError message is:\n" + e.getLocalizedMessage() + '\n');
+			logger.error("Problem reading "+file.getName()
+					+".\nError message is:\n"+e.getLocalizedMessage()+'\n');
 			ok = false;
 		}
 		this.root = r;
 	}
 
-	/* PUBLIC METHODS */
+	/*
+	 * PUBLIC METHODS
+	 */
 
 	/**
-	 * Returns the log text saved in the file, or <code>null</code> if log text
-	 * was not saved.
+	 * Returns  the log text saved in the file, or <code>null</code> if log
+	 * text was not saved.
 	 */
 	public String getLog() {
 		Element logElement = root.getChild(LOG_ELEMENT_KEY);
@@ -183,10 +185,9 @@ public class TmXmlReader {
 			return "";
 		}
 	}
-
+	
 	/**
-	 * Returns the GUI state saved in the file.
-	 * 
+	 * Returns the GUI state saved in the file. 
 	 * @return the saved GUI state, as a string.
 	 */
 	public String getGUIState() {
@@ -198,40 +199,38 @@ public class TmXmlReader {
 				ok = false;
 			}
 			return guiState;
-
+			
 		} else {
 			logger.error("Could not find GUI state element.\n");
 			ok = false;
 			return null;
 		}
 	}
-
+	
 	/**
-	 * Returns the collection of views that were saved in this file. The views
-	 * returned are not rendered yet.
-	 * 
-	 * @param provider
-	 *        the {@link ViewProvider} to instantiate the view. Each saved view
-	 *        must be known by the specified provider.
+	 * Returns the collection of views that were saved in this file. The views returned
+	 * are not rendered yet.
+	 * @param provider  the {@link ViewProvider} to instantiate the view. Each saved 
+	 * view must be known by the specified provider.
 	 * @return the collection of views.
 	 * @see TrackMateModelView#render()
 	 */
 	public Collection<TrackMateModelView> getViews(ViewProvider provider) {
 		Element guiel = root.getChild(GUI_STATE_ELEMENT_KEY);
 		if (null != guiel) {
-
+			
 			List<Element> children = guiel.getChildren(GUI_VIEW_ELEMENT_KEY);
 			Collection<TrackMateModelView> views = new ArrayList<TrackMateModelView>(children.size());
 
 			for (Element child : children) {
 				String viewKey = child.getAttributeValue(GUI_VIEW_ATTRIBUTE);
 				if (null == viewKey) {
-					logger.error("Could not find view key attribute for element " + child + ".\n");
+					logger.error("Could not find view key attribute for element " + child +".\n");
 					ok = false;
 				} else {
 					TrackMateModelView view = provider.getView(viewKey);
 					if (null == view) {
-						logger.error("Unknown view for key " + viewKey + ".\n");
+						logger.error("Unknown view for key " + viewKey +".\n");
 						ok = false;
 					} else {
 						views.add(view);
@@ -239,7 +238,7 @@ public class TmXmlReader {
 				}
 			}
 			return views;
-
+			
 		} else {
 			logger.error("Could not find GUI state element.\n");
 			ok = false;
@@ -247,22 +246,22 @@ public class TmXmlReader {
 		}
 	}
 
+
 	/**
-	 * Returns the model saved in the file, or <code>null</code> if a saved
-	 * model cannot be found in the xml file.
-	 * 
+	 * Returns the model saved in the file, or <code>null</code> if a saved model 
+	 * cannot be found in the xml file. 
 	 * @return a new {@link Model}.
 	 */
 	public Model getModel() {
 		Element modelElement = root.getChild(MODEL_ELEMENT_KEY);
 		if (null == modelElement) {
 			return null;
-		}
+		} 
 		Model model = new Model();
 
 		// Physical units
 		String spaceUnits = modelElement.getAttributeValue(SPATIAL_UNITS_ATTRIBUTE_NAME);
-		String timeUnits = modelElement.getAttributeValue(TIME_UNITS_ATTRIBUTE_NAME);
+		String timeUnits  = modelElement.getAttributeValue(TIME_UNITS_ATTRIBUTE_NAME);
 		model.setPhysicalUnits(spaceUnits, timeUnits);
 
 		// Feature declarations
@@ -276,9 +275,9 @@ public class TmXmlReader {
 		if (!readTracks(modelElement, model)) {
 			ok = false;
 		}
-
+		
 		// Track features
-
+		
 		try {
 			Map<Integer, Map<String, Double>> savedFeatureMap = readTrackFeatures(modelElement);
 			for (Integer savedKey : savedFeatureMap.keySet()) {
@@ -293,45 +292,38 @@ public class TmXmlReader {
 			logger.error(re.getMessage());
 			ok = false;
 		}
-
+		
 		// That's it
 		return model;
 	}
 
+
 	/**
-	 * Reads the settings element of the file, and sets the fields of the
-	 * specified {@link Settings} object according to the xml file content. The
-	 * provided {@link Settings} object is left untouched if the settings
-	 * element cannot be found in the file.
-	 * 
-	 * @param settings
-	 *        the {@link Settings} object to flesh out.
-	 * @param detectorProvider
-	 *        the detector provider, required to configure the settings with a
-	 *        correct {@link SpotDetectorFactory}. If <code>null</code>, will
-	 *        skip reading detector parameters.
-	 * @param trackerProvider
-	 *        the tracker provider, required to configure the settings with a
-	 *        correct {@link SpotTracker}. If <code>null</code>, will skip
-	 *        reading tracker parameters.
-	 * @param spotAnalyzerProvider
-	 *        the spot analyzer provider, required to instantiates the saved
-	 *        {@link SpotAnalyzerFactory}s. If <code>null</code>, will skip
-	 *        reading spot analyzers.
-	 * @param edgeAnalyzerProvider
-	 *        the edge analyzer provider, required to instantiates the saved
-	 *        {@link EdgeAnalyzer}s. If <code>null</code>, will skip reading
-	 *        edge analyzers.
-	 * @param trackAnalyzerProvider
-	 *        the track analyzer provider, required to instantiates the saved
-	 *        {@link TrackAnalyzer}s. If <code>null</code>, will skip reading
-	 *        track analyzers.
+	 * Reads the settings element of the file, and sets the fields of the specified 
+	 * {@link Settings} object according to the xml file content.
+	 * The provided {@link Settings} object is left untouched if the settings element
+	 * cannot be found in the file.
+	 * @param settings the {@link Settings} object to flesh out.
+	 * @param detectorProvider the detector provider, required to configure the settings with
+	 * a correct {@link SpotDetectorFactory}. If <code>null</code>, will skip reading detector
+	 * parameters. 
+	 * @param trackerProvider the tracker provider, required to configure the settings with a 
+	 * correct {@link SpotTracker}. If <code>null</code>, will skip reading tracker parameters.
+	 * @param spotAnalyzerProvider the spot analyzer provider, required to instantiates the saved
+	 * {@link SpotAnalyzerFactory}s. If <code>null</code>, will skip reading spot analyzers.
+	 * @param edgeAnalyzerProvider the edge analyzer provider, required to instantiates the saved
+	 * {@link EdgeAnalyzer}s. If <code>null</code>, will skip reading edge analyzers.
+	 * @param trackAnalyzerProvider the track analyzer provider, required to instantiates the saved
+	 * {@link TrackAnalyzer}s. If <code>null</code>, will skip reading track analyzers.
 	 */
-	public void readSettings(Settings settings, DetectorProvider detectorProvider, TrackerProvider trackerProvider, SpotAnalyzerProvider spotAnalyzerProvider, EdgeAnalyzerProvider edgeAnalyzerProvider, TrackAnalyzerProvider trackAnalyzerProvider) {
+	public void readSettings(Settings settings, 
+			DetectorProvider detectorProvider, TrackerProvider trackerProvider, 
+			SpotAnalyzerProvider spotAnalyzerProvider, EdgeAnalyzerProvider edgeAnalyzerProvider, 
+			TrackAnalyzerProvider trackAnalyzerProvider) {
 		Element settingsElement = root.getChild(SETTINGS_ELEMENT_KEY);
 		if (null == settingsElement) {
 			return;
-		}
+		} 
 
 		// Base
 		getBaseSettings(settingsElement, settings);
@@ -365,6 +357,7 @@ public class TmXmlReader {
 		readAnalyzers(settingsElement, settings, spotAnalyzerProvider, edgeAnalyzerProvider, trackAnalyzerProvider);
 	}
 
+
 	/**
 	 * Returns the version string stored in the file.
 	 */
@@ -374,18 +367,16 @@ public class TmXmlReader {
 
 	/**
 	 * Returns an explanatory message about the last unsuccessful read attempt.
-	 * 
 	 * @return an error message.
 	 * @see #isReadingOk()
 	 */
 	public String getErrorMessage() {
 		return logger.toString();
 	}
-
+	
 	/**
-	 * Returns <code>true</code> if the last reading method call happened
-	 * without any warning or error, <code>false</code> otherwise.
-	 * 
+	 * Returns <code>true</code> if the last reading method call happened 
+	 * without any warning or error, <code>false</code> otherwise. 
 	 * @return <code>true</code> if reading was ok.
 	 * @see #getErrorMessage()
 	 */
@@ -393,12 +384,16 @@ public class TmXmlReader {
 		return ok;
 	}
 
-	/* PRIVATE METHODS */
+	/*
+	 * PRIVATE METHODS
+	 */
 
-	private ImagePlus getImage(Element settingsElement) {
+
+
+	private ImagePlus getImage(Element settingsElement)  {
 		Element imageInfoElement = settingsElement.getChild(IMAGE_ELEMENT_KEY);
 		String filename = imageInfoElement.getAttributeValue(IMAGE_FILENAME_ATTRIBUTE_NAME);
-		String folder = imageInfoElement.getAttributeValue(IMAGE_FOLDER_ATTRIBUTE_NAME);
+		String folder 	= imageInfoElement.getAttributeValue(IMAGE_FOLDER_ATTRIBUTE_NAME);
 		if (null == filename || filename.isEmpty()) {
 			logger.error("Cannot find image file name in xml file.\n");
 			ok = false;
@@ -409,8 +404,7 @@ public class TmXmlReader {
 		}
 		File imageFile = new File(folder, filename);
 		if (!imageFile.exists() || !imageFile.canRead()) {
-			// Could not find it to the absolute path. Then we look for the same
-			// path of the xml file
+			// Could not find it to the absolute path. Then we look for the same path of the xml file
 			folder = file.getParent();
 			imageFile = new File(folder, filename);
 			if (!imageFile.exists() || !imageFile.canRead()) {
@@ -422,10 +416,12 @@ public class TmXmlReader {
 		return IJ.openImage(imageFile.getAbsolutePath());
 	}
 
+
+
 	/**
 	 * Returns a map of the saved track features, as they appear in the file
 	 */
-	private Map<Integer, Map<String, Double>> readTrackFeatures(Element modelElement) {
+	private Map<Integer, Map<String,Double>> readTrackFeatures(Element modelElement) {
 
 		HashMap<Integer, Map<String, Double>> featureMap = new HashMap<Integer, Map<String, Double>>();
 
@@ -452,19 +448,19 @@ public class TmXmlReader {
 			HashMap<String, Double> trackMap = new HashMap<String, Double>();
 
 			List<Attribute> attributes = trackElement.getAttributes();
-			for (Attribute attribute : attributes) {
+			for(Attribute attribute : attributes) {
 
 				String attName = attribute.getName();
-				if (attName.equals(TRACK_NAME_ATTRIBUTE_NAME)) { // Skip trackID
-																	// attribute
+				if (attName.equals(TRACK_NAME_ATTRIBUTE_NAME)) { // Skip trackID attribute
 					continue;
 				}
-
+				
+				
 				Double attVal = Double.NaN;
 				try {
 					attVal = attribute.getDoubleValue();
 				} catch (DataConversionException e) {
-					logger.error("Track " + trackID + ": Cannot read the feature " + attName + " value. Skipping.\n");
+					logger.error("Track "+trackID+": Cannot read the feature "+attName+" value. Skipping.\n");
 					ok = false;
 					continue;
 				}
@@ -480,29 +476,26 @@ public class TmXmlReader {
 
 	}
 
+
 	/**
-	 * Return the initial filter value on quality stored in this file. Return
-	 * <code>null</code> if the initial threshold data cannot be found in the
-	 * file.
-	 * 
-	 * @param settingsElement
-	 *        the settings {@link Element} to read from.
-	 * @return the initial filter, as a {@link FeatureFilter}.
+	 * Return the initial filter value on quality stored in this file.
+	 * Return <code>null</code> if the initial threshold data cannot be found in the file.
+	 * @param settingsElement the settings {@link Element} to read from.
+	 * @return the initial filter, as a {@link FeatureFilter}. 
 	 */
-	private FeatureFilter getInitialFilter(Element settingsElement) {
+	private FeatureFilter getInitialFilter(Element settingsElement)  {
 		Element itEl = settingsElement.getChild(INITIAL_SPOT_FILTER_ELEMENT_KEY);
-		String feature = itEl.getAttributeValue(FILTER_FEATURE_ATTRIBUTE_NAME);
-		Double value = readDoubleAttribute(itEl, FILTER_VALUE_ATTRIBUTE_NAME, logger);
-		boolean isAbove = readBooleanAttribute(itEl, FILTER_ABOVE_ATTRIBUTE_NAME, logger);
+		String feature 	= itEl.getAttributeValue(FILTER_FEATURE_ATTRIBUTE_NAME);
+		Double value 	= readDoubleAttribute(itEl, FILTER_VALUE_ATTRIBUTE_NAME, logger);
+		boolean isAbove	= readBooleanAttribute(itEl, FILTER_ABOVE_ATTRIBUTE_NAME, logger);
 		FeatureFilter ft = new FeatureFilter(feature, value, isAbove);
 		return ft;
 	}
 
+
 	/**
 	 * Return the list of {@link FeatureFilter} for spots stored in this file.
-	 * 
-	 * @param settingsElement
-	 *        the settings {@link Element} to read from.
+	 * @param settingsElement the settings {@link Element} to read from.
 	 * @return a list of {@link FeatureFilter}s.
 	 */
 	private List<FeatureFilter> getSpotFeatureFilters(Element settingsElement) {
@@ -510,9 +503,9 @@ public class TmXmlReader {
 		Element ftCollectionEl = settingsElement.getChild(SPOT_FILTER_COLLECTION_ELEMENT_KEY);
 		List<Element> ftEls = ftCollectionEl.getChildren(FILTER_ELEMENT_KEY);
 		for (Element ftEl : ftEls) {
-			String feature = ftEl.getAttributeValue(FILTER_FEATURE_ATTRIBUTE_NAME);
-			Double value = readDoubleAttribute(ftEl, FILTER_VALUE_ATTRIBUTE_NAME, logger);
-			boolean isAbove = readBooleanAttribute(ftEl, FILTER_ABOVE_ATTRIBUTE_NAME, logger);
+			String feature 	= ftEl.getAttributeValue(FILTER_FEATURE_ATTRIBUTE_NAME);
+			Double value 	= readDoubleAttribute(ftEl, FILTER_VALUE_ATTRIBUTE_NAME, logger);
+			boolean isAbove	= readBooleanAttribute(ftEl, FILTER_ABOVE_ATTRIBUTE_NAME, logger);
 			FeatureFilter ft = new FeatureFilter(feature, value, isAbove);
 			featureThresholds.add(ft);
 		}
@@ -521,9 +514,7 @@ public class TmXmlReader {
 
 	/**
 	 * Returns the list of {@link FeatureFilter} for tracks stored in this file.
-	 * 
-	 * @param settingsElement
-	 *        the settings {@link Element} to read from.
+	 * @param settingsElement the settings {@link Element} to read from. 
 	 * @return a list of {@link FeatureFilter}s.
 	 */
 	private List<FeatureFilter> getTrackFeatureFilters(Element settingsElement) {
@@ -531,9 +522,9 @@ public class TmXmlReader {
 		Element ftCollectionEl = settingsElement.getChild(TRACK_FILTER_COLLECTION_ELEMENT_KEY);
 		List<Element> ftEls = ftCollectionEl.getChildren(FILTER_ELEMENT_KEY);
 		for (Element ftEl : ftEls) {
-			String feature = ftEl.getAttributeValue(FILTER_FEATURE_ATTRIBUTE_NAME);
-			Double value = readDoubleAttribute(ftEl, FILTER_VALUE_ATTRIBUTE_NAME, logger);
-			boolean isAbove = readBooleanAttribute(ftEl, FILTER_ABOVE_ATTRIBUTE_NAME, logger);
+			String feature 	= ftEl.getAttributeValue(FILTER_FEATURE_ATTRIBUTE_NAME);
+			Double value 	= readDoubleAttribute(ftEl, FILTER_VALUE_ATTRIBUTE_NAME, logger);
+			boolean isAbove	= readBooleanAttribute(ftEl, FILTER_ABOVE_ATTRIBUTE_NAME, logger);
 			FeatureFilter ft = new FeatureFilter(feature, value, isAbove);
 			featureThresholds.add(ft);
 		}
@@ -541,63 +532,56 @@ public class TmXmlReader {
 	}
 
 	/**
-	 * Set the base settings of the provided {@link Settings} object, extracted
-	 * from the specified {@link Element}.
-	 * 
-	 * @param settingsElement
-	 *        the settings {@link Element} to read parameters from.
-	 * @return a new {@link Settings} object.
+	 * Set the base settings of the provided {@link Settings} object, extracted from the specified 
+	 * {@link Element}.
+	 * @param settingsElement the settings {@link Element} to read parameters from. 
+	 * @return  a new {@link Settings} object.
 	 */
 	private void getBaseSettings(Element settingsElement, Settings settings) {
 		// Basic settings
 		Element settingsEl = settingsElement.getChild(CROP_ELEMENT_KEY);
 		if (null != settingsEl) {
 			settings.xstart = readIntAttribute(settingsEl, CROP_XSTART_ATTRIBUTE_NAME, logger, 1);
-			settings.xend = readIntAttribute(settingsEl, CROP_XEND_ATTRIBUTE_NAME, logger, 512);
+			settings.xend 	= readIntAttribute(settingsEl, CROP_XEND_ATTRIBUTE_NAME, logger, 512);
 			settings.ystart = readIntAttribute(settingsEl, CROP_YSTART_ATTRIBUTE_NAME, logger, 1);
-			settings.yend = readIntAttribute(settingsEl, CROP_YEND_ATTRIBUTE_NAME, logger, 512);
+			settings.yend 	= readIntAttribute(settingsEl, CROP_YEND_ATTRIBUTE_NAME, logger, 512);
 			settings.zstart = readIntAttribute(settingsEl, CROP_ZSTART_ATTRIBUTE_NAME, logger, 1);
-			settings.zend = readIntAttribute(settingsEl, CROP_ZEND_ATTRIBUTE_NAME, logger, 10);
+			settings.zend 	= readIntAttribute(settingsEl, CROP_ZEND_ATTRIBUTE_NAME, logger, 10);
 			settings.tstart = readIntAttribute(settingsEl, CROP_TSTART_ATTRIBUTE_NAME, logger, 1);
-			settings.tend = readIntAttribute(settingsEl, CROP_TEND_ATTRIBUTE_NAME, logger, 10);
-			// settings.detectionChannel = readIntAttribute(settingsEl,
-			// CROP_DETECTION_CHANNEL_ATTRIBUTE_NAME, logger, 1);
+			settings.tend 	= readIntAttribute(settingsEl, CROP_TEND_ATTRIBUTE_NAME, logger, 10);
+			//			settings.detectionChannel = readIntAttribute(settingsEl, CROP_DETECTION_CHANNEL_ATTRIBUTE_NAME, logger, 1);
 		}
 		// Image info settings
-		Element infoEl = settingsElement.getChild(IMAGE_ELEMENT_KEY);
+		Element infoEl 	= settingsElement.getChild(IMAGE_ELEMENT_KEY);
 		if (null != infoEl) {
-			settings.dx = readDoubleAttribute(infoEl, IMAGE_PIXEL_WIDTH_ATTRIBUTE_NAME, logger);
-			settings.dy = readDoubleAttribute(infoEl, IMAGE_PIXEL_HEIGHT_ATTRIBUTE_NAME, logger);
-			settings.dz = readDoubleAttribute(infoEl, IMAGE_VOXEL_DEPTH_ATTRIBUTE_NAME, logger);
-			settings.dt = readDoubleAttribute(infoEl, IMAGE_TIME_INTERVAL_ATTRIBUTE_NAME, logger);
-			settings.width = readIntAttribute(infoEl, IMAGE_WIDTH_ATTRIBUTE_NAME, logger, 512);
-			settings.height = readIntAttribute(infoEl, IMAGE_HEIGHT_ATTRIBUTE_NAME, logger, 512);
-			settings.nslices = readIntAttribute(infoEl, IMAGE_NSLICES_ATTRIBUTE_NAME, logger, 1);
-			settings.nframes = readIntAttribute(infoEl, IMAGE_NFRAMES_ATTRIBUTE_NAME, logger, 1);
-			settings.imageFileName = infoEl.getAttributeValue(IMAGE_FILENAME_ATTRIBUTE_NAME);
-			settings.imageFolder = infoEl.getAttributeValue(IMAGE_FOLDER_ATTRIBUTE_NAME);
+			settings.dx				= readDoubleAttribute(infoEl, IMAGE_PIXEL_WIDTH_ATTRIBUTE_NAME, logger);
+			settings.dy				= readDoubleAttribute(infoEl, IMAGE_PIXEL_HEIGHT_ATTRIBUTE_NAME, logger);
+			settings.dz				= readDoubleAttribute(infoEl, IMAGE_VOXEL_DEPTH_ATTRIBUTE_NAME, logger);
+			settings.dt				= readDoubleAttribute(infoEl, IMAGE_TIME_INTERVAL_ATTRIBUTE_NAME, logger);
+			settings.width			= readIntAttribute(infoEl, IMAGE_WIDTH_ATTRIBUTE_NAME, logger, 512);
+			settings.height			= readIntAttribute(infoEl, IMAGE_HEIGHT_ATTRIBUTE_NAME, logger, 512);
+			settings.nslices		= readIntAttribute(infoEl, IMAGE_NSLICES_ATTRIBUTE_NAME, logger, 1);
+			settings.nframes		= readIntAttribute(infoEl, IMAGE_NFRAMES_ATTRIBUTE_NAME, logger, 1);
+			settings.imageFileName	= infoEl.getAttributeValue(IMAGE_FILENAME_ATTRIBUTE_NAME);
+			settings.imageFolder	= infoEl.getAttributeValue(IMAGE_FOLDER_ATTRIBUTE_NAME);
 		}
 	}
 
 	/**
-	 * Update the given {@link Settings} object with the
-	 * {@link SpotDetectorFactory} and settings map fields named
-	 * {@link Settings#detectorFactory} and {@link Settings#detectorSettings}
-	 * read within the XML file this reader is initialized with.
+	 * Update the given {@link Settings} object with the {@link SpotDetectorFactory} and settings map fields
+	 * named {@link Settings#detectorFactory}  and {@link Settings#detectorSettings} read within the XML file
+	 * this reader is initialized with. 
 	 * <p>
-	 * As a side effect, this method also configure the {@link DetectorProvider}.
-	 * 
-	 * @param settingsElement
-	 *        the Element in which the {@link Settings} parameters are stored.
-	 * @param settings
-	 *        the base {@link Settings} object to update.
-	 * @param provider
-	 *        a {@link DetectorProvider}, required to read detector parameters.
+	 * As a side effect, this method also configure the {@link DetectorProvider}. 
+	 *  
+	 * @param settingsElement the Element in which the {@link Settings} parameters are stored.   
+	 * @param settings  the base {@link Settings} object to update.
+	 * @param provider  a {@link DetectorProvider}, required to read detector parameters. 
 	 */
 	private void getDetectorSettings(Element settingsElement, Settings settings, DetectorProvider provider) {
 		Element element = settingsElement.getChild(DETECTOR_SETTINGS_ELEMENT_KEY);
-		Map<String, Object> ds = new HashMap<String, Object>();
-		// All the hard work is delegated to the provider.
+		Map<String, Object> ds = new HashMap<String, Object>(); 
+		// All the hard work is delegated to the provider. 
 		boolean ok = provider.unmarshall(element, ds);
 
 		if (!ok) {
@@ -611,27 +595,23 @@ public class TmXmlReader {
 	}
 
 	/**
-	 * Update the given {@link Settings} object with {@link SpotTracker} proper
-	 * settings map fields named {@link Settings#trackerSettings} and
-	 * {@link Settings#tracker} read within the XML file this reader is
-	 * initialized with.
+	 * Update the given {@link Settings} object with {@link SpotTracker} proper settings map fields 
+	 * named {@link Settings#trackerSettings} and {@link Settings#tracker} read within the XML file
+	 * this reader is initialized with.
 	 * <p>
-	 * If the tracker settings or the tracker info can be read, but cannot be
-	 * understood (most likely because the class the XML refers to is unknown)
+	 * If the tracker settings or the tracker info can be read, 
+	 * but cannot be understood (most likely because the class the XML refers to is unknown) 
 	 * then a default object is substituted.
-	 * 
-	 * @param settingsElement
-	 *        the {@link Element} in which the tracker parameters are stored.
-	 * @param settings
-	 *        the base {@link Settings} object to update.
-	 * @param trackerProvider
-	 *        the {@link TrackerProvider}, required to read the tracker
-	 *        parameters.
+	 *   
+	 * @param settingsElement the {@link Element} in which the tracker parameters are stored.
+	 * @param settings  the base {@link Settings} object to update.
+	 * @param trackerProvider the {@link TrackerProvider}, required to read the tracker
+	 * parameters. 
 	 */
 	private void getTrackerSettings(Element settingsElement, Settings settings, TrackerProvider provider) {
 		Element element = settingsElement.getChild(TRACKER_SETTINGS_ELEMENT_KEY);
-		Map<String, Object> ds = new HashMap<String, Object>();
-		// All the hard work is delegated to the provider.
+		Map<String, Object> ds = new HashMap<String, Object>(); 
+		// All the hard work is delegated to the provider. 
 		boolean ok = provider.unmarshall(element, ds);
 
 		if (!ok) {
@@ -647,20 +627,18 @@ public class TmXmlReader {
 	/**
 	 * Read the list of all spots stored in this file.
 	 * <p>
-	 * Internally, this methods also builds the cache field, which will be
-	 * required by the following methods:
+	 * Internally, this methods also builds the cache field, which will be required by the
+	 * following methods:
 	 * <ul>
-	 * <li> {@link #readTracks()}
-	 * <li> {@link #readTrackEdges(SimpleDirectedWeightedGraph)}
-	 * <li> {@link #readTrackSpots(SimpleDirectedWeightedGraph)}
+	 * 	<li> {@link #readTracks()}
+	 * 	<li> {@link #readTrackEdges(SimpleDirectedWeightedGraph)}
+	 * 	<li> {@link #readTrackSpots(SimpleDirectedWeightedGraph)}
 	 * </ul>
-	 * It is therefore sensible to call this method first, just after
-	 * {@link #parse()}ing the file. If not called, this method will be called
-	 * anyway by the other methods to build the cache.
+	 * It is therefore sensible to call this method first, just after {@link #parse()}ing the file.
+	 * If not called, this method will be called anyway by the other methods to build the cache.
 	 * 
-	 * @param modelElement
-	 *        the {@link Element} in which the model content was written.
-	 * @return a new {@link SpotCollection}.
+	 * @param modelElement the {@link Element} in which the model content was written. 
+	 * @return  a new {@link SpotCollection}. 
 	 */
 	private SpotCollection getSpots(Element modelElement) {
 		// Root element for collection
@@ -672,8 +650,7 @@ public class TmXmlReader {
 		// Determine total number of spots
 		int nspots = readIntAttribute(spotCollection, SPOT_COLLECTION_NSPOTS_ATTRIBUTE_NAME, Logger.VOID_LOGGER);
 		if (nspots == 0) {
-			// Could not find it or read it. Determine it by quick sweeping
-			// through children element
+			// Could not find it or read it. Determine it by quick sweeping through children element
 			for (Element currentFrameContent : frameContent) {
 				nspots += currentFrameContent.getChildren(SPOT_ELEMENT_KEY).size();
 			}
@@ -702,10 +679,9 @@ public class TmXmlReader {
 	}
 
 	/**
-	 * Load the tracks, the track features and the ID of the filtered tracks
-	 * into the model modified by this reader.
-	 * 
-	 * @return
+	 * Load the tracks, the track features and the ID of the filtered tracks into the model
+	 * modified by this reader. 
+	 * @return 
 	 * @return true if reading tracks was successful, false otherwise.
 	 */
 	private boolean readTracks(Element modelElement, Model model) {
@@ -721,8 +697,7 @@ public class TmXmlReader {
 
 		// The list of edge features. that we will set.
 		final FeatureModel fm = model.getFeatureModel();
-		List<String> edgeIntFeatures = new ArrayList<String>();// TODO is there
-																// a better way?
+		List<String> edgeIntFeatures = new ArrayList<String>();// TODO is there a better way?
 		edgeIntFeatures.add(EdgeTargetAnalyzer.SPOT_SOURCE_ID);
 		edgeIntFeatures.add(EdgeTargetAnalyzer.SPOT_TARGET_ID);
 		Collection<String> edgeDoubleFeatures = fm.getEdgeFeatures();
@@ -760,11 +735,11 @@ public class TmXmlReader {
 
 				// Error check
 				if (null == sourceSpot) {
-					logger.error("Unknown spot ID: " + sourceID + "\n");
+					logger.error("Unknown spot ID: "+sourceID + "\n");
 					return false;
 				}
 				if (null == targetSpot) {
-					logger.error("Unknown spot ID: " + targetID + "\n");
+					logger.error("Unknown spot ID: "+targetID + "\n");
 					return false;
 				}
 
@@ -772,9 +747,8 @@ public class TmXmlReader {
 					logger.error("Bad link for track " + trackID + ". Source = Target with ID: " + sourceID + "\n");
 					return false;
 				}
-
-				// Add spots to connected set. We might add the same spot twice
-				// (because we iterate over edges)
+				
+				// Add spots to connected set. We might add the same spot twice (because we iterate over edges)
 				// but this is fine for we use a set.
 				spots.add(sourceSpot);
 				spots.add(targetSpot);
@@ -801,10 +775,10 @@ public class TmXmlReader {
 					}
 
 				}
-
+				
 				// Adds the edge to the set
 				edges.add(edge);
-
+				
 			} // Finished parsing over the edges of the track
 
 			// Store one of the spot in the saved trackID key map
@@ -813,7 +787,9 @@ public class TmXmlReader {
 			savedTrackNames.put(trackID, trackName);
 		}
 
-		/* Now on to the visibility. */
+		/* 
+		 * Now on to the visibility.
+		 */
 		Set<Integer> savedFilteredTrackIDs = readFilteredTrackIDs(modelElement);
 		Map<Integer, Boolean> visibility = new HashMap<Integer, Boolean>(connectedEdgeSet.size());
 		Set<Integer> ids = new HashSet<Integer>(connectedEdgeSet.keySet());
@@ -824,18 +800,19 @@ public class TmXmlReader {
 		for (Integer id : ids) {
 			visibility.put(id, Boolean.FALSE);
 		}
-
-		/* Pass read results to model. */
+		
+		
+		/*
+		 * Pass read results to model.
+		 */
 		model.getTrackModel().from(graph, connectedVertexSet, connectedEdgeSet, visibility, savedTrackNames);
 
 		return true;
 	}
 
 	/**
-	 * Read and return the list of track indices that define the filtered track
-	 * collection.
-	 * 
-	 * @throws DataConversionException
+	 * Read and return the list of track indices that define the filtered track collection.
+	 * @throws DataConversionException 
 	 */
 	private Set<Integer> readFilteredTrackIDs(Element modelElement) {
 		Element filteredTracksElement = modelElement.getChild(FILTERED_TRACK_ELEMENT_KEY);
@@ -845,8 +822,7 @@ public class TmXmlReader {
 			return null;
 		}
 
-		// We double-check that all trackID in the filtered list exist in the
-		// track list
+		// We double-check that all trackID in the filtered list exist in the track list
 		// First, prepare a sorted array of all track IDs
 		Element allTracksElement = modelElement.getChild(TRACK_COLLECTION_ELEMENT_KEY);
 		if (null == allTracksElement) {
@@ -854,7 +830,7 @@ public class TmXmlReader {
 			ok = false;
 			return null;
 		}
-
+		
 		List<Element> trackElements = allTracksElement.getChildren(TRACK_ELEMENT_KEY);
 		int[] IDs = new int[trackElements.size()];
 		int index = 0;
@@ -874,7 +850,7 @@ public class TmXmlReader {
 				// Check if this one exist in the list
 				int search = Arrays.binarySearch(IDs, trackID);
 				if (search < 0) {
-					logger.error("Invalid filtered track index: " + trackID + ". Track ID does not exist.\n");
+					logger.error("Invalid filtered track index: "+trackID+". Track ID does not exist.\n");
 					ok = false;
 				} else {
 					filteredTrackIndices.add(trackID);
@@ -893,7 +869,7 @@ public class TmXmlReader {
 
 		String name = spotEl.getAttributeValue(SPOT_NAME_ATTRIBUTE_NAME);
 		if (null == name || name.equals(""))
-			name = "ID" + ID;
+			name = "ID"+ID;
 		spot.setName(name);
 		atts.remove(SPOT_NAME_ATTRIBUTE_NAME);
 
@@ -974,7 +950,9 @@ public class TmXmlReader {
 		}
 	}
 
-	private void readAnalyzers(Element settingsElement, Settings settings, SpotAnalyzerProvider spotAnalyzerProvider, EdgeAnalyzerProvider edgeAnalyzerProvider, TrackAnalyzerProvider trackAnalyzerProvider) {
+	private void readAnalyzers(Element settingsElement, Settings settings, 
+			SpotAnalyzerProvider spotAnalyzerProvider, EdgeAnalyzerProvider edgeAnalyzerProvider, 
+			TrackAnalyzerProvider trackAnalyzerProvider) {
 
 		Element analyzersEl = settingsElement.getChild(ANALYZER_COLLECTION_ELEMENT_KEY);
 		if (null == analyzersEl) {
@@ -1008,12 +986,12 @@ public class TmXmlReader {
 							ok = false;
 							continue;
 						}
-
+						
 						SpotAnalyzerFactory<?> spotAnalyzer = spotAnalyzerProvider.getSpotFeatureAnalyzer(key, img);
 						if (null == spotAnalyzer) {
 							logger.error("Unknown spot analyzer key: " + key + ".\n");
 							ok = false;
-
+							
 						} else {
 							settings.addSpotAnalyzerFactory(spotAnalyzer);
 						}
@@ -1043,7 +1021,7 @@ public class TmXmlReader {
 						ok = false;
 						continue;
 					}
-
+					
 					EdgeAnalyzer edgeAnalyzer = edgeAnalyzerProvider.getEdgeFeatureAnalyzer(key);
 					if (null == edgeAnalyzer) {
 						logger.error("Unknown edge analyzer key: " + key + ".\n");
@@ -1054,7 +1032,7 @@ public class TmXmlReader {
 				}
 			}
 		}
-
+		
 		// Track analyzers
 		if (null != trackAnalyzerProvider) {
 			Element trackAnalyzerEl = analyzersEl.getChild(TRACK_ANALYSERS_ELEMENT_KEY);
@@ -1073,7 +1051,7 @@ public class TmXmlReader {
 						ok = false;
 						continue;
 					}
-
+					
 					TrackAnalyzer trackAnalyzer = trackAnalyzerProvider.getTrackFeatureAnalyzer(key);
 					if (null == trackAnalyzer) {
 						logger.error("Unknown track analyzer key: " + key + ".\n");
@@ -1086,27 +1064,29 @@ public class TmXmlReader {
 		}
 	}
 
-	private void readSingleFeatureDeclaration(Element child, Collection<String> features, Map<String, String> featureNames, Map<String, String> featureShortNames, Map<String, Dimension> featureDimensions) {
 
-		String feature = child.getAttributeValue(FEATURE_ATTRIBUTE);
+	private void readSingleFeatureDeclaration(Element child, Collection<String> features, 
+			Map<String, String> featureNames, Map<String, String> featureShortNames, Map<String, Dimension> featureDimensions) {
+
+		String feature 				= child.getAttributeValue(FEATURE_ATTRIBUTE);
 		if (null == feature) {
 			logger.error("Could not find feature declaration for element " + child + ".\n");
 			ok = false;
 			return;
 		}
-		String featureName = child.getAttributeValue(FEATURE_NAME_ATTRIBUTE);
+		String featureName 			= child.getAttributeValue(FEATURE_NAME_ATTRIBUTE);
 		if (null == featureName) {
 			logger.error("Could not find name for feature " + feature + ".\n");
 			ok = false;
 			return;
 		}
-		String featureShortName = child.getAttributeValue(FEATURE_SHORT_NAME_ATTRIBUTE);
+		String featureShortName 	= child.getAttributeValue(FEATURE_SHORT_NAME_ATTRIBUTE);
 		if (null == featureShortName) {
 			logger.error("Could not find short name for feature " + feature + ".\n");
 			ok = false;
 			return;
 		}
-		Dimension featureDimension = Dimension.valueOf(child.getAttributeValue(FEATURE_DIMENSION_ATTRIBUTE));
+		Dimension featureDimension 	= Dimension.valueOf(child.getAttributeValue(FEATURE_DIMENSION_ATTRIBUTE));
 		if (null == featureDimension) {
 			logger.error("Could not find dimension for feature " + feature + ".\n");
 			ok = false;
@@ -1118,5 +1098,6 @@ public class TmXmlReader {
 		featureShortNames.put(feature, featureShortName);
 		featureDimensions.put(feature, featureDimension);
 	}
+
 
 }

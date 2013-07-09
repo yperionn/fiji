@@ -20,44 +20,47 @@ public class TimeDirectedSortedDepthFirstIterator extends SortedDepthFirstIterat
 	public TimeDirectedSortedDepthFirstIterator(Graph<Spot, DefaultWeightedEdge> g, Spot startVertex, Comparator<Spot> comparator) {
 		super(g, startVertex, comparator);
 	}
-
-	protected void addUnseenChildrenOf(Spot vertex) {
-
-		// Retrieve target vertices, and sort them in a TreeSet
-		TreeSet<Spot> sortedChildren = new TreeSet<Spot>(comparator);
-		// Keep a map of matching edges so that we can retrieve them in the same
-		// order
-		Map<Spot, DefaultWeightedEdge> localEdges = new HashMap<Spot, DefaultWeightedEdge>();
-
-		int ts = vertex.getFeature(Spot.FRAME).intValue();
-		for (DefaultWeightedEdge edge : specifics.edgesOf(vertex)) {
-
-			Spot oppositeV = Graphs.getOppositeVertex(graph, edge, vertex);
-			int tt = oppositeV.getFeature(Spot.FRAME).intValue();
-			if (tt <= ts) {
-				continue;
-			}
-
-			if (!seen.containsKey(oppositeV)) {
-				sortedChildren.add(oppositeV);
-			}
-			localEdges.put(oppositeV, edge);
-		}
-
-		Iterator<Spot> it = sortedChildren.descendingIterator();
-		while (it.hasNext()) {
+	
+	
+	
+    protected void addUnseenChildrenOf(Spot vertex) {
+    	
+    	// Retrieve target vertices, and sort them in a TreeSet
+    	TreeSet<Spot> sortedChildren = new TreeSet<Spot>(comparator);
+    	// Keep a map of matching edges so that we can retrieve them in the same order
+    	Map<Spot, DefaultWeightedEdge> localEdges = new HashMap<Spot, DefaultWeightedEdge>();
+    	
+    	int ts = vertex.getFeature(Spot.FRAME).intValue();
+        for (DefaultWeightedEdge edge : specifics.edgesOf(vertex)) {
+        	
+        	Spot oppositeV = Graphs.getOppositeVertex(graph, edge, vertex);
+        	int tt = oppositeV.getFeature(Spot.FRAME).intValue();
+        	if (tt <= ts) {
+        		continue;
+        	}
+        	
+        	if (!seen.containsKey(oppositeV)) {
+        		sortedChildren.add(oppositeV);
+        	}
+        	localEdges.put(oppositeV, edge);
+        }
+        
+        Iterator<Spot> it = sortedChildren.descendingIterator();
+        while (it.hasNext()) {
 			Spot child = it.next();
+			
+            if (nListeners != 0) {
+                fireEdgeTraversed(createEdgeTraversalEvent(localEdges.get(child)));
+            }
 
-			if (nListeners != 0) {
-				fireEdgeTraversed(createEdgeTraversalEvent(localEdges.get(child)));
-			}
+            if (seen.containsKey(child)) {
+                encounterVertexAgain(child, localEdges.get(child));
+            } else {
+                encounterVertex(child, localEdges.get(child));
+            }
+        }
+    }
 
-			if (seen.containsKey(child)) {
-				encounterVertexAgain(child, localEdges.get(child));
-			} else {
-				encounterVertex(child, localEdges.get(child));
-			}
-		}
-	}
-
+	
+	
 }

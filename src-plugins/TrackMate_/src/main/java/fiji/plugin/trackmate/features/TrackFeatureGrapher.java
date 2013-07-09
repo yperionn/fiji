@@ -40,13 +40,13 @@ public class TrackFeatureGrapher extends AbstractFeatureGrapher {
 	public void render() {
 
 		// Check x units
-		String xdim = TMUtils.getUnitsFor(xDimension, model.getSpaceUnits(), model.getTimeUnits());
+		String xdim= TMUtils.getUnitsFor(xDimension, model.getSpaceUnits(), model.getTimeUnits());
 		if (null == xdim) { // not a number feature
-			return;
+			return; 
 		}
 
 		// X label
-		String xAxisLabel = xFeature + " (" + xdim + ")";
+		String xAxisLabel = xFeature + " (" + xdim +")";
 
 		// Find how many different dimensions
 		Set<Dimension> dimensions = getUniqueValues(yFeatures, yDimensions);
@@ -57,10 +57,10 @@ public class TrackFeatureGrapher extends AbstractFeatureGrapher {
 
 			// Y label
 			String yAxisLabel = TMUtils.getUnitsFor(dimension, model.getSpaceUnits(), model.getTimeUnits());
-
+			
 			// Check y units
 			if (null == yAxisLabel) { // not a number feature
-				continue;
+				continue; 
 			}
 
 			// Collect suitable feature for this dimension
@@ -68,7 +68,7 @@ public class TrackFeatureGrapher extends AbstractFeatureGrapher {
 
 			// Title
 			String title = buildPlotTitle(featuresThisDimension, featureNames);
-
+			
 			// Data-set for points (easy)
 			XYSeriesCollection pointDataset = buildTrackDataSet(featuresThisDimension);
 
@@ -95,7 +95,7 @@ public class TrackFeatureGrapher extends AbstractFeatureGrapher {
 				pointRenderer.setSeriesOutlinePaint(i, Color.black);
 				pointRenderer.setSeriesLinesVisible(i, false);
 				pointRenderer.setSeriesShape(i, DEFAULT_SHAPE, false);
-				pointRenderer.setSeriesPaint(i, paints.getPaint((double) i / nseries), false);
+				pointRenderer.setSeriesPaint(i, paints.getPaint((double)i/nseries), false);
 			}
 
 			// The panel
@@ -107,16 +107,18 @@ public class TrackFeatureGrapher extends AbstractFeatureGrapher {
 		renderCharts(chartPanels);
 	}
 
+
+
 	/**
-	 * @return a new dataset that contains the values, specified from the given
-	 *         feature, and extracted from all the visible tracks in the model.
+	 * @return a new dataset that contains the values, specified from the given feature, 
+	 * and  extracted from all the visible tracks in the model.
 	 */
 	private XYSeriesCollection buildTrackDataSet(final Iterable<String> targetYFeatures) {
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		final FeatureModel fm = model.getFeatureModel();
-		for (String feature : targetYFeatures) {
+		for(String feature : targetYFeatures) {
 			XYSeries series = new XYSeries(featureNames.get(feature));
-			for (Integer trackID : model.getTrackModel().trackIDs(true)) {
+			for(Integer trackID : model.getTrackModel().trackIDs(true)) {
 				Double x = fm.getTrackFeature(trackID, xFeature);
 				Double y = fm.getTrackFeature(trackID, feature);
 				if (null == x || null == y) {

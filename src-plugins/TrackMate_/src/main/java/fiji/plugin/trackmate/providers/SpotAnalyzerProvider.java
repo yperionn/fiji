@@ -20,10 +20,9 @@ import fiji.plugin.trackmate.features.spot.SpotRadiusEstimatorFactory;
  */
 public class SpotAnalyzerProvider {
 
-	/**
-	 * The detector names, in the order they will appear in the GUI. These names
-	 * will be used as keys to access relevant spot analyzer classes.
-	 */
+
+	/** The detector names, in the order they will appear in the GUI.
+	 * These names will be used as keys to access relevant spot analyzer classes.  */
 	protected List<String> analyzerNames;
 
 	/** Create a {@link SpotAnalyzerFactory} given an {@link ImgPlus}. */
@@ -31,26 +30,23 @@ public class SpotAnalyzerProvider {
 		public <T extends RealType<T> & NativeType<T>> SpotAnalyzerFactory<T> create(ImgPlus<T> img);
 	}
 
-	/**
-	 * Map a spot analyzer key to a {@link FactoryCreator factory} for the spot
-	 * analyzer factory.
-	 */
-	protected final HashMap<String, FactoryCreator> analyzerCreators;
+	/** Map a spot analyzer key to a {@link FactoryCreator factory} for the spot analyzer factory. */
+	protected final HashMap< String, FactoryCreator > analyzerCreators;
 
 	protected final Model model;
 
-	/* CONSTRUCTOR */
+	/*
+	 * CONSTRUCTOR
+	 */
 
 	/**
-	 * This provider provides the GUI with the model spotFeatureAnalyzers
-	 * currently available in the TrackMate trackmate. Each spotFeatureAnalyzer
-	 * is identified by a key String, which can be used to retrieve new instance
-	 * of the spotFeatureAnalyzer.
+	 * This provider provides the GUI with the model spotFeatureAnalyzers currently available in the 
+	 * TrackMate trackmate. Each spotFeatureAnalyzer is identified by a key String, which can be used 
+	 * to retrieve new instance of the spotFeatureAnalyzer.
 	 * <p>
-	 * If you want to add custom spotFeatureAnalyzers to TrackMate, a simple way
-	 * is to extend this factory so that it is registered with the custom
-	 * spotFeatureAnalyzers and provide this extended factory to the
-	 * {@link TrackMate} trackmate.
+	 * If you want to add custom spotFeatureAnalyzers to TrackMate, a simple way is to extend this
+	 * factory so that it is registered with the custom spotFeatureAnalyzers and provide this 
+	 * extended factory to the {@link TrackMate} trackmate.
 	 */
 	public SpotAnalyzerProvider(Model model) {
 		this.model = model;
@@ -59,12 +55,16 @@ public class SpotAnalyzerProvider {
 		registerDefaultSpotFeatureAnalyzers();
 	}
 
-	/* METHODS */
+
+	/*
+	 * METHODS
+	 */
 
 	/**
 	 * Register a {@link SpotAnalyzerFactory} {@link FactoryCreator creator}.
 	 */
-	protected void registerSpotFeatureAnalyzer(final String key, final FactoryCreator creator) {
+	protected void registerSpotFeatureAnalyzer( final String key, final FactoryCreator creator )
+	{
 		analyzerNames.add(key);
 		analyzerCreators.put(key, creator);
 	}
@@ -94,10 +94,9 @@ public class SpotAnalyzerProvider {
 	}
 
 	/**
-	 * Returns a new instance of the target spotFeatureAnalyzer identified by
-	 * the key parameter, and configured to operate on the specified
-	 * {@link ImgPlus}. If the key is unknown to this provider,
-	 * <code>null</code> is returned.
+	 * Returns a new instance of the target spotFeatureAnalyzer identified by the key parameter,
+	 * and configured to operate on the specified {@link ImgPlus}.
+	 * If the key is unknown to this provider, <code>null</code> is returned.
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public SpotAnalyzerFactory getSpotFeatureAnalyzer(final String key, final ImgPlus<?> img) {
@@ -106,8 +105,7 @@ public class SpotAnalyzerProvider {
 	}
 
 	/**
-	 * Returns a list of the {@link SpotAnalyzer} names available through this
-	 * provider.
+	 * Returns a list of the {@link SpotAnalyzer} names available through this provider.
 	 */
 	public List<String> getAvailableSpotFeatureAnalyzers() {
 		return analyzerNames;

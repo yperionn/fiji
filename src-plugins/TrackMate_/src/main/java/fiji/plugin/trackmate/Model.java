@@ -63,15 +63,14 @@ import fiji.plugin.trackmate.visualization.TrackMateModelView;
  * <h3>{@link #spotSelection}</h3>
  * 
  * The filtered spot, as a new {@link SpotCollection}. It is important that this
- * collection is made with the same spot objects than for the {@link #spots}
- * field.
+ * collection is made with the same spot objects than for the {@link #spots} field.
  * 
  * <h3>{@link #graph}</h3>
  * 
- * The {@link SimpleDirectedWeightedGraph} that contains the map of links
- * between spots. The vertices of the graph are the content of the
- * {@link #spotSelection} field. This is the only convenient way to store links
- * in their more general way we have thought of.
+ * The {@link SimpleDirectedWeightedGraph} that contains the map of links between spots.
+ * The vertices of the graph are the content of the {@link #spotSelection}
+ * field. This is the only convenient way to store links in their more general
+ * way we have thought of.
  * <p>
  * It is an undirected graph: we do not indicate the time forward direction
  * using edge direction, but simply refer to the per-frame organization of the
@@ -79,45 +78,48 @@ import fiji.plugin.trackmate.visualization.TrackMateModelView;
  * 
  * <h3>{@link #filteredTrackKeys}</h3>
  * 
- * This Set contains the index of the tracks that are set to be visible. We use
- * this to flag the tracks that should be retained after filtering the tracks by
- * their features, for instance. Because the user can edit this manually, or
- * because the track visibility can changed when merging 2 track manually (for
- * instance), we stress on the 'visibility' meaning of this field.
+ * This Set contains the index of the tracks that are set to be visible. We use this 
+ * to flag the tracks that should be retained after filtering the tracks by their
+ * features, for instance. Because the user can edit this manually, or because 
+ * the track visibility can changed when merging 2 track manually (for instance),
+ * we stress on the 'visibility' meaning of this field. 
  * <p>
- * The set contains the indices of the tracks that are visible, in the List of
- * {@link #trackEdges} and {@link #trackSpots}, that are described below. These
- * fields are generated automatically from the track {@link #graph}. For
- * instance, if this set is made of [2, 4], that means the tracks with the
- * indices 2 and 4 in the aforementioned lists are visible, the other not. Of
- * course, {@link TrackMateModelView}s are expected to acknowledge this content.
+ * The set contains the indices of the tracks that are visible, in the List
+ * of {@link #trackEdges} and {@link #trackSpots}, that are described below.
+ * These fields are generated automatically from the track {@link #graph}.
+ * For instance, if this set is made of [2, 4], that means the tracks with
+ * the indices 2 and 4 in the aforementioned lists are visible, the other not.
+ * Of course, {@link TrackMateModelView}s are expected to acknowledge this 
+ * content. 
  * <p>
- * This field can be modified publicly using the
- * {@link #setTrackVisible(Integer, boolean, boolean)} method, or totally
- * overwritten using the {@link #setFilteredTrackIDs(Set, boolean)} method.
- * However, some modifications can arise coming from manual editing of tracks.
- * For instance removing an edge from the middle of a visible tracks generates
- * two new tracks, and possibly shifts the indices of the other tracks. This is
- * hopefully taken care of the model internal work, and the following rules are
- * implements:
+ * This field can be modified publicly using the  {@link #setTrackVisible(Integer, boolean, boolean)}
+ * method, or totally overwritten using the {@link #setFilteredTrackIDs(Set, boolean)} method.
+ * However, some modifications can arise coming from manual editing of tracks. For instance
+ * removing an edge from the middle of a visible tracks generates two new tracks, and
+ * possibly shifts the indices of the other tracks. This is hopefully taken care of 
+ * the model internal work, and the following rules are implements:
  * <ul>
- * <li>TODO
- * </ul>
+ * 	<li> TODO
+ * </ul>   
  * 
  * <h2>Dependent data</h2>
  * 
- * We list here the fields whose value depends on
+ * We list here the fields whose value depends on 
  * 
  * @author Jean-Yves Tinevez <tinevez@pasteur.fr> - 2010-2011
  * 
  */
 public class Model {
 
-	/* CONSTANTS */
+	/*
+	 * CONSTANTS
+	 */
 
 	private static final boolean DEBUG = false;
 
-	/* FIELDS */
+	/*
+	 * FIELDS
+	 */
 
 	// FEATURES
 
@@ -131,6 +133,7 @@ public class Model {
 
 	/** The spots managed by this model. */
 	protected SpotCollection spots = new SpotCollection();
+
 
 	// TRANSACTION MODEL
 
@@ -150,16 +153,17 @@ public class Model {
 	 * the need to fire a model change event. We want to fire these events only
 	 * when the transaction closes (when the updateLevel reaches 0), so we store
 	 * the event ID in this cache in the meantime. The event cache contains only
-	 * the int IDs of the events listed in {@link ModelChangeEvent}, namely
+	 * the int IDs of the events listed in {@link ModelChangeEvent},
+	 * namely
 	 * <ul>
 	 * <li> {@link ModelChangeEvent#SPOTS_COMPUTED}
 	 * <li> {@link ModelChangeEvent#SPOT_FILTERED}
 	 * <li> {@link ModelChangeEvent#TRACKS_COMPUTED}
 	 * <li> {@link ModelChangeEvent#TRACKS_VISIBILITY_CHANGED}
 	 * </ul>
-	 * The {@link ModelChangeEvent#MODEL_MODIFIED} cannot be cached this way,
-	 * for it needs to be configured with modification spot and edge targets, so
-	 * it uses a different system (see {@link #flushUpdate()}).
+	 * The {@link ModelChangeEvent#MODEL_MODIFIED} cannot be cached
+	 * this way, for it needs to be configured with modification spot and edge
+	 * targets, so it uses a different system (see {@link #flushUpdate()}).
 	 */
 	private HashSet<Integer> eventCache = new HashSet<Integer>();
 
@@ -178,14 +182,24 @@ public class Model {
 	 */
 	Set<ModelChangeListener> modelChangeListeners = new LinkedHashSet<ModelChangeListener>();
 
-	/* CONSTRUCTOR */
+
+
+
+
+
+	/*
+	 * CONSTRUCTOR
+	 */
 
 	public Model() {
 		featureModel = new FeatureModel(this);
 		trackModel = new TrackModel();
 	}
 
-	/* UTILS METHODS */
+
+	/*
+	 * UTILS METHODS
+	 */
 
 	@Override
 	public String toString() {
@@ -216,20 +230,24 @@ public class Model {
 		}
 
 		str.append('\n');
-		str.append("Physical units:\n  space units: " + spaceUnits + "\n  time units: " + timeUnits + '\n');
-
+		str.append("Physical units:\n  space units: " + spaceUnits + "\n  time units: " + timeUnits + '\n' );
+		
 		str.append('\n');
 		str.append(featureModel.toString());
-
+		
 		return str.toString();
 	}
 
-	/* DEAL WITH MODEL CHANGE LISTENER */
+
+
+	/*
+	 * DEAL WITH MODEL CHANGE LISTENER
+	 */
 
 	public void addModelChangeListener(ModelChangeListener listener) {
-
-		System.out.println("Added " + listener + " as a listener of " + this.hashCode());// DEBUG
-
+		
+		System.out.println("Added " + listener + " as a listener of " + this.hashCode());//DEBUG 
+		
 		modelChangeListeners.add(listener);
 	}
 
@@ -241,40 +259,39 @@ public class Model {
 		return modelChangeListeners;
 	}
 
-	/* PHYSICAL UNITS */
-
+	/*
+	 * PHYSICAL UNITS
+	 */
+	
 	/**
-	 * Sets the physical units for the quantities stored in this model.
-	 * 
-	 * @param spaceUnits
-	 *        the spatial units (e.g. μm).
-	 * @param timeUnits
-	 *        the time units (e.g. min).
+	 * Sets the physical units for the quantities stored in this model. 
+	 * @param spaceUnits  the spatial units (e.g. μm).
+	 * @param timeUnits  the time units (e.g. min).
 	 */
 	public void setPhysicalUnits(String spaceUnits, String timeUnits) {
 		this.spaceUnits = spaceUnits;
 		this.timeUnits = timeUnits;
 	}
-
+	
 	/**
 	 * Returns the spatial units for the quantities stored in this model.
-	 * 
-	 * @return the spatial units.
+	 * @return  the spatial units.
 	 */
 	public String getSpaceUnits() {
 		return spaceUnits;
 	}
-
+	
 	/**
 	 * Returns the time units for the quantities stored in this model.
-	 * 
 	 * @return the time units.
 	 */
 	public String getTimeUnits() {
 		return timeUnits;
 	}
-
-	/* GRAPH MODIFICATION */
+	
+	/*
+	 * GRAPH MODIFICATION
+	 */
 
 	public synchronized void beginUpdate() {
 		updateLevel++;
@@ -293,7 +310,9 @@ public class Model {
 		}
 	}
 
-	/* TRACK METHODS: WE DELEGATE TO THE TRACK GRAPH MODEL */
+	/*
+	 * TRACK METHODS: WE DELEGATE TO THE TRACK GRAPH MODEL
+	 */
 
 	/**
 	 * Returns the {@link TrackModel} that manages tracks for this model.
@@ -302,11 +321,13 @@ public class Model {
 		return trackModel;
 	}
 
-	/* GETTERS / SETTERS FOR SPOTS */
+	/*
+	 * GETTERS / SETTERS FOR SPOTS
+	 */
+
 
 	/**
 	 * Returns the spot collection managed by this model.
-	 * 
 	 * @return the spot collection managed by this model.
 	 */
 	public SpotCollection getSpots() {
@@ -316,11 +337,8 @@ public class Model {
 	/**
 	 * Set the {@link SpotCollection} managed by this model.
 	 * 
-	 * @param doNotify
-	 *        if true, will file a {@link ModelChangeEvent#SPOTS_COMPUTED}
-	 *        event.
-	 * @param spots
-	 *        the {@link SpotCollection} to set.
+	 * @param doNotify if true, will file a  {@link ModelChangeEvent#SPOTS_COMPUTED} event.
+	 * @param spots  the {@link SpotCollection} to set.
 	 */
 	public void setSpots(SpotCollection spots, boolean doNotify) {
 		this.spots = spots;
@@ -330,16 +348,13 @@ public class Model {
 				listener.modelChanged(event);
 		}
 	}
-
+	
 	/**
-	 * Filters the {@link SpotCollection} managed by this model with the
-	 * {@link FeatureFilter}s specified.
+	 * Filters the {@link SpotCollection} managed by this model with the {@link FeatureFilter}s
+	 * specified.
 	 * 
-	 * @param spotFilters
-	 *        the {@link FeatureFilter} collection to use for filtering.
-	 * @param doNotify
-	 *        if true, will file a {@link ModelChangeEvent#SPOTS_FILTERED}
-	 *        event.
+	 * @param spotFilters the {@link FeatureFilter} collection to use for filtering.
+	 * @param doNotify if true, will file a  {@link ModelChangeEvent#SPOTS_FILTERED} event.
 	 */
 	public void filterSpots(Collection<FeatureFilter> spotFilters, boolean doNotify) {
 		spots.filter(spotFilters);
@@ -348,10 +363,12 @@ public class Model {
 			for (ModelChangeListener listener : modelChangeListeners)
 				listener.modelChanged(event);
 		}
-
+		
 	}
 
-	/* LOGGER */
+	/*
+	 * LOGGER
+	 */
 
 	/**
 	 * Set the logger that will receive the messages from the processes
@@ -368,23 +385,27 @@ public class Model {
 		return logger;
 	}
 
-	/* FEATURES */
+	/*
+	 * FEATURES
+	 */
 
 	public FeatureModel getFeatureModel() {
 		return featureModel;
 	}
 
-	/* MODEL CHANGE METHODS */
+	
+
+	/*
+	 * MODEL CHANGE METHODS
+	 */
 
 	/**
-	 * Moves a single spot from a frame to another, make it visible if it was
-	 * not, then mark it for feature update. If the source spot could not be
-	 * found in the source frame, nothing is done and <code>null</code> is
-	 * returned.
+	 * Moves a single spot from a frame to another, make it visible if it was not, 
+	 * then mark it for feature update. If the source spot could not be found
+	 * in the source frame, nothing is done and <code>null</code> is returned.
 	 * <p>
 	 * For the model update to happen correctly and listeners to be notified
 	 * properly, a call to this method must happen within a transaction, as in:
-	 * 
 	 * <pre>
 	 * model.beginUpdate();
 	 * try {
@@ -394,23 +415,19 @@ public class Model {
 	 * }
 	 * </pre>
 	 * 
-	 * @param spotToMove
-	 *        the spot to move
-	 * @param fromFrame
-	 *        the frame the spot originated from
-	 * @param toFrame
-	 *        the destination frame
-	 * @param doNotify
-	 *        if false, {@link ModelChangeListener}s will not be notified of
-	 *        this change
+	 * @param spotToMove  the spot to move
+	 * @param fromFrame  the frame the spot originated from
+	 * @param toFrame  the destination frame
+	 * @param doNotify   if false, {@link ModelChangeListener}s will not be
+	 * notified of this change
 	 * @return the spot that was moved, or <code>null</code> if it could not be
-	 *         found in the source frame
+	 * found in the source frame
 	 */
 	public synchronized Spot moveSpotFrom(Spot spotToMove, Integer fromFrame, Integer toFrame) {
 		boolean ok = spots.remove(spotToMove, fromFrame);
 		if (!ok) {
 			if (DEBUG) {
-				System.err.println("[TrackMateModel] Could not find spot " + spotToMove + " in frame " + fromFrame);
+				System.err.println("[TrackMateModel] Could not find spot " + spotToMove + " in frame "+ fromFrame);
 			}
 			return null;
 		}
@@ -421,17 +438,16 @@ public class Model {
 
 		// Mark for update spot and edges
 		trackModel.edgesModified.addAll(trackModel.edgesOf(spotToMove));
-		spotsMoved.add(spotToMove);
+		spotsMoved.add(spotToMove); 
 		return spotToMove;
 	}
 
 	/**
-	 * Adds a single spot to the collections managed by this model, mark it as
-	 * visible, then update its features.
+	 * Adds a single spot to the collections managed by this model, mark it as visible, 
+	 * then update its features.
 	 * <p>
 	 * For the model update to happen correctly and listeners to be notified
 	 * properly, a call to this method must happen within a transaction, as in:
-	 * 
 	 * <pre>
 	 * model.beginUpdate();
 	 * try {
@@ -440,7 +456,6 @@ public class Model {
 	 * 	model.endUpdate();
 	 * }
 	 * </pre>
-	 * 
 	 * @return the spot just added.
 	 */
 	public synchronized Spot addSpotTo(Spot spotToAdd, Integer toFrame) {
@@ -454,13 +469,12 @@ public class Model {
 	}
 
 	/**
-	 * Removes a single spot from the collections managed by this model. If the
-	 * spot cannot be found in the specified frame, nothing is done and
-	 * <code>null</code> is returned.
+	 * Removes a single spot from the collections managed by this model.
+	 * If the spot cannot be found in the specified frame, nothing is done
+	 * and <code>null</code> is returned. 
 	 * <p>
 	 * For the model update to happen correctly and listeners to be notified
 	 * properly, a call to this method must happen within a transaction, as in:
-	 * 
 	 * <pre>
 	 * model.beginUpdate();
 	 * try {
@@ -469,13 +483,10 @@ public class Model {
 	 * 	model.endUpdate();
 	 * }
 	 * </pre>
-	 * 
-	 * @param spotToRemove
-	 *        the spot to remove.
-	 * @param fromFrame
-	 *        the frame the spot is in.
-	 * @return the spot removed, or <code>null</code> if it could not be found
-	 *         in the specified frame.
+	 * @param spotToRemove  the spot to remove.
+	 * @param fromFrame   the frame the spot is in.
+	 * @return the spot removed, or <code>null</code> if it could not be found in the
+	 * specified frame.
 	 */
 	public synchronized Spot removeSpot(final Spot spotToRemove) {
 		int fromFrame = spotToRemove.getFeature(Spot.FRAME).intValue();
@@ -484,27 +495,24 @@ public class Model {
 			if (DEBUG) {
 				System.out.println("[TrackMateModel] Removing spot " + spotToRemove + " from frame " + fromFrame);
 			}
-			trackModel.removeSpot(spotToRemove); // changes to edges will be
-													// caught automatically by
-													// the TrackGraphModel
+			trackModel.removeSpot(spotToRemove); // changes to edges will be caught automatically by the TrackGraphModel
 			return spotToRemove;
 		} else {
 			if (DEBUG) {
 				System.err.println("[TrackMateModel] The spot " + spotToRemove + " cannot be found in frame " + fromFrame);
 			}
 			return null;
-
+			
 		}
 	}
 
 	/**
-	 * Mark the specified spot for update. At the end of the model transaction,
-	 * its features will be recomputed, and other edge and track features that
-	 * depends on it will be as well.
+	 * Mark the specified spot for update. At the end of the model transaction, its features 
+	 * will be recomputed, and other edge and track features that depends on it will 
+	 * be as well.
 	 * <p>
 	 * For the model update to happen correctly and listeners to be notified
 	 * properly, a call to this method must happen within a transaction, as in:
-	 * 
 	 * <pre>
 	 * model.beginUpdate();
 	 * try {
@@ -513,13 +521,10 @@ public class Model {
 	 * 	model.endUpdate();
 	 * }
 	 * </pre>
-	 * 
-	 * @param spotToUpdate
-	 *        the spot to mark for update
+	 * @param spotToUpdate  the spot to mark for update
 	 */
 	public synchronized void updateFeatures(final Spot spotToUpdate) {
-		spotsUpdated.add(spotToUpdate); // Enlist for feature update when
-										// transaction is marked as finished
+		spotsUpdated.add(spotToUpdate); // Enlist for feature update when transaction is marked as finished
 		Set<DefaultWeightedEdge> touchingEdges = trackModel.edgesOf(spotToUpdate);
 		if (null != touchingEdges) {
 			trackModel.edgesModified.addAll(touchingEdges);
@@ -531,7 +536,6 @@ public class Model {
 	 * <p>
 	 * For the model update to happen correctly and listeners to be notified
 	 * properly, a call to this method must happen within a transaction, as in:
-	 * 
 	 * <pre>
 	 * model.beginUpdate();
 	 * try {
@@ -540,28 +544,21 @@ public class Model {
 	 * 	model.endUpdate();
 	 * }
 	 * </pre>
-	 * 
-	 * @param source
-	 *        the source spot.
-	 * @param target
-	 *        the target spot.
-	 * @param weight
-	 *        the weight of the edge.
-	 * @return the edge created.
+	 * @param source  the source spot.
+	 * @param target  the target spot.
+	 * @param weight  the weight of the edge.
+	 * @return  the edge created.
 	 */
 	public synchronized DefaultWeightedEdge addEdge(final Spot source, final Spot target, final double weight) {
 		return trackModel.addEdge(source, target, weight);
 	}
 
 	/**
-	 * Removes an edge between two spots and returns it. Returns
-	 * <code>null</code> and do nothing to the tracks if the edge did not exist.
-	 * 
-	 * @param source
-	 *        the source spot.
-	 * @param target
-	 *        the target spot.
-	 * @return the edge between the two spots, if it existed.
+	 * Removes an edge between two spots and returns it. Returns <code>null</code>
+	 * and do nothing to the tracks if the edge did not exist.
+	 * @param source the source spot.
+	 * @param target the target spot.
+	 * @return  the edge between the two spots, if it existed.
 	 */
 	public synchronized DefaultWeightedEdge removeEdge(final Spot source, final Spot target) {
 		return trackModel.removeEdge(source, target);
@@ -572,7 +569,6 @@ public class Model {
 	 * <p>
 	 * For the model update to happen correctly and listeners to be notified
 	 * properly, a call to this method must happen within a transaction, as in:
-	 * 
 	 * <pre>
 	 * model.beginUpdate();
 	 * try {
@@ -580,12 +576,10 @@ public class Model {
 	 * } finally {
 	 * 	model.endUpdate();
 	 * }
-	 * </pre>
-	 * 
-	 * @param edge
-	 *        the edge to remove.
-	 * @return <code>true</code> if the edge existed in the model and was
-	 *         successfully, <code>false</code> otherwise.
+	 * </pre> 
+	 * @param edge  the edge to remove.
+	 * @return <code>true</code> if the edge existed in the model and was successfully,
+	 * <code>false</code> otherwise.
 	 */
 	public synchronized boolean removeEdge(final DefaultWeightedEdge edge) {
 		return trackModel.removeEdge(edge);
@@ -596,7 +590,6 @@ public class Model {
 	 * <p>
 	 * For the model update to happen correctly and listeners to be notified
 	 * properly, a call to this method must happen within a transaction, as in:
-	 * 
 	 * <pre>
 	 * model.beginUpdate();
 	 * try {
@@ -605,23 +598,19 @@ public class Model {
 	 * 	model.endUpdate();
 	 * }
 	 * </pre>
-	 * 
-	 * @param edge
-	 *        the edge.
-	 * @param weight
-	 *        the weight to set.
+	 * @param edge  the edge.
+	 * @param weight  the weight to set.
 	 */
 	public synchronized void setEdgeWeight(final DefaultWeightedEdge edge, double weight) {
 		trackModel.setEdgeWeight(edge, weight);
 	}
 
 	/**
-	 * Sets the visibility of the specified track. Throws a
-	 * {@link NullPointerException} if the track ID is unknown to the model.
+	 * Sets the visibility of the specified track. Throws a {@link NullPointerException} if the
+	 * track ID is unknown to the model.
 	 * <p>
 	 * For the model update to happen correctly and listeners to be notified
 	 * properly, a call to this method must happen within a transaction, as in:
-	 * 
 	 * <pre>
 	 * model.beginUpdate();
 	 * try {
@@ -630,12 +619,9 @@ public class Model {
 	 * 	model.endUpdate();
 	 * }
 	 * </pre>
-	 * 
-	 * @param trackID
-	 *        the track ID.
-	 * @param visible
-	 *        the desired visibility.
-	 * @return the specified track visibility prior to calling this method.
+	 * @param trackID  the track ID.
+	 * @param visible  the desired visibility.
+	 * @return  the specified track visibility prior to calling this method.
 	 */
 	public synchronized boolean setTrackVisibility(Integer trackID, boolean visible) {
 		boolean oldvis = trackModel.setVisibility(trackID, visible);
@@ -646,7 +632,10 @@ public class Model {
 		return oldvis;
 	}
 
-	/* PRIVATE METHODS */
+	/*
+	 * PRIVATE METHODS
+	 */
+
 
 	/**
 	 * Fire events. Regenerate fields derived from the filtered graph.
@@ -660,9 +649,9 @@ public class Model {
 		}
 
 		/* We recompute tracks only if some edges have been added or removed,
-		 * (if some spots have been removed that causes edges to be removes, we
-		 * already know about it). We do NOT recompute tracks if spots have been
-		 * added: they will not result in new tracks made of single spots. */
+		 * (if some spots have been removed that causes edges to be removes, we already know about it).
+		 * We do NOT recompute tracks if spots have been added: they will not result in
+		 * new tracks made of single spots.	 */
 		int nEdgesToSignal = trackModel.edgesAdded.size() + trackModel.edgesRemoved.size() + trackModel.edgesModified.size();
 
 		// Do we have tracks to update?
@@ -707,6 +696,7 @@ public class Model {
 			}
 		}
 
+
 		// Configure it with edges to signal.
 		if (nEdgesToSignal > 0) {
 			event.addAllEdges(trackModel.edgesAdded);
@@ -731,7 +721,7 @@ public class Model {
 			if (nEdgesToSignal + nSpotsToSignal > 0) {
 				if (DEBUG) {
 					System.out.println("[TrackMateModel] #flushUpdate(): firing model modified event");
-					System.out.println("[TrackMateModel] to " + modelChangeListeners);
+					System.out.println("[TrackMateModel] to " + modelChangeListeners); 
 
 				}
 				for (final ModelChangeListener listener : modelChangeListeners) {
@@ -742,7 +732,7 @@ public class Model {
 			// Fire events stored in the event cache
 			for (int eventID : eventCache) {
 				if (DEBUG) {
-					System.out.println("[TrackMateModel] #flushUpdate(): firing event with ID " + eventID);
+					System.out.println("[TrackMateModel] #flushUpdate(): firing event with ID "	+ eventID);
 				}
 				ModelChangeEvent cachedEvent = new ModelChangeEvent(this, eventID);
 				for (final ModelChangeListener listener : modelChangeListeners) {

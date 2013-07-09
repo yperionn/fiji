@@ -19,8 +19,11 @@ public class DetectorConfigurationDescriptor implements WizardPanelDescriptor {
 		this.trackmate = trackmate;
 		this.detectorProvider = detectorProvider;
 	}
-
-	/* METHODS */
+	
+	
+	/*
+	 * METHODS
+	 */
 
 	@Override
 	public Component getComponent() {
@@ -28,14 +31,12 @@ public class DetectorConfigurationDescriptor implements WizardPanelDescriptor {
 	}
 
 	/**
-	 * Regenerate the config panel to reflect current settings stored in the
-	 * trackmate.
+	 * Regenerate the config panel to reflect current settings stored in the trackmate.
 	 */
 	private void updateComponent() {
 		// Regenerate panel
 		configPanel = detectorProvider.getDetectorConfigurationPanel(trackmate.getSettings());
-		// We assume the provider is already configured with the right target
-		// detector factory
+		// We assume the provider is already configured with the right target detector factory
 		Map<String, Object> settings = trackmate.getSettings().detectorSettings;
 		// Bulletproof null
 		if (null == settings || !detectorProvider.checkSettingsValidity(settings)) {
@@ -43,15 +44,14 @@ public class DetectorConfigurationDescriptor implements WizardPanelDescriptor {
 		}
 		configPanel.setSettings(settings);
 	}
-
+	
 	@Override
 	public void aboutToDisplayPanel() {
 		updateComponent();
 	}
 
 	@Override
-	public void displayingPanel() {
-	}
+	public void displayingPanel() {	}
 
 	@Override
 	public void aboutToHidePanel() {
@@ -59,12 +59,12 @@ public class DetectorConfigurationDescriptor implements WizardPanelDescriptor {
 		boolean settingsOk = detectorProvider.checkSettingsValidity(settings);
 		if (!settingsOk) {
 			Logger logger = trackmate.getModel().getLogger();
-			logger.error("Config panel returned bad settings map:\n" + detectorProvider.getErrorMessage() + "Using defaults settings.\n");
+			logger.error("Config panel returned bad settings map:\n"+detectorProvider.getErrorMessage()+"Using defaults settings.\n");
 			settings = detectorProvider.getDefaultSettings();
 		}
 		trackmate.getSettings().detectorSettings = settings;
 	}
-
+	
 	@Override
 	public String getKey() {
 		return KEY;

@@ -15,42 +15,37 @@ import fiji.plugin.trackmate.features.track.TrackSpeedStatisticsAnalyzer;
 /**
  * A provider for the track analyzers provided in the GUI.
  * <p>
- * Concrete implementation must declare what features they can compute
- * numerically, using the method {@link #getFeaturesForKey(String)}.
+ * Concrete implementation must declare what features they can compute numerically, 
+ * using the method {@link #getFeaturesForKey(String)}. 
  * <p>
- * Feature key names are for historical reason all capitalized in an enum
- * manner. For instance: POSITION_X, MAX_INTENSITY, etc... They must be suitable
- * to be used as a attribute key in an xml file.
+ * Feature key names are for historical reason all capitalized in an enum manner. For instance: POSITION_X,
+ * MAX_INTENSITY, etc... They must be suitable to be used as a attribute key in an xml file.
  */
 public class TrackAnalyzerProvider {
 
-	/**
-	 * The detector names, in the order they will appear in the GUI. These names
-	 * will be used as keys to access relevant track analyzer classes.
-	 */
+
+	/** The detector names, in the order they will appear in the GUI.
+	 * These names will be used as keys to access relevant track analyzer classes.  */
 	protected List<String> names;
 	/** The target model to operate on. */
 	protected final Model model;
-	/**
-	 * The {@link TrackIndexAnalyzer} is the only analyzer we do not
-	 * re-instantiate at every {@link #getTrackFeatureAnalyzer(String)} call,
-	 * for it has an internal state useful for lazy computation of track
-	 * features.
-	 */
+	/** The {@link TrackIndexAnalyzer} is the only analyzer we do not re-instantiate 
+	 * at every {@link #getTrackFeatureAnalyzer(String)} call, for it has an internal state 
+	 * useful for lazy computation of track features. */
 	protected final TrackIndexAnalyzer trackIndexAnalyzer;
 
-	/* BLANK CONSTRUCTOR */
+	/*
+	 * BLANK CONSTRUCTOR
+	 */
 
 	/**
-	 * This provider provides the GUI with the model trackFeatureAnalyzers
-	 * currently available in the TrackMate trackmate. Each trackFeatureAnalyzer
-	 * is identified by a key String, which can be used to retrieve new instance
-	 * of the trackFeatureAnalyzer.
+	 * This provider provides the GUI with the model trackFeatureAnalyzers currently available in the 
+	 * TrackMate trackmate. Each trackFeatureAnalyzer is identified by a key String, which can be used 
+	 * to retrieve new instance of the trackFeatureAnalyzer.
 	 * <p>
-	 * If you want to add custom trackFeatureAnalyzers to TrackMate, a simple
-	 * way is to extend this factory so that it is registered with the custom
-	 * trackFeatureAnalyzers and provide this extended factory to the
-	 * {@link TrackMate} trackmate.
+	 * If you want to add custom trackFeatureAnalyzers to TrackMate, a simple way is to extend this
+	 * factory so that it is registered with the custom trackFeatureAnalyzers and provide this 
+	 * extended factory to the {@link TrackMate} trackmate.
 	 */
 	public TrackAnalyzerProvider(Model model) {
 		this.model = model;
@@ -58,7 +53,10 @@ public class TrackAnalyzerProvider {
 		this.trackIndexAnalyzer = new TrackIndexAnalyzer(model);
 	}
 
-	/* METHODS */
+
+	/*
+	 * METHODS
+	 */
 
 	/**
 	 * Register the standard trackFeatureAnalyzers shipped with TrackMate.
@@ -74,35 +72,33 @@ public class TrackAnalyzerProvider {
 	}
 
 	/**
-	 * @return a new instance of the target trackFeatureAnalyzer identified by
-	 *         the key parameter. If the key is unknown to this factory,
-	 *         <code>null</code> is returned.
+	 * @return a new instance of the target trackFeatureAnalyzer identified by the key parameter. 
+	 * If the key is unknown to this factory, <code>null</code> is returned. 
 	 */
 	public TrackAnalyzer getTrackFeatureAnalyzer(String key) {
-
+		
 		if (key.equals(TrackDurationAnalyzer.KEY)) {
 			return new TrackDurationAnalyzer(model);
-
+			
 		} else if (key.equals(TrackBranchingAnalyzer.KEY)) {
 			return new TrackBranchingAnalyzer(model);
-
+			
 		} else if (key.equals(TrackSpeedStatisticsAnalyzer.KEY)) {
 			return new TrackSpeedStatisticsAnalyzer(model);
-
+			
 		} else if (key.equals(TrackLocationAnalyzer.KEY)) {
 			return new TrackLocationAnalyzer(model);
-
+			
 		} else if (key.equals(TrackIndexAnalyzer.KEY)) {
 			return trackIndexAnalyzer;
-
+			
 		} else {
 			return null;
 		}
 	}
 
 	/**
-	 * @return a list of the trackFeatureAnalyzer names available through this
-	 *         provider.
+	 * @return a list of the trackFeatureAnalyzer names available through this provider.
 	 */
 	public List<String> getAvailableTrackFeatureAnalyzers() {
 		return names;

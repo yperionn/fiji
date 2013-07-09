@@ -12,7 +12,7 @@ public class DogDetectorConfigurationPanel extends LogDetectorConfigurationPanel
 	public DogDetectorConfigurationPanel(ImagePlus imp, String infoText, String detectorName, Model model) {
 		super(imp, infoText, detectorName, model);
 	}
-
+	
 	@SuppressWarnings("rawtypes")
 	@Override
 	protected SpotDetectorFactory<?> getDetectorFactory() {

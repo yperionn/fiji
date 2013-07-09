@@ -20,7 +20,9 @@ import fiji.plugin.trackmate.Model;
 public class EdgeVelocityAnalyzer implements EdgeAnalyzer, MultiThreaded {
 
 	public static final String KEY = "Edge velocity";
-	/* FEATURE NAMES */
+	/*
+	 * FEATURE NAMES 
+	 */
 	public static final String VELOCITY = "VELOCITY";
 	public static final String DISPLACEMENT = "DISPLACEMENT";
 
@@ -43,12 +45,15 @@ public class EdgeVelocityAnalyzer implements EdgeAnalyzer, MultiThreaded {
 		FEATURE_DIMENSIONS.put(DISPLACEMENT, Dimension.LENGTH);
 	}
 
+
 	private int numThreads;
 	private long processingTime;
 	private final FeatureModel featureModel;
 	private final Model model;
 
-	/* CONSTRUCTOR */
+	/*
+	 * CONSTRUCTOR
+	 */
 
 	public EdgeVelocityAnalyzer(final Model model) {
 		this.model = model;
@@ -63,11 +68,11 @@ public class EdgeVelocityAnalyzer implements EdgeAnalyzer, MultiThreaded {
 
 	@Override
 	public void process(final Collection<DefaultWeightedEdge> edges) {
-
+		
 		if (edges.isEmpty()) {
 			return;
 		}
-
+		
 		final ArrayBlockingQueue<DefaultWeightedEdge> queue = new ArrayBlockingQueue<DefaultWeightedEdge>(edges.size(), false, edges);
 
 		Thread[] threads = SimpleMultiThreading.newThreads(numThreads);
@@ -84,7 +89,7 @@ public class EdgeVelocityAnalyzer implements EdgeAnalyzer, MultiThreaded {
 						double dy = target.diffTo(source, Spot.POSITION_Y);
 						double dz = target.diffTo(source, Spot.POSITION_Z);
 						double dt = target.diffTo(source, Spot.POSITION_T);
-						double D = Math.sqrt(dx * dx + dy * dy + dz * dz);
+						double D = Math.sqrt(dx*dx + dy*dy + dz*dz);
 						double V = D / Math.abs(dt);
 
 						featureModel.putEdgeFeature(edge, VELOCITY, V);
@@ -101,6 +106,7 @@ public class EdgeVelocityAnalyzer implements EdgeAnalyzer, MultiThreaded {
 		processingTime = end - start;
 	}
 
+
 	@Override
 	public String getKey() {
 		return KEY;
@@ -113,7 +119,7 @@ public class EdgeVelocityAnalyzer implements EdgeAnalyzer, MultiThreaded {
 
 	@Override
 	public void setNumThreads() {
-		this.numThreads = Runtime.getRuntime().availableProcessors();
+		this.numThreads = Runtime.getRuntime().availableProcessors();  
 	}
 
 	@Override
@@ -147,3 +153,4 @@ public class EdgeVelocityAnalyzer implements EdgeAnalyzer, MultiThreaded {
 		return FEATURE_DIMENSIONS;
 	};
 }
+
