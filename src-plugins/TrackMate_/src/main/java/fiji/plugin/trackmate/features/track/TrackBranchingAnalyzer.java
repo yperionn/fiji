@@ -30,10 +30,10 @@ public class TrackBranchingAnalyzer implements TrackAnalyzer, MultiThreaded {
 	public static final String NUMBER_COMPLEX = "NUMBER_COMPLEX";
 	public static final String NUMBER_SPOTS = "NUMBER_SPOTS";
 
-	private static final List<String> FEATURES = new ArrayList<String>(5);
-	private static final Map<String, String> FEATURE_NAMES = new HashMap<String, String>(5);
-	private static final Map<String, String> FEATURE_SHORT_NAMES = new HashMap<String, String>(5);
-	private static final Map<String, Dimension> FEATURE_DIMENSIONS = new HashMap<String, Dimension>(5);
+	public static final List<String> FEATURES = new ArrayList<String>(5);
+	public static final Map<String, String> FEATURE_NAMES = new HashMap<String, String>(5);
+	public static final Map<String, String> FEATURE_SHORT_NAMES = new HashMap<String, String>(5);
+	public static final Map<String, Dimension> FEATURE_DIMENSIONS = new HashMap<String, Dimension>(5);
 
 	static {
 		FEATURES.add(NUMBER_SPOTS);
@@ -102,7 +102,7 @@ public class TrackBranchingAnalyzer implements TrackAnalyzer, MultiThreaded {
 
 							// get neighbors
 							final Set<Spot> neighbors = new HashSet<Spot>();
-							for (final DefaultWeightedEdge edge : edges) {
+							for(final DefaultWeightedEdge edge : edges) {
 								neighbors.add(model.getTrackModel().getEdgeSource(edge));
 								neighbors.add(model.getTrackModel().getEdgeTarget(edge));
 							}
@@ -135,10 +135,10 @@ public class TrackBranchingAnalyzer implements TrackAnalyzer, MultiThreaded {
 						}
 
 						int ngaps = 0;
-						for (final DefaultWeightedEdge edge : model.getTrackModel().trackEdges(trackID)) {
+						for(final DefaultWeightedEdge edge : model.getTrackModel().trackEdges(trackID)) {
 							final Spot source = model.getTrackModel().getEdgeSource(edge);
 							final Spot target = model.getTrackModel().getEdgeTarget(edge);
-							if (Math.abs(target.diffTo(source, Spot.FRAME)) > 1) {
+							if (Math.abs( target.diffTo(source, Spot.FRAME)) > 1) {
 								ngaps++;
 							}
 						}

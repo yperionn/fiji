@@ -294,16 +294,20 @@ public class TmXmlWriter {
 		return settingsElement;
 	}
 
-	protected Element echoDetectorSettings(final Settings settings, final DetectorProvider provider) {
-		final Element el = new Element(DETECTOR_SETTINGS_ELEMENT_KEY);
-		final boolean ok = provider.select(settings.detectorFactory.getKey());
-		if (!ok) {
-			logger.error(provider.getErrorMessage());
-		} else {
-			provider.marshall(settings.detectorSettings, el);
-		}
+	protected Element echoDetectorSettings(Settings settings, DetectorProvider provider) {
+		Element el = new Element(DETECTOR_SETTINGS_ELEMENT_KEY);
+		
+		if (null != settings.detectorFactory) {
+			boolean ok = provider.select(settings.detectorFactory.getKey());
+			if (!ok) {
+				logger.error(provider.getErrorMessage());
+			} else {
+				provider.marshall(settings.detectorSettings, el);
+			}
 
-		logger.log("  Added detector settings.\n");
+			logger.log("  Added detector settings.\n");
+		}
+		
 		return el;
 	}
 

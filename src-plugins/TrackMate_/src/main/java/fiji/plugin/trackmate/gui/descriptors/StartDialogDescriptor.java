@@ -73,7 +73,10 @@ public class StartDialogDescriptor implements WizardPanelDescriptor {
 	}
 
 	@Override
-	public void aboutToDisplayPanel() {
+	public void aboutToDisplayPanel() { }
+
+	@Override
+	public void displayingPanel() { 
 		ImagePlus imp;
 		final TrackMate trackmate = controller.getPlugin();
 		if (null == trackmate.getSettings().imp) {
@@ -83,10 +86,6 @@ public class StartDialogDescriptor implements WizardPanelDescriptor {
 			imp = trackmate.getSettings().imp;
 		}
 		panel.getFrom(imp);
-	}
-
-	@Override
-	public void displayingPanel() {
 	}
 
 	@Override

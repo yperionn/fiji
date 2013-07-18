@@ -22,14 +22,14 @@ public class TrackLocationAnalyzer implements TrackAnalyzer, MultiThreaded, Benc
 	 * FEATURE NAMES
 	 */
 	public static final String KEY = "Track location";
-	public static final String X_LOCATION = "X_LOCATION";
-	public static final String Y_LOCATION = "Y_LOCATION";
-	public static final String Z_LOCATION = "Z_LOCATION";
+	public static final String X_LOCATION = "TRACK_X_LOCATION";
+	public static final String Y_LOCATION = "TRACK_Y_LOCATION";
+	public static final String Z_LOCATION = "TRACK_Z_LOCATION";
 
-	private static final List<String> FEATURES = new ArrayList<String>(4);
-	private static final Map<String, String> FEATURE_NAMES = new HashMap<String, String>(4);
-	private static final Map<String, String> FEATURE_SHORT_NAMES = new HashMap<String, String>(4);
-	private static final Map<String, Dimension> FEATURE_DIMENSIONS = new HashMap<String, Dimension>(4);
+	public static final List<String> FEATURES = new ArrayList<String>(4);
+	public static final Map<String, String> FEATURE_NAMES = new HashMap<String, String>(4);
+	public static final Map<String, String> FEATURE_SHORT_NAMES = new HashMap<String, String>(4);
+	public static final Map<String, Dimension> FEATURE_DIMENSIONS = new HashMap<String, Dimension>(4);
 
 	static {
 		FEATURES.add(X_LOCATION);
@@ -91,7 +91,7 @@ public class TrackLocationAnalyzer implements TrackAnalyzer, MultiThreaded, Benc
 						double y = 0;
 						double z = 0;
 
-						for (final Spot spot : track) {
+						for(final Spot spot : track) {
 							x += spot.getFeature(Spot.POSITION_X);
 							y += spot.getFeature(Spot.POSITION_Y);
 							z += spot.getFeature(Spot.POSITION_Z);

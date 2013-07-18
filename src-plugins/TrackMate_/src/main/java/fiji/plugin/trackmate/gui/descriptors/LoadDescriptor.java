@@ -12,6 +12,8 @@ import fiji.plugin.trackmate.gui.GuiUtils;
 import fiji.plugin.trackmate.gui.TrackMateGUIController;
 import fiji.plugin.trackmate.io.IOUtils;
 import fiji.plugin.trackmate.io.TmXmlReader;
+import fiji.plugin.trackmate.io.TmXmlReader_v12;
+import fiji.plugin.trackmate.io.TmXmlReader_v20;
 import fiji.plugin.trackmate.providers.DetectorProvider;
 import fiji.plugin.trackmate.providers.EdgeAnalyzerProvider;
 import fiji.plugin.trackmate.providers.SpotAnalyzerProvider;
@@ -19,6 +21,7 @@ import fiji.plugin.trackmate.providers.TrackAnalyzerProvider;
 import fiji.plugin.trackmate.providers.TrackerProvider;
 import fiji.plugin.trackmate.providers.ViewProvider;
 import fiji.plugin.trackmate.util.TMUtils;
+import fiji.plugin.trackmate.util.Version;
 import fiji.plugin.trackmate.visualization.TrackMateModelView;
 import fiji.plugin.trackmate.visualization.hyperstack.HyperStackDisplayer;
 import fiji.plugin.trackmate.visualization.trackscheme.SpotImageUpdater;
@@ -42,7 +45,7 @@ public class LoadDescriptor extends SomeDialogDescriptor {
 		if (null == file) {
 			try {
 				final File folder = new File(trackmate.getSettings().imp.getOriginalFileInfo().directory);
-				file = new File(folder.getPath() + File.separator + trackmate.getSettings().imp.getShortTitle() + ".xml");
+				file = new File(folder.getPath() + File.separator + trackmate.getSettings().imp.getShortTitle() +".xml");
 			} catch (final NullPointerException npe) {
 				final File folder = new File(System.getProperty("user.dir")).getParentFile().getParentFile();
 				file = new File(folder.getPath() + File.separator + "TrackMateData.xml");
@@ -50,17 +53,25 @@ public class LoadDescriptor extends SomeDialogDescriptor {
 		}
 
 		final Logger logger = logPanel.getLogger();
-		final File tmpFile = IOUtils.askForFileForLoading(file, "Load a TrackMate XML file", controller.getGUI(), logger);
+		final File tmpFile = IOUtils.askForFileForLoading(file, "Load a TrackMate XML file", controller.getGUI(), logger );
 		if (null == tmpFile) {
 			return;
 		}
 		file = tmpFile;
 
 		// Read the file content
-		final TmXmlReader reader = new TmXmlReader(file);
+		TmXmlReader reader = new TmXmlReader(file);
+		final Version version = new Version(reader.getVersion());
+		if (version.compareTo(new Version("2.0.0")) < 0) {
+			logger.log("Detecting a file version " + version +". Using the right reader.\n", Logger.GREEN_COLOR);
+			reader = new TmXmlReader_v12(file);
+		} else if (version.compareTo(new Version("2.1.0")) < 0) {
+			logger.log("Detecting a file version " + version +". Using the right reader.\n", Logger.GREEN_COLOR);
+			reader = new TmXmlReader_v20(file);
+		}
 		if (!reader.isReadingOk()) {
 			logger.error(reader.getErrorMessage());
-			logger.error("Aborting.\n"); // If I cannot even open the xml file, it is not work going on.
+			logger.error("Aborting.\n"); // If I cannot even open the xml file, it is not worth going on.
 			return;
 		}
 
@@ -81,7 +92,8 @@ public class LoadDescriptor extends SomeDialogDescriptor {
 		final SpotAnalyzerProvider spotAnalyzerProvider = newcontroller.getSpotAnalyzerProvider();
 		final EdgeAnalyzerProvider edgeAnalyzerProvider = newcontroller.getEdgeAnalyzerProvider();
 		final TrackAnalyzerProvider trackAnalyzerProvider = newcontroller.getTrackAnalyzerProvider();
-		reader.readSettings(settings, detectorProvider, trackerProvider, spotAnalyzerProvider, edgeAnalyzerProvider, trackAnalyzerProvider);
+		reader.readSettings(settings, detectorProvider, trackerProvider,
+				spotAnalyzerProvider, edgeAnalyzerProvider, trackAnalyzerProvider);
 
 		// GUI position
 		GuiUtils.positionWindow(newcontroller.getGUI(), settings.imp.getWindow());

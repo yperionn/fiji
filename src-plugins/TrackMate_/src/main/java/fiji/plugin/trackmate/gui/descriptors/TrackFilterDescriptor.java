@@ -15,6 +15,7 @@ import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.features.FeatureFilter;
 import fiji.plugin.trackmate.features.track.TrackIndexAnalyzer;
+import fiji.plugin.trackmate.gui.TrackMateGUIController;
 import fiji.plugin.trackmate.gui.panels.components.ColorByFeatureGUIPanel.Category;
 import fiji.plugin.trackmate.gui.panels.components.FilterGuiPanel;
 import fiji.plugin.trackmate.visualization.PerTrackFeatureColorGenerator;
@@ -27,10 +28,12 @@ public class TrackFilterDescriptor implements WizardPanelDescriptor {
 	private FilterGuiPanel component;
 	private final TrackMate trackmate;
 	private final PerTrackFeatureColorGenerator trackColorGenerator;
+	private final TrackMateGUIController controller;
 
-	public TrackFilterDescriptor(final TrackMate trackmate, final PerTrackFeatureColorGenerator trackColorGenerator) {
+	public TrackFilterDescriptor(final TrackMate trackmate, final PerTrackFeatureColorGenerator trackColorGenerator, final TrackMateGUIController controller) {
 		this.trackmate = trackmate;
 		this.trackColorGenerator = trackColorGenerator;
+		this.controller = controller;
 	}
 
 	@Override
@@ -40,7 +43,8 @@ public class TrackFilterDescriptor implements WizardPanelDescriptor {
 
 	@Override
 	public void aboutToDisplayPanel() {
-		component = new FilterGuiPanel(trackmate.getModel(), Arrays.asList(new Category[] { Category.TRACKS, Category.DEFAULT }));
+		component = new FilterGuiPanel(trackmate.getModel(),
+				Arrays.asList(new Category[] {Category.TRACKS, Category.DEFAULT }));
 		component.setFilters(trackmate.getSettings().getTrackFilters());
 		component.setColorFeature(TrackIndexAnalyzer.TRACK_INDEX);
 		component.addActionListener(new ActionListener() {
@@ -66,7 +70,9 @@ public class TrackFilterDescriptor implements WizardPanelDescriptor {
 		} else {
 			component.setColorFeature(trackColorGenerator.getFeature());
 		}
+		controller.getGUI().setNextButtonEnabled(true);
 	}
+
 
 	@Override
 	public void aboutToHidePanel() {
@@ -81,7 +87,7 @@ public class TrackFilterDescriptor implements WizardPanelDescriptor {
 			logger.log("No feature threshold set, kept the " + model.getTrackModel().nTracks(false) + " tracks.\n");
 		} else {
 			for (final FeatureFilter ft : featureFilters) {
-				String str = "  - on " + model.getFeatureModel().getTrackFeatureNames().get(ft.feature);
+				String str = "  - on "+model.getFeatureModel().getTrackFeatureNames().get(ft.feature);
 				if (ft.isAbove)
 					str += " above ";
 				else
@@ -92,7 +98,6 @@ public class TrackFilterDescriptor implements WizardPanelDescriptor {
 			}
 			logger.log("Kept " + model.getTrackModel().nTracks(true) + " tracks out of " + model.getTrackModel().nTracks(false) + ".\n");
 		}
-
 		trackmate.computeEdgeFeatures(true);
 	}
 
@@ -111,9 +116,7 @@ public class TrackFilterDescriptor implements WizardPanelDescriptor {
 
 	/**
 	 * Removes an ActionListener from this panel.
-	 *
-	 * @return true if the listener was in the ActionListener collection of this
-	 *         instance.
+	 * @return true if the listener was in the ActionListener collection of this instance.
 	 */
 	public boolean removeActionListener(final ActionListener listener) {
 		return actionListeners.remove(listener);
@@ -123,9 +126,9 @@ public class TrackFilterDescriptor implements WizardPanelDescriptor {
 		return actionListeners;
 	}
 
+
 	/**
-	 * Forwards the given {@link ActionEvent} to all the {@link ActionListener}
-	 * of this panel.
+	 * Forwards the given {@link ActionEvent} to all the {@link ActionListener} of this panel.
 	 */
 	private void fireAction(final ActionEvent e) {
 		for (final ActionListener l : actionListeners)
@@ -144,7 +147,6 @@ public class TrackFilterDescriptor implements WizardPanelDescriptor {
 
 	/**
 	 * Remove a ChangeListener from this panel.
-	 *
 	 * @return true if the listener was in listener collection of this instance.
 	 */
 	public boolean removeChangeListener(final ChangeListener listener) {
@@ -156,7 +158,7 @@ public class TrackFilterDescriptor implements WizardPanelDescriptor {
 	}
 
 	private void fireThresholdChanged(final ChangeEvent e) {
-		for (final ChangeListener cl : changeListeners) {
+		for (final ChangeListener cl : changeListeners)  {
 			cl.stateChanged(e);
 		}
 	}

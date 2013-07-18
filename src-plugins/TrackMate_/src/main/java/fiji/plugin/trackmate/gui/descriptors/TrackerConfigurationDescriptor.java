@@ -5,6 +5,7 @@ import java.util.Map;
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.gui.ConfigurationPanel;
+import fiji.plugin.trackmate.gui.TrackMateGUIController;
 import fiji.plugin.trackmate.providers.TrackerProvider;
 
 public class TrackerConfigurationDescriptor implements WizardPanelDescriptor {
@@ -13,11 +14,14 @@ public class TrackerConfigurationDescriptor implements WizardPanelDescriptor {
 	private final TrackMate trackmate;
 	private ConfigurationPanel configPanel;
 	private final TrackerProvider trackerProvider;
+	private final TrackMateGUIController controller;
 
-	public TrackerConfigurationDescriptor(final TrackerProvider trackerProvider, final TrackMate trackmate) {
+	public TrackerConfigurationDescriptor(final TrackerProvider trackerProvider, final TrackMate trackmate, final TrackMateGUIController controller) {
 		this.trackmate = trackmate;
 		this.trackerProvider = trackerProvider;
+		this.controller = controller;
 	}
+
 
 	/*
 	 * METHODS
@@ -54,6 +58,7 @@ public class TrackerConfigurationDescriptor implements WizardPanelDescriptor {
 			// happens after loading.
 			aboutToDisplayPanel();
 		}
+		controller.getGUI().setNextButtonEnabled(true);
 	}
 
 	@Override
@@ -62,7 +67,7 @@ public class TrackerConfigurationDescriptor implements WizardPanelDescriptor {
 		final boolean settingsOk = trackerProvider.checkSettingsValidity(settings);
 		if (!settingsOk) {
 			final Logger logger = trackmate.getModel().getLogger();
-			logger.error("Config panel returned bad settings map:\n" + trackerProvider.getErrorMessage() + "Using defaults settings.\n");
+			logger.error("Config panel returned bad settings map:\n"+trackerProvider.getErrorMessage()+"Using defaults settings.\n");
 			settings = trackerProvider.getDefaultSettings();
 		}
 		trackmate.getSettings().trackerSettings = settings;

@@ -35,13 +35,12 @@ import fiji.plugin.trackmate.tracking.hungarian.HungarianAlgorithm;
  * <h2>Overview</h2>
  *
  * <p>
- * This class tracks objects by formulating the problem as a Linear Assignment
- * Problem.
+ * This class tracks objects by formulating the problem as a Linear Assignment Problem.
  *
  * <p>
- * For reference, see: Jaqaman, K. et al.
- * "Robust single-particle tracking in live-cell time-lapse sequences." Nature
- * Methods, 2008.
+ * For reference, see:
+ * Jaqaman, K. et al. "Robust single-particle tracking in live-cell time-lapse sequences."
+ * Nature Methods, 2008.
  *
  * <p>
  * In this tracking framework, tracking is divided into two steps:
@@ -52,25 +51,24 @@ import fiji.plugin.trackmate.tracking.hungarian.HungarianAlgorithm;
  * </ol>
  *
  * <p>
- * Both steps are treated as a linear assignment problem. To solve the problems,
- * a cost matrix is created for each step, and the Hungarian Algorithm is used
- * to determine the cost-minimizing assignments. The results of the calculations
- * are the complete tracks of the objects. For more details on the Hungarian
- * Algorithm, see http://en.wikipedia.org/wiki/Hungarian_algorithm.
+ * Both steps are treated as a linear assignment problem. To solve the problems, a cost
+ * matrix is created for each step, and the Hungarian Algorithm is used to determine
+ * the cost-minimizing assignments. The results of the calculations are the complete
+ * tracks of the objects. For more details on the Hungarian Algorithm, see
+ * http://en.wikipedia.org/wiki/Hungarian_algorithm.
  *
  * <h2>Cost Matrices</h2>
  *
- * Since there are two discrete steps to tracking using this framework, two
- * distinct classes of cost matrices are required to solve the problem. The user
- * can either choose to use the cost matrices / functions from the paper (for
- * Brownian motion), or can supply their own cost matrices.
+ * Since there are two discrete steps to tracking using this framework, two distinct
+ * classes of cost matrices are required to solve the problem. The user can either choose
+ * to use the cost matrices / functions from the paper (for Brownian motion),
+ * or can supply their own cost matrices.
  *
- * <p>
- * One matrix corresponds to step (1) above, and is used to assign individual
- * objects to track segments. A track segment is created by linking the objects
- * between consecutive frames, with the condition that at an object in one frame
- * can link to at most one other object in another frame. The options for a
- * object assignment at this step are:
+ * <p>One matrix corresponds to step (1) above, and is used to assign individual objects
+ * to track segments. A track segment is created by linking the objects between
+ * consecutive frames, with the condition that at an object in one frame can link to at
+ * most one other object in another frame. The options for a object assignment at this
+ * step are:
  *
  * <ul>
  * <li>Object linking (an object in frame t is linked one-to-one to a object in
@@ -79,12 +77,10 @@ import fiji.plugin.trackmate.tracking.hungarian.HungarianAlgorithm;
  * <li>Object in frame t+1 not linked to an object in frame t (track start)</li>
  * </ul>
  *
- * <p>
- * The cost matrix for this step is illustrated in Figure 1b in the paper, and
+ * <p>The cost matrix for this step is illustrated in Figure 1b in the paper, and
  * is described in more detail in {@link LinkingCostMatrixCreator}.
  *
- * <p>
- * The other matrix corresponds to step (2) above, and is used to link together
+ * <p>The other matrix corresponds to step (2) above, and is used to link together
  * the track segments into final tracks. Track segments can be:
  *
  * <ul>
@@ -95,31 +91,26 @@ import fiji.plugin.trackmate.tracking.hungarian.HungarianAlgorithm;
  * <li>Initiated (track starts)</li>
  * </ul>
  *
- * <p>
- * The cost matrix for this step is illustrated in Figure 1c in the paper, and
+ * <p>The cost matrix for this step is illustrated in Figure 1c in the paper, and
  * is described in more detail in {@link TrackSegmentCostMatrixCreator}.
  *
- * <p>
- * Solving both LAPs yields complete tracks.
+ * <p>Solving both LAPs yields complete tracks.
  *
  * <h2>How to use this class</h2>
  *
- * <p>
- * To use the default cost matrices/function, use the default constructor, and
- * simply call {@link #process()}.
+ * <p>To use the default cost matrices/function, use the default constructor,
+ * and simply call {@link #process()}.
  *
- * <p>
- * If you wish to using your specify your own cost matrices:
+ * <p>If you wish to using your specify your own cost matrices:
  *
- * <ol>
- * <li>Instantiate this class normally.
- * <li>Set the linking cost matrix using {@link #setLinkingCosts(ArrayList)}.</li>
- * <li>Execute {@link #linkObjectsToTrackSegments()}.</li>
- * <li>Get the track segments created using {@link #getTrackSegments()}.</li>
- * <li>Create the segment cost matrix.
- * <li>Set the segment cost matrix using {@link #setSegmentCosts(double[][])}.</li>
- * <li>Run {@link #linkTrackSegmentsToFinalTracks(ArrayList)} to compute the
- * final tracks.</li>
+ *  <ol>
+ *  <li>Instantiate this class normally.
+ *	<li>Set the linking cost matrix using {@link #setLinkingCosts(ArrayList)}.</li>
+ *	<li>Execute {@link #linkObjectsToTrackSegments()}.</li>
+ *  <li>Get the track segments created using {@link #getTrackSegments()}.</li>
+ * 	<li>Create the segment cost matrix.
+ * 	<li>Set the segment cost matrix using {@link #setSegmentCosts(double[][])}.</li>
+ * 	<li>Run {@link #linkTrackSegmentsToFinalTracks(ArrayList)} to compute the final tracks.</li>
  * </ol>
  *
  * @author Nicholas Perry
@@ -174,15 +165,11 @@ public class LAPTracker extends MultiThreadedBenchmarkAlgorithm implements SpotT
 	protected List<SortedSet<Spot>> trackSegments = null;
 	/** Holds references to the middle spots in the track segments. */
 	protected List<Spot> middlePoints;
-	/**
-	 * Holds references to the middle spots considered for merging in the track
-	 * segments.
-	 */
+	/** Holds references to the middle spots considered for merging in
+	 * the track segments. */
 	protected List<Spot> mergingMiddlePoints;
-	/**
-	 * Holds references to the middle spots considered for splitting in the
-	 * track segments.
-	 */
+	/** Holds references to the middle spots considered for splitting in
+	 * the track segments. */
 	protected List<Spot> splittingMiddlePoints;
 	/**
 	 * Each index corresponds to a Spot in middleMergingPoints, and holds the
@@ -197,7 +184,7 @@ public class LAPTracker extends MultiThreadedBenchmarkAlgorithm implements SpotT
 	/** The graph this tracker will use to link spots. */
 	protected SimpleWeightedGraph<Spot, DefaultWeightedEdge> graph;
 	/** The Spot collection that will be linked in the {@link #graph.} */
-	protected final SpotCollection spots;
+	protected SpotCollection spots;
 	/** The settings map that configures this tracker. */
 	protected Map<String, Object> settings;
 
@@ -205,13 +192,12 @@ public class LAPTracker extends MultiThreadedBenchmarkAlgorithm implements SpotT
 	 * CONSTRUCTOR
 	 */
 
-	public LAPTracker(final SpotCollection spots, final Logger logger) {
-		this.spots = spots;
+	public LAPTracker(final Logger logger) {
 		this.logger = logger;
 	}
 
-	public LAPTracker(final SpotCollection spots) {
-		this(spots, Logger.VOID_LOGGER);
+	public LAPTracker() {
+		this(Logger.VOID_LOGGER);
 	}
 
 	/*
@@ -219,11 +205,11 @@ public class LAPTracker extends MultiThreadedBenchmarkAlgorithm implements SpotT
 	 */
 
 	/**
-	 * Hook for subclassers. Generate the assignment algorithm that will be used
-	 * to solve the {@link AssignmentProblem} held by this tracker.
+	 * Hook for subclassers. Generate the assignment algorithm that will be used to solve
+	 * the {@link AssignmentProblem} held by this tracker.
 	 * <p>
-	 * Here, by default, it returns the Hungarian algorithm implementation by
-	 * Gary Baker and Nick Perry that solves an assignment problem in O(n^4).
+	 * Here, by default, it returns the Hungarian algorithm implementation by Gary Baker and Nick
+	 * Perry that solves an assignment problem in O(n^4).
 	 */
 	protected AssignmentAlgorithm createAssignmentProblemSolver() {
 		return new HungarianAlgorithm();
@@ -234,13 +220,14 @@ public class LAPTracker extends MultiThreadedBenchmarkAlgorithm implements SpotT
 	 */
 
 	@Override
-	public void setSettings(final Map<String, Object> settings) {
+	public void setTarget(final SpotCollection spots, final Map<String, Object> settings) {
+		this.spots = spots;
 		this.settings = settings;
 	}
 
 	/**
-	 * Reset any link created in the graph result in this tracker, effectively
-	 * creating a new graph, containing the spots but no edge.
+	 * Reset any link created in the graph result in this tracker, effectively creating a new graph,
+	 * containing the spots but no edge.
 	 */
 	public void reset() {
 		graph = new SimpleWeightedGraph<Spot, DefaultWeightedEdge>(DefaultWeightedEdge.class);
@@ -343,6 +330,7 @@ public class LAPTracker extends MultiThreadedBenchmarkAlgorithm implements SpotT
 		final boolean allowSplitting = (Boolean) settings.get(KEY_ALLOW_TRACK_SPLITTING);
 		final boolean allowMerging = (Boolean) settings.get(KEY_ALLOW_TRACK_MERGING);
 
+
 		// Step 1 - Link objects into track segments
 		tstart = System.currentTimeMillis();
 		if (!linkObjectsToTrackSegments())
@@ -435,8 +423,7 @@ public class LAPTracker extends MultiThreadedBenchmarkAlgorithm implements SpotT
 	 * Creates the final tracks computed from step 2.
 	 *
 	 * @see TrackSegmentCostMatrixCreator#getMiddlePoints()
-	 * @param middlePoints
-	 *            A list of the middle points of the track segments.
+	 * @param middlePoints A list of the middle points of the track segments.
 	 * @return True if execution completes successfully, false otherwise.
 	 */
 	public boolean linkTrackSegmentsToFinalTracks() {
@@ -474,19 +461,17 @@ public class LAPTracker extends MultiThreadedBenchmarkAlgorithm implements SpotT
 	/**
 	 * Perform the frame to frame linking.
 	 * <p>
-	 * For each frame, compute the cost matrix to link each spot to another spot
-	 * in the next frame. Then compute the optimal track segments using this
-	 * cost matrix. Finally, update the {@link #trackGraph} field with found
-	 * links.
+	 * For each frame, compute the cost matrix to link each spot to another spot in the next frame.
+	 * Then compute the optimal track segments using this cost matrix.
+	 * Finally, update the {@link #trackGraph} field with found links.
 	 *
-	 * @see LAPTracker#createFrameToFrameLinkingCostMatrix(List, List,
-	 *      TrackerSettings)
+	 * @see LAPTracker#createFrameToFrameLinkingCostMatrix(List, List, TrackerSettings)
 	 */
 	public boolean solveLAPForTrackSegments() {
 		final double blockingValue = (Double) settings.get(KEY_BLOCKING_VALUE);
 
 		// Prepare frame pairs in order, not necessarily separated by 1.
-		final ArrayList<int[]> framePairs = new ArrayList<int[]>(spots.keySet().size() - 1);
+		final ArrayList<int[]> framePairs = new ArrayList<int[]>(spots.keySet().size()-1);
 		final Iterator<Integer> frameIterator = spots.keySet().iterator();
 		int frame0 = frameIterator.next();
 		int frame1;
@@ -504,7 +489,7 @@ public class LAPTracker extends MultiThreadedBenchmarkAlgorithm implements SpotT
 		final AtomicInteger progress = new AtomicInteger(0);
 		for (int ithread = 0; ithread < threads.length; ithread++) {
 
-			threads[ithread] = new Thread("LAPTracker track segment linking thread " + (1 + ithread) + "/" + threads.length) {
+			threads[ithread] = new Thread("LAPTracker track segment linking thread "+(1+ithread)+"/"+threads.length) {
 
 				@Override
 				public void run() {
@@ -590,14 +575,10 @@ public class LAPTracker extends MultiThreadedBenchmarkAlgorithm implements SpotT
 	 * <p>
 	 * Create the cost matrix required in the frame to frame linking.
 	 *
-	 * @param t0
-	 *            the list of spots in the first frame
-	 * @param t1
-	 *            the list of spots in the second frame
-	 * @param settings
-	 *            the tracker settings that specifies how this cost should be
-	 *            created
-	 * @return the cost matrix as an array of array of double
+	 * @param t0  the list of spots in the first frame
+	 * @param t1  the list of spots in the second frame
+	 * @param settings  the tracker settings that specifies how this cost should be created
+	 * @return  the cost matrix as an array of array of double
 	 */
 	protected double[][] createFrameToFrameLinkingCostMatrix(final List<Spot> t0, final List<Spot> t1, final Map<String, Object> settings) {
 		// Create cost matrix
@@ -644,18 +625,16 @@ public class LAPTracker extends MultiThreadedBenchmarkAlgorithm implements SpotT
 	}
 
 	/**
-	 * Takes the solutions from the Hungarian algorithm, which are an int[][],
-	 * and appropriately links the track segments. Before this method is called,
-	 * the Spots in the track segments are connected within themselves, but not
-	 * between track segments.
+	 * Takes the solutions from the Hungarian algorithm, which are an int[][], and
+	 * appropriately links the track segments. Before this method is called, the Spots in the
+	 * track segments are connected within themselves, but not between track segments.
 	 *
-	 * Thus, we only care here if the result was a 'gap closing,' 'merging,' or
-	 * 'splitting' event, since the others require no change to the existing
-	 * structure of the track segments.
+	 * Thus, we only care here if the result was a 'gap closing,' 'merging,' or 'splitting'
+	 * event, since the others require no change to the existing structure of the
+	 * track segments.
 	 *
-	 * Method: for each solution of the LAP, determine if it's a gap closing,
-	 * merging, or splitting event. If so, appropriately link the track segment
-	 * Spots.
+	 * Method: for each solution of the LAP, determine if it's a gap closing, merging, or
+	 * splitting event. If so, appropriately link the track segment Spots.
 	 */
 	private void compileFinalTracks(final int[][] finalTrackSolutions) {
 		final int numTrackSegments = trackSegments.size();
@@ -684,14 +663,14 @@ public class LAPTracker extends MultiThreadedBenchmarkAlgorithm implements SpotT
 					final DefaultWeightedEdge edge = graph.addEdge(end, start);
 					graph.setEdgeWeight(edge, weight);
 
-					if (DEBUG)
-						System.out.println("Gap closing from segment " + i + " to segment " + j + ".");
+					if(DEBUG)
+						System.out.println("Gap closing from segment "+i+" to segment "+j+".");
 
 				} else if (j < (numTrackSegments + numMergingMiddlePoints)) {
 
 					// Case 2: Merging
 					final SortedSet<Spot> segmentEnd = trackSegments.get(i);
-					final Spot end = segmentEnd.last();
+					final Spot end =  segmentEnd.last();
 					final Spot middle = mergingMiddlePoints.get(j - numTrackSegments);
 					weight = segmentCosts[i][j];
 					final DefaultWeightedEdge edge = graph.addEdge(end, middle);
@@ -701,10 +680,10 @@ public class LAPTracker extends MultiThreadedBenchmarkAlgorithm implements SpotT
 						SortedSet<Spot> track = null;
 						int indexTrack = 0;
 						int indexSpot = 0;
-						for (final SortedSet<Spot> t : trackSegments)
+						for(final SortedSet<Spot> t : trackSegments)
 							if (t.contains(middle)) {
 								track = t;
-								for (final Spot spot : track) {
+								for(final Spot spot : track) {
 									if (spot == middle)
 										break;
 									else
@@ -732,10 +711,10 @@ public class LAPTracker extends MultiThreadedBenchmarkAlgorithm implements SpotT
 						SortedSet<Spot> track = null;
 						int indexTrack = 0;
 						int indexSpot = 0;
-						for (final SortedSet<Spot> t : trackSegments)
+						for(final SortedSet<Spot> t : trackSegments)
 							if (t.contains(mother)) {
 								track = t;
-								for (final Spot spot : track) {
+								for(final Spot spot : track) {
 									if (spot == mother)
 										break;
 									else

@@ -5,6 +5,7 @@ import java.util.List;
 
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.TrackMate;
+import fiji.plugin.trackmate.gui.TrackMateGUIController;
 import fiji.plugin.trackmate.gui.panels.ListChooserPanel;
 import fiji.plugin.trackmate.providers.TrackerProvider;
 import fiji.plugin.trackmate.tracking.ManualTracker;
@@ -16,10 +17,12 @@ public class TrackerChoiceDescriptor implements WizardPanelDescriptor {
 	private final ListChooserPanel component;
 	private final TrackMate trackmate;
 	private final TrackerProvider trackerProvider;
+	private final TrackMateGUIController controller;
 
-	public TrackerChoiceDescriptor(final TrackerProvider trackerProvider, final TrackMate trackmate) {
+	public TrackerChoiceDescriptor(final TrackerProvider trackerProvider, final TrackMate trackmate, final TrackMateGUIController controller) {
 		this.trackmate = trackmate;
 		this.trackerProvider = trackerProvider;
+		this.controller = controller;
 		final List<String> trackerNames = trackerProvider.getNames();
 		final List<String> infoTexts = trackerProvider.getInfoTexts();
 		this.component = new ListChooserPanel(trackerNames, infoTexts, "tracker");
@@ -42,6 +45,7 @@ public class TrackerChoiceDescriptor implements WizardPanelDescriptor {
 
 	@Override
 	public void displayingPanel() {
+		controller.getGUI().setNextButtonEnabled(true);
 	}
 
 	@Override
@@ -55,7 +59,9 @@ public class TrackerChoiceDescriptor implements WizardPanelDescriptor {
 		// Check
 		if (!ok) {
 			final Logger logger = trackmate.getModel().getLogger();
-			logger.error("Choice panel returned a tracker unkown to this trackmate:.\n" + trackerProvider.getErrorMessage() + "Using default " + trackerProvider.getCurrentKey());
+			logger.error("Choice panel returned a tracker unkown to this trackmate:.\n" +
+					trackerProvider.getErrorMessage()+
+					"Using default "+trackerProvider.getCurrentKey());
 		}
 
 		final SpotTracker tracker = trackerProvider.getTracker();
@@ -63,8 +69,8 @@ public class TrackerChoiceDescriptor implements WizardPanelDescriptor {
 
 		if (tracker.getKey().equals(ManualTracker.TRACKER_KEY)) {
 			/*
-			 * Compute track and edge features now to ensure they will be
-			 * available in the next descriptor.
+			 * Compute track and edge features now to ensure they will be available
+			 * in the next descriptor.
 			 */
 			final Thread trackFeatureCalculationThread = new Thread("TrackMate track feature calculation thread") {
 				@Override

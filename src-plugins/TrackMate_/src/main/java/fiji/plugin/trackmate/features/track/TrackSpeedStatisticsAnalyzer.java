@@ -34,10 +34,10 @@ public class TrackSpeedStatisticsAnalyzer implements TrackAnalyzer, MultiThreade
 //	public static final String TRACK_SPEED_KURTOSIS = "TRACK_SPEED_KURTOSIS";
 //	public static final String TRACK_SPEED_SKEWNESS = "TRACK_SPEED_SKEWNESS";
 
-	private static final List<String> FEATURES = new ArrayList<String>(5);
-	private static final Map<String, String> FEATURE_NAMES = new HashMap<String, String>(5);
-	private static final Map<String, String> FEATURE_SHORT_NAMES = new HashMap<String, String>(5);
-	private static final Map<String, Dimension> FEATURE_DIMENSIONS = new HashMap<String, Dimension>(5);
+	public static final List<String> FEATURES = new ArrayList<String>(5);
+	public static final Map<String, String> FEATURE_NAMES = new HashMap<String, String>(5);
+	public static final Map<String, String> FEATURE_SHORT_NAMES = new HashMap<String, String>(5);
+	public static final Map<String, Dimension> FEATURE_DIMENSIONS = new HashMap<String, Dimension>(5);
 
 	static {
 		FEATURES.add(TRACK_MEAN_SPEED);
@@ -126,7 +126,7 @@ public class TrackSpeedStatisticsAnalyzer implements TrackAnalyzer, MultiThreade
 						final double[] velocities = new double[track.size()];
 						int n = 0;
 
-						for (final DefaultWeightedEdge edge : track) {
+						for(final DefaultWeightedEdge edge : track) {
 							final Spot source = model.getTrackModel().getEdgeSource(edge);
 							final Spot target = model.getTrackModel().getEdgeTarget(edge);
 
@@ -155,14 +155,14 @@ public class TrackSpeedStatisticsAnalyzer implements TrackAnalyzer, MultiThreade
 							M2 = M2 + term1;
 						}
 
-						Util.quicksort(velocities, 0, track.size() - 1);
-						final double median = velocities[track.size() / 2];
+						Util.quicksort(velocities, 0, track.size()-1);
+						final double median = velocities[track.size()/2];
 						final double min = velocities[0];
-						final double max = velocities[track.size() - 1];
+						final double max = velocities[track.size()-1];
 						mean = sum / track.size();
-						final double variance = M2 / (track.size() - 1);
-//						double kurtosis = (n * M4) / (M2 * M2) - 3;
-//						double skewness = Math.sqrt(n) * M3 / Math.pow(M2, 3 / 2.0);
+						final double variance = M2 / (track.size()-1);
+						//			double kurtosis = (n*M4) / (M2*M2) - 3;
+						//			double skewness =  Math.sqrt(n) * M3 / Math.pow(M2, 3/2.0) ;
 
 						fm.putTrackFeature(trackID, TRACK_MEDIAN_SPEED, median);
 						fm.putTrackFeature(trackID, TRACK_MIN_SPEED, min);

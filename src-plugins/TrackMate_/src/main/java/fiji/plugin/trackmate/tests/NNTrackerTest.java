@@ -27,31 +27,32 @@ public class NNTrackerTest {
 
 	public static void main(final String args[]) {
 
+
 		final File file = new File(AppUtils.getBaseDirectory(TrackMate.class), "samples/FakeTracks.xml");
 
 		// 1 - Load test spots
-		System.out.println("Opening file: " + file.getAbsolutePath());
+		System.out.println("Opening file: "+file.getAbsolutePath());
 		final TmXmlReader reader = new TmXmlReader(file);
 		final Model model = reader.getModel();
 		final Settings gs = new Settings();
 		reader.readSettings(gs, null, null, null, null, null);
 
-		System.out.println("Spots: " + model.getSpots());
-		System.out.println("Found " + model.getTrackModel().nTracks(false) + " tracks in the file:");
+		System.out.println("Spots: "+ model.getSpots());
+		System.out.println("Found "+model.getTrackModel().nTracks(false)+" tracks in the file:");
 		System.out.println("Track features: ");
 		System.out.println();
 
 		// 2 - Track the test spots
 		final long start = System.currentTimeMillis();
-		final NearestNeighborTracker tracker = new NearestNeighborTracker(model.getSpots(), Logger.DEFAULT_LOGGER);
+		final NearestNeighborTracker tracker = new NearestNeighborTracker(Logger.DEFAULT_LOGGER);
 		final Map<String, Object> settings = new HashMap<String, Object>();
 		settings.put(KEY_LINKING_MAX_DISTANCE, 15d);
-		tracker.setSettings(settings);
+		tracker.setTarget(model.getSpots(), settings );
 
 		if (!tracker.checkInput())
 			System.err.println("Error checking input: " + tracker.getErrorMessage());
 		if (!tracker.process())
-			System.err.println("Error in process: " + tracker.getErrorMessage());
+			System.err.println("Error in process: "+tracker.getErrorMessage());
 		final long end = System.currentTimeMillis();
 		model.getTrackModel().setGraph(tracker.getResult());
 
@@ -63,6 +64,7 @@ public class NNTrackerTest {
 		System.out.println("Whole tracking done in " + (end - start) + " ms.");
 		System.out.println();
 
+
 		// 5 - Display tracks
 		// Load Image
 		ij.ImageJ.main(args);
@@ -72,5 +74,6 @@ public class NNTrackerTest {
 		sd2d.render();
 		sd2d.setDisplaySettings(TrackMateModelView.KEY_TRACK_DISPLAY_MODE, TrackMateModelView.TRACK_DISPLAY_MODE_WHOLE);
 	}
+
 
 }

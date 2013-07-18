@@ -34,22 +34,22 @@ public class NearestNeighborTracker extends MultiThreadedBenchmarkAlgorithm impl
 	public static final String TRACKER_KEY = "NEAREST_NEIGHBOR_TRACKER";
 	public static final String NAME = "Nearest neighbor search";
 	public static final String INFO_TEXT = "<html>" +
-			"This tracker is the most simple one, and is based on nearest neighbor <br>" +
-			"search. The spots in the target frame are searched for the nearest neighbor <br> " +
-			"of each spot in the source frame. If the spots found are closer than the <br>" +
-			"maximal allowed distance, a link between the two is created. <br>" +
-			"<p>" +
-			"The nearest neighbor search relies upon the KD-tree technique implemented <br>" +
-			"in imglib by Johannes Schindelin and friends. This ensure a very efficient " +
-			"tracking and makes this tracker suitable for situation where a huge number <br>" +
-			"of particles are to be tracked over a very large number of frames. However, <br>" +
-			"because of the naiveness of its principles, it can result in pathological <br>" +
-			"tracks. It can only do frame-to-frame linking; there cannot be any track <br>" +
-			"merging or splitting, and gaps will not be closed. Also, the end results are non-" +
-			"deterministic." +
-			" </html>";
+				"This tracker is the most simple one, and is based on nearest neighbor <br>" +
+				"search. The spots in the target frame are searched for the nearest neighbor <br> " +
+				"of each spot in the source frame. If the spots found are closer than the <br>" +
+				"maximal allowed distance, a link between the two is created. <br>" +
+				"<p>" +
+				"The nearest neighbor search relies upon the KD-tree technique implemented <br>" +
+				"in imglib by Johannes Schindelin and friends. This ensure a very efficient " +
+				"tracking and makes this tracker suitable for situation where a huge number <br>" +
+				"of particles are to be tracked over a very large number of frames. However, <br>" +
+				"because of the naiveness of its principles, it can result in pathological <br>" +
+				"tracks. It can only do frame-to-frame linking; there cannot be any track <br>" +
+				"merging or splitting, and gaps will not be closed. Also, the end results are non-" +
+				"deterministic." +
+				" </html>";
 
-	protected final SpotCollection spots;
+	protected SpotCollection spots;
 	protected final Logger logger;
 	protected SimpleWeightedGraph<Spot, DefaultWeightedEdge> graph;
 	protected Map<String, Object> settings;
@@ -58,13 +58,12 @@ public class NearestNeighborTracker extends MultiThreadedBenchmarkAlgorithm impl
 	 * CONSTRUCTOR
 	 */
 
-	public NearestNeighborTracker(final SpotCollection spots, final Logger logger) {
-		this.spots = spots;
+	public NearestNeighborTracker(final Logger logger) {
 		this.logger = logger;
 	}
 
-	public NearestNeighborTracker(final SpotCollection spots) {
-		this(spots, Logger.VOID_LOGGER);
+	public NearestNeighborTracker() {
+		this(Logger.VOID_LOGGER);
 	}
 
 	/*
@@ -72,14 +71,14 @@ public class NearestNeighborTracker extends MultiThreadedBenchmarkAlgorithm impl
 	 */
 
 	@Override
-	public void setSettings(final Map<String, Object> settings) {
+	public void setTarget(final SpotCollection spots, final Map<String, Object> settings) {
+		this.spots = spots;
 		this.settings = settings;
 	}
 
 	@Override
 	public boolean checkInput() {
-		final StringBuilder errrorHolder = new StringBuilder();
-		;
+		final StringBuilder errrorHolder = new StringBuilder();;
 		final boolean ok = checkInput(settings, errrorHolder);
 		if (!ok) {
 			errorMessage = errrorHolder.toString();
@@ -104,7 +103,7 @@ public class NearestNeighborTracker extends MultiThreadedBenchmarkAlgorithm impl
 		final AtomicInteger progress = new AtomicInteger(0);
 		for (int ithread = 0; ithread < threads.length; ithread++) {
 
-			threads[ithread] = new Thread("Nearest neighbor tracker thread " + (1 + ithread) + "/" + threads.length) {
+			threads[ithread] = new Thread("Nearest neighbor tracker thread "+(1+ithread)+"/"+threads.length) {
 
 				@Override
 				public void run() {
@@ -130,6 +129,7 @@ public class NearestNeighborTracker extends MultiThreadedBenchmarkAlgorithm impl
 							targetCoords.add(new RealPoint(coords));
 							targetNodes.add(new FlagNode<Spot>(spot));
 						}
+
 
 						final KDTree<FlagNode<Spot>> tree = new KDTree<FlagNode<Spot>>(targetNodes, targetCoords);
 						final NearestNeighborFlagSearchOnKDTree<Spot> search = new NearestNeighborFlagSearchOnKDTree<Spot>(tree);
@@ -166,6 +166,7 @@ public class NearestNeighborTracker extends MultiThreadedBenchmarkAlgorithm impl
 					}
 				}
 			};
+
 
 		}
 

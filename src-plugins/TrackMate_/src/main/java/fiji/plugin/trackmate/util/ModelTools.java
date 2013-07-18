@@ -16,8 +16,9 @@ import fiji.plugin.trackmate.SpotCollection;
 import fiji.plugin.trackmate.tracking.kdtree.NearestNeighborTracker;
 
 /**
- * A collection of static utilities made to ease the manipulation of a TrackMate
- * {@link Model} and {@link SelectionModel}.
+ * A collection of static utilities made to ease the manipulation of a
+ * TrackMate {@link Model} and {@link SelectionModel}.
+ * @author Jean-Yves Tinevez - 2013
  *
  * @author Jean-Yves Tinevez - 2013
  */
@@ -30,9 +31,8 @@ public class ModelTools {
 	 * Sets the content of the specified selection model to be the whole tracks
 	 * the selected spots belong to. Other selected edges are removed from the
 	 * selection.
-	 *
-	 * @param selectionModel
-	 *            the {@link SelectionModel} that will be updated by this call.
+	 * @param selectionModel  the {@link SelectionModel} that will be updated by this
+	 * call.
 	 */
 	public static void selectTrack(final SelectionModel selectionModel) {
 		selectionModel.clearEdgeSelection();
@@ -41,11 +41,10 @@ public class ModelTools {
 
 	/**
 	 * Sets the content of the specified selection model to be the whole tracks
-	 * the selected spots belong to, but searched for only forward in time
-	 * (downward). Other selected edges are removed from the selection.
-	 *
-	 * @param selectionModel
-	 *            the {@link SelectionModel} that will be updated by this call.
+	 * the selected spots belong to, but searched for only forward in time (downward).
+	 * Other selected edges are removed from the selection.
+	 * @param selectionModel  the {@link SelectionModel} that will be updated by this
+	 * call.
 	 */
 	public static void selectTrackDownward(final SelectionModel selectionModel) {
 		selectionModel.clearEdgeSelection();
@@ -54,11 +53,10 @@ public class ModelTools {
 
 	/**
 	 * Sets the content of the specified selection model to be the whole tracks
-	 * the selected spots belong to, but searched for only backward in time
-	 * (backward). Other selected edges are removed from the selection.
-	 *
-	 * @param selectionModel
-	 *            the {@link SelectionModel} that will be updated by this call.
+	 * the selected spots belong to, but searched for only backward in time (backward).
+	 * Other selected edges are removed from the selection.
+	 * @param selectionModel  the {@link SelectionModel} that will be updated by this
+	 * call.
 	 */
 	public static void selectTrackUpward(final SelectionModel selectionModel) {
 		selectionModel.clearEdgeSelection();
@@ -80,11 +78,11 @@ public class ModelTools {
 		 */
 
 		final SpotCollection spots = SpotCollection.fromCollection(selectionModel.getSpotSelection());
-		final NearestNeighborTracker tracker = new NearestNeighborTracker(spots);
+		final NearestNeighborTracker tracker = new NearestNeighborTracker();
 		tracker.setNumThreads(1);
 		final Map<String, Object> settings = new HashMap<String, Object>(1);
 		settings.put(KEY_LINKING_MAX_DISTANCE, Double.POSITIVE_INFINITY);
-		tracker.setSettings(settings);
+		tracker.setTarget(spots, settings);
 
 		/*
 		 * Execute tracking
@@ -94,7 +92,7 @@ public class ModelTools {
 			System.err.println("Problem while computing spot links: " + tracker.getErrorMessage());
 			return;
 		}
-		final SimpleWeightedGraph<Spot, DefaultWeightedEdge> graph = tracker.getResult();
+		final SimpleWeightedGraph<Spot,DefaultWeightedEdge> graph = tracker.getResult();
 
 		/*
 		 * Copy found links in source model

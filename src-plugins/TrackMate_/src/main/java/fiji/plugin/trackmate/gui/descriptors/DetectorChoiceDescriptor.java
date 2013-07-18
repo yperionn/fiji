@@ -6,6 +6,7 @@ import java.util.Map;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.detection.ManualDetectorFactory;
 import fiji.plugin.trackmate.detection.SpotDetectorFactory;
+import fiji.plugin.trackmate.gui.TrackMateGUIController;
 import fiji.plugin.trackmate.gui.panels.ListChooserPanel;
 import fiji.plugin.trackmate.providers.DetectorProvider;
 
@@ -15,11 +16,14 @@ public class DetectorChoiceDescriptor implements WizardPanelDescriptor {
 	private final ListChooserPanel component;
 	private final TrackMate trackmate;
 	private final DetectorProvider detectorProvider;
+	private final TrackMateGUIController controller;
 
-	public DetectorChoiceDescriptor(final DetectorProvider detectorProvider, final TrackMate trackmate) {
+
+	public DetectorChoiceDescriptor(final DetectorProvider detectorProvider, final TrackMate trackmate, final TrackMateGUIController controller) {
 		this.trackmate = trackmate;
 		this.detectorProvider = detectorProvider;
-		final List<String> detectorNames = detectorProvider.getNames();
+		this.controller = controller;
+		final List<String> detectorNames =  detectorProvider.getNames();
 		final List<String> infoTexts = detectorProvider.getInfoTexts();
 		this.component = new ListChooserPanel(detectorNames, infoTexts, "detector");
 		setCurrentChoiceFromPlugin();
@@ -57,6 +61,7 @@ public class DetectorChoiceDescriptor implements WizardPanelDescriptor {
 	@Override
 	public void displayingPanel() {
 		setCurrentChoiceFromPlugin();
+		controller.getGUI().setNextButtonEnabled(true);
 	}
 
 	@Override
@@ -84,8 +89,8 @@ public class DetectorChoiceDescriptor implements WizardPanelDescriptor {
 
 		if (factory.getKey().equals(ManualDetectorFactory.DETECTOR_KEY)) {
 			/*
-			 * Compute spot features now to ensure they will be available in the
-			 * next descriptor.
+			 * Compute spot features now to ensure they will be available
+			 * in the next descriptor.
 			 */
 			final Thread spotFeatureCalculationThread = new Thread("TrackMate spot feature calculation thread") {
 				@Override

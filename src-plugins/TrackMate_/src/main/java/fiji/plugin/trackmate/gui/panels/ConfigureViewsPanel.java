@@ -68,7 +68,13 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 	public ActionEvent TRACK_SCHEME_BUTTON_PRESSED = new ActionEvent(this, 0, "TrackSchemeButtonPushed");
 	public ActionEvent DO_ANALYSIS_BUTTON_PRESSED = new ActionEvent(this, 1, "DoAnalysisButtonPushed");
 
-	/** A map of String/Object that configures the look and feel of the views. */
+	private static final String ANALYSIS_BUTTON_TOOLTIP = "<html>"
+			+ "Export all spot, edge and track features <br>"
+			+ "to ImageJ tables.</html>";
+	private static final String TRACKSCHEME_BUTTON_TOOLTIP = "<html>"
+			+ "Launch a new instance of TrackScheme.</html>";
+
+	/** A map of String/Object that configures the look and feel of the views.	 */
 	protected Map<String, Object> displaySettings = new HashMap<String, Object>();
 
 	protected JButton jButtonShowTrackScheme;
@@ -200,6 +206,7 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 		trackColorGUI.setColorFeature(trackColorGenerator.getFeature());
 	}
 
+
 	/**
 	 * Refreshes some components of this GUI with current values of the model.
 	 */
@@ -224,6 +231,7 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 				fireDisplaySettingsChange(event);
 			}
 		});
+		jPanelSpotOptions.add(jPanelSpotColor);
 
 		/*
 		 * Track coloring
@@ -233,8 +241,8 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 			jPanelTrackOptions.remove(trackColorGUI);
 		}
 
-		trackColorGUI = new ColorByFeatureGUIPanel(model, Arrays.asList(new Category[] { Category.TRACKS, Category.EDGES, Category.DEFAULT }));
-		trackColorGUI.setPreferredSize(new java.awt.Dimension(265, 45));
+		trackColorGUI = new ColorByFeatureGUIPanel(model, Arrays.asList(new Category[] { Category.TRACKS, Category.EDGES, Category.DEFAULT } ));
+		//		trackColorGUI.setPreferredSize(new java.awt.Dimension(265, 45));
 		trackColorGUI.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -264,6 +272,15 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 			}
 		});
 		jPanelTrackOptions.add(trackColorGUI);
+
+
+		if (spotColorGenerator != null) {
+			jPanelSpotColor.setColorFeature(spotColorGenerator.getFeature());
+		}
+		if (trackColorGenerator != null) {
+			trackColorGUI.setColorFeature(trackColorGenerator.getFeature());
+		}
+
 	}
 
 	/*
@@ -284,10 +301,9 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 			{
 				jPanelTrackOptions = new JPanel() {
 					private static final long serialVersionUID = -1805693239189343720L;
-
 					@Override
 					public void setEnabled(final boolean enabled) {
-						for (final Component c : getComponents())
+						for(final Component c : getComponents())
 							c.setEnabled(enabled);
 					};
 				};
@@ -388,7 +404,7 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 					@Override
 					public void actionPerformed(final ActionEvent e) {
 						final Boolean oldValue = (Boolean) displaySettings.get(KEY_TRACKS_VISIBLE);
-						final Boolean newValue = jCheckBoxDisplayTracks.isSelected();
+						final Boolean newValue =  jCheckBoxDisplayTracks.isSelected();
 						displaySettings.put(KEY_TRACKS_VISIBLE, newValue);
 
 						final DisplaySettingsEvent event = new DisplaySettingsEvent(ConfigureViewsPanel.this, KEY_TRACKS_VISIBLE, newValue, oldValue);
@@ -407,7 +423,7 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 					@Override
 					public void actionPerformed(final ActionEvent e) {
 						final Boolean oldValue = (Boolean) displaySettings.get(KEY_SPOTS_VISIBLE);
-						final Boolean newValue = jCheckBoxDisplaySpots.isSelected();
+						final Boolean newValue =  jCheckBoxDisplaySpots.isSelected();
 						displaySettings.put(KEY_SPOTS_VISIBLE, newValue);
 
 						final DisplaySettingsEvent event = new DisplaySettingsEvent(ConfigureViewsPanel.this, KEY_SPOTS_VISIBLE, newValue, oldValue);
@@ -418,10 +434,9 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 			{
 				jPanelSpotOptions = new JPanel() {
 					private static final long serialVersionUID = 1L;
-
 					@Override
 					public void setEnabled(final boolean enabled) {
-						for (final Component c : getComponents())
+						for(final Component c : getComponents())
 							c.setEnabled(enabled);
 					};
 				};
@@ -445,7 +460,7 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 						@Override
 						public void actionPerformed(final ActionEvent e) {
 							final Float oldValue = (Float) displaySettings.get(KEY_SPOT_RADIUS_RATIO);
-							final Float newValue = (float) jTextFieldSpotRadius.getValue();
+							final Float newValue =  (float) jTextFieldSpotRadius.getValue();
 							displaySettings.put(KEY_SPOT_RADIUS_RATIO, newValue);
 
 							final DisplaySettingsEvent event = new DisplaySettingsEvent(ConfigureViewsPanel.this, KEY_SPOT_RADIUS_RATIO, newValue, oldValue);
@@ -456,7 +471,7 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 						@Override
 						public void focusLost(final FocusEvent e) {
 							final Float oldValue = (Float) displaySettings.get(KEY_SPOT_RADIUS_RATIO);
-							final Float newValue = (float) jTextFieldSpotRadius.getValue();
+							final Float newValue =  (float) jTextFieldSpotRadius.getValue();
 							displaySettings.put(KEY_SPOT_RADIUS_RATIO, newValue);
 
 							final DisplaySettingsEvent event = new DisplaySettingsEvent(ConfigureViewsPanel.this, KEY_SPOT_RADIUS_RATIO, newValue, oldValue);
@@ -464,8 +479,7 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 						}
 
 						@Override
-						public void focusGained(final FocusEvent e) {
-						}
+						public void focusGained(final FocusEvent e) {}
 					});
 				}
 				{
@@ -500,6 +514,7 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 				jButtonShowTrackScheme.setText("Track scheme");
 				jButtonShowTrackScheme.setIcon(TRACK_SCHEME_ICON);
 				jButtonShowTrackScheme.setFont(FONT);
+				jButtonShowTrackScheme.setToolTipText(TRACKSCHEME_BUTTON_TOOLTIP);
 				jButtonShowTrackScheme.setBounds(10, 411, 120, 30);
 				jButtonShowTrackScheme.addActionListener(new ActionListener() {
 					@Override
@@ -513,6 +528,7 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 				jButtonDoAnalysis = new JButton("Analysis");
 				jButtonDoAnalysis.setFont(FONT);
 				jButtonDoAnalysis.setIcon(DO_ANALYSIS_ICON);
+				jButtonDoAnalysis.setToolTipText(ANALYSIS_BUTTON_TOOLTIP);
 				jButtonDoAnalysis.setBounds(145, 411, 120, 30);
 				jButtonDoAnalysis.addActionListener(new ActionListener() {
 					@Override
@@ -526,5 +542,6 @@ public class ConfigureViewsPanel extends ActionListenablePanel {
 			e.printStackTrace();
 		}
 	}
+
 
 }

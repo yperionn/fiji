@@ -23,15 +23,15 @@ public class EdgeTimeLocationAnalyzer implements EdgeAnalyzer, MultiThreaded {
 	/*
 	 * FEATURE NAMES
 	 */
-	public static final String TIME = "TIME";
-	public static final String X_LOCATION = "X_LOCATION";
-	public static final String Y_LOCATION = "Y_LOCATION";
-	public static final String Z_LOCATION = "Z_LOCATION";
+	public static final String TIME = "EDGE_TIME";
+	public static final String X_LOCATION = "EDGE_X_LOCATION";
+	public static final String Y_LOCATION = "EDGE_Y_LOCATION";
+	public static final String Z_LOCATION = "EDGE_Z_LOCATION";
 
-	private static final List<String> FEATURES = new ArrayList<String>(2);
-	private static final Map<String, String> FEATURE_NAMES = new HashMap<String, String>(2);
-	private static final Map<String, String> FEATURE_SHORT_NAMES = new HashMap<String, String>(2);
-	private static final Map<String, Dimension> FEATURE_DIMENSIONS = new HashMap<String, Dimension>(2);
+	public static final List<String> FEATURES = new ArrayList<String>(2);
+	public static final Map<String, String> FEATURE_NAMES = new HashMap<String, String>(2);
+	public static final Map<String, String> FEATURE_SHORT_NAMES = new HashMap<String, String>(2);
+	public static final Map<String, Dimension> FEATURE_DIMENSIONS = new HashMap<String, Dimension>(2);
 
 	static {
 		FEATURES.add(TIME);
@@ -95,10 +95,10 @@ public class EdgeTimeLocationAnalyzer implements EdgeAnalyzer, MultiThreaded {
 						final Spot source = model.getTrackModel().getEdgeSource(edge);
 						final Spot target = model.getTrackModel().getEdgeTarget(edge);
 
-						final double x = 0.5 * (source.getFeature(Spot.POSITION_X) + target.getFeature(Spot.POSITION_X));
-						final double y = 0.5 * (source.getFeature(Spot.POSITION_Y) + target.getFeature(Spot.POSITION_Y));
-						final double z = 0.5 * (source.getFeature(Spot.POSITION_Z) + target.getFeature(Spot.POSITION_Z));
-						final double t = 0.5 * (source.getFeature(Spot.POSITION_T) + target.getFeature(Spot.POSITION_T));
+						final double x = 0.5 * ( source.getFeature(Spot.POSITION_X) + target.getFeature(Spot.POSITION_X) );
+						final double y = 0.5 * ( source.getFeature(Spot.POSITION_Y) + target.getFeature(Spot.POSITION_Y) );
+						final double z = 0.5 * ( source.getFeature(Spot.POSITION_Z) + target.getFeature(Spot.POSITION_Z) );
+						final double t = 0.5 * ( source.getFeature(Spot.POSITION_T) + target.getFeature(Spot.POSITION_T) );
 
 						featureModel.putEdgeFeature(edge, TIME, t);
 						featureModel.putEdgeFeature(edge, X_LOCATION, x);

@@ -3,6 +3,7 @@ package fiji.plugin.trackmate.gui.panels;
 import static fiji.plugin.trackmate.gui.TrackMateWizard.FONT;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.SpringLayout;
 
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.action.TrackMateAction;
@@ -33,6 +35,7 @@ public class ActionChooserPanel {
 	private final List<ImageIcon> icons;
 	private final ListChooserPanel panel;
 	private final ActionProvider actionProvider;
+	private SpringLayout layout;
 
 	/*
 	 * CONSTRUCTORS
@@ -68,12 +71,12 @@ public class ActionChooserPanel {
 	 */
 
 	private void init() {
+		
+		layout = (SpringLayout) panel.getLayout();
+		layout.removeLayoutComponent(panel.jLabelHelpText);
 
-		logPanel.setBounds(8, 260, 276, 200);
 		panel.add(logPanel);
-
 		final JButton executeButton = new JButton("Execute", EXECUTE_ICON);
-		executeButton.setBounds(6, 220, 100, 30);
 		executeButton.setFont(FONT);
 		executeButton.addActionListener(new ActionListener() {
 			@Override
@@ -99,13 +102,29 @@ public class ActionChooserPanel {
 		});
 		panel.add(executeButton);
 
-		final HashMap<String, ImageIcon> iconMap = new HashMap<String, ImageIcon>();
-		for (int i = 0; i < icons.size(); i++) {
+		
+		layout.putConstraint(SpringLayout.NORTH, panel.jLabelHelpText, 5, SpringLayout.SOUTH, panel.jComboBoxChoice);
+		layout.putConstraint(SpringLayout.WEST, panel.jLabelHelpText, 10, SpringLayout.WEST, panel);
+		layout.putConstraint(SpringLayout.EAST, panel.jLabelHelpText, -10, SpringLayout.EAST, panel);
+		panel.jLabelHelpText.setPreferredSize(new Dimension(600, 150));
+		
+		layout.putConstraint(SpringLayout.WEST, executeButton, 10, SpringLayout.WEST, panel);
+		layout.putConstraint(SpringLayout.EAST, executeButton, 170, SpringLayout.WEST, panel);
+		layout.putConstraint(SpringLayout.NORTH, executeButton, 5, SpringLayout.SOUTH, panel.jLabelHelpText);
+		
+		layout.putConstraint(SpringLayout.NORTH, logPanel, 5, SpringLayout.SOUTH, executeButton);
+		layout.putConstraint(SpringLayout.SOUTH, logPanel, -10, SpringLayout.SOUTH, panel);
+		layout.putConstraint(SpringLayout.WEST, logPanel, 10, SpringLayout.WEST, panel);
+		layout.putConstraint(SpringLayout.EAST, logPanel, -10, SpringLayout.EAST, panel);
+
+		
+		HashMap<String, ImageIcon> iconMap = new HashMap<String, ImageIcon>();
+		for (int i = 0; i < icons.size(); i++) { 
 			iconMap.put(panel.items.get(i), icons.get(i));
 		}
 		final IconListRenderer renderer = new IconListRenderer(iconMap);
 		panel.jComboBoxChoice.setRenderer(renderer);
-		panel.jLabelHelpText.setSize(270, 150);
+		
 
 	}
 
@@ -129,5 +148,4 @@ public class ActionChooserPanel {
 			return label;
 		}
 	}
-
 }

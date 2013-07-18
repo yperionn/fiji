@@ -26,10 +26,10 @@ public class EdgeVelocityAnalyzer implements EdgeAnalyzer, MultiThreaded {
 	public static final String VELOCITY = "VELOCITY";
 	public static final String DISPLACEMENT = "DISPLACEMENT";
 
-	private static final List<String> FEATURES = new ArrayList<String>(2);
-	private static final Map<String, String> FEATURE_NAMES = new HashMap<String, String>(2);
-	private static final Map<String, String> FEATURE_SHORT_NAMES = new HashMap<String, String>(2);
-	private static final Map<String, Dimension> FEATURE_DIMENSIONS = new HashMap<String, Dimension>(2);
+	public static final List<String> FEATURES = new ArrayList<String>(2);
+	public static final Map<String, String> FEATURE_NAMES = new HashMap<String, String>(2);
+	public static final Map<String, String> FEATURE_SHORT_NAMES = new HashMap<String, String>(2);
+	public static final Map<String, Dimension> FEATURE_DIMENSIONS = new HashMap<String, Dimension>(2);
 
 	static {
 		FEATURES.add(VELOCITY);
@@ -88,7 +88,7 @@ public class EdgeVelocityAnalyzer implements EdgeAnalyzer, MultiThreaded {
 						final double dy = target.diffTo(source, Spot.POSITION_Y);
 						final double dz = target.diffTo(source, Spot.POSITION_Z);
 						final double dt = target.diffTo(source, Spot.POSITION_T);
-						final double D = Math.sqrt(dx * dx + dy * dy + dz * dz);
+						final double D = Math.sqrt(dx*dx + dy*dy + dz*dz);
 						final double V = D / Math.abs(dt);
 
 						featureModel.putEdgeFeature(edge, VELOCITY, V);
