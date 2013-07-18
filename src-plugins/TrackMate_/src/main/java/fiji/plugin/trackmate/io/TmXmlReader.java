@@ -1059,8 +1059,6 @@ public class TmXmlReader {
 		}
 	}
 
-	private void readSingleFeatureDeclaration(final Element child, final Collection<String> features, final Map<String, String> featureNames, final Map<String, String> featureShortNames, final Map<String, Dimension> featureDimensions) {
-
 	private void readSingleFeatureDeclaration(final Element child, final Collection<String> features,
 			final Map<String, String> featureNames, final Map<String, String> featureShortNames, final Map<String, Dimension> featureDimensions) {
 

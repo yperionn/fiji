@@ -341,28 +341,43 @@ public class TrackMate implements Benchmark, MultiThreaded, Algorithm {
 				@Override
 				public void run() {
 
-					for (int frame = ai.getAndIncrement(); frame <= settings.tend; frame = ai.getAndIncrement()) try {
+					for (int frame = ai.getAndIncrement(); frame <= settings.tend; frame = ai.getAndIncrement())
 
-						// Yield detector for target frame
-						final SpotDetector<?> detector = factory.getDetector(frame);
+						try {
 
-						if (wasInterrupted()) return;
+							// Yield detector for target frame
+							final SpotDetector<?> detector = factory.getDetector(frame);
 
-						// Execute detection
-						if (ok.get() && detector.checkInput() && detector.process()) {
-							// On success,
-							// Get results,
-							final List<Spot> spotsThisFrame = detector.getResult();
-							// Translate individual spots back to top-left corner of the image, if
-							// the raw image was cropped.
-							TMUtils.translateSpots(spotsThisFrame, dx, dy, dz);
-							// Prune if outside of ROI
-							List<Spot> prunedSpots;
-							if (null != settings.polygon) {
-								prunedSpots = new ArrayList<Spot>();
-								for (final Spot spot : spotsThisFrame) {
-									if (settings.polygon.contains(spot.getFeature(Spot.POSITION_X)/calibration[0], spot.getFeature(Spot.POSITION_Y)/calibration[1]))
-										prunedSpots.add(spot);
+							if (wasInterrupted()) return;
+
+							// Execute detection
+							if (ok.get() && detector.checkInput() && detector.process()) {
+								// On success,
+								// Get results,
+								final List<Spot> spotsThisFrame = detector.getResult();
+								// Translate individual spots back to top-left corner of the image, if
+								// the raw image was cropped.
+								TMUtils.translateSpots(spotsThisFrame, dx, dy, dz);
+								// Prune if outside of ROI
+								List<Spot> prunedSpots;
+								if (null != settings.polygon) {
+									prunedSpots = new ArrayList<Spot>();
+									for (final Spot spot : spotsThisFrame) {
+										if (settings.polygon.contains(spot.getFeature(Spot.POSITION_X)/calibration[0], spot.getFeature(Spot.POSITION_Y)/calibration[1]))
+											prunedSpots.add(spot);
+									}
+									// Add detection feature other than position
+									for (final Spot spot : prunedSpots) {
+										spot.putFeature(Spot.POSITION_T, frame * settings.dt); // FRAME will be set upon adding to SpotCollection
+									}
+									// Store final results for this frame
+									spots.put(frame, prunedSpots);
+									// Report
+									spotFound.addAndGet(prunedSpots.size());
+									logger.setProgress(progress.incrementAndGet() / (double) numFrames);
+
+								} else {
+									prunedSpots = spotsThisFrame;
 								}
 								// Add detection feature other than position
 								for (final Spot spot : prunedSpots) {
@@ -372,32 +387,20 @@ public class TrackMate implements Benchmark, MultiThreaded, Algorithm {
 								spots.put(frame, prunedSpots);
 								// Report
 								spotFound.addAndGet(prunedSpots.size());
-								logger.setProgress(progress.incrementAndGet() / (double) numFrames);
+								logger.setProgress(progress.incrementAndGet() / (double)numFrames );
 
 							} else {
-								prunedSpots = spotsThisFrame;
+								// Fail: exit and report error.
+								ok.set(false);
+								errorMessage = detector.getErrorMessage();
+								return;
 							}
-							// Add detection feature other than position
-							for (final Spot spot : prunedSpots) {
-								spot.putFeature(Spot.POSITION_T, frame * settings.dt); // FRAME will be set upon adding to SpotCollection
+
+						} catch (final RuntimeException e) {
+							final Throwable cause = e.getCause();
+							if (cause != null && cause instanceof InterruptedException) {
+								return;
 							}
-							// Store final results for this frame
-							spots.put(frame, prunedSpots);
-							// Report
-							spotFound.addAndGet(prunedSpots.size());
-							logger.setProgress(progress.incrementAndGet() / (double)numFrames );
-
-						} else {
-							// Fail: exit and report error.
-							ok.set(false);
-							errorMessage = detector.getErrorMessage();
-							return;
-						}
-
-					} catch (final RuntimeException e) {
-						final Throwable cause = e.getCause();
-						if (cause != null && cause instanceof InterruptedException) {
-							return;
 						}
 				}
 			};

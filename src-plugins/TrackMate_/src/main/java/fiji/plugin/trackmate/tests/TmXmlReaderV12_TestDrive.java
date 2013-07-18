@@ -29,7 +29,4 @@ public class TmXmlReaderV12_TestDrive {
 		System.out.println(settings);
 
 	}
-
-	}
-
 }
