@@ -38,15 +38,16 @@ import fiji.plugin.trackmate.tracking.SpotTracker;
  * <p>
  * The process halts when:
  * <ul>
- * 	<li> no spots of quality high enough are found;
- * 	<li> spots of high quality are found, but too far from the initial spot;
- * 	<li> the source has no time-point left.
+ * <li>no spots of quality high enough are found;
+ * <li>spots of high quality are found, but too far from the initial spot;
+ * <li>the source has no time-point left.
  * </ul>
  *
  * @author Jean-Yves Tinevez - 2013
  * @param <T>
  *            the type of the source. Must extend {@link RealType} and
- *            {@link NativeType} to use with most TrackMate {@link SpotDetector}s.
+ *            {@link NativeType} to use with most TrackMate {@link SpotDetector}
+ *            s.
  */
 public abstract class AbstractSemiAutoTracker<T extends RealType<T> & NativeType<T>> implements Algorithm, MultiThreaded {
 
@@ -64,7 +65,6 @@ public abstract class AbstractSemiAutoTracker<T extends RealType<T> & NativeType
 
 	/** How close must be the new spot found to be accepted, in radius units. */
 	protected double distanceTolerance = DISTANCE_TOLERANCE;
-
 	/**
 	 * The fraction of the initial quality above which we keep new spots. The
 	 * highest, the more intolerant.
@@ -87,7 +87,7 @@ public abstract class AbstractSemiAutoTracker<T extends RealType<T> & NativeType
 
 	/**
 	 * Configures this semi-automatic tracker.
-	 *
+	 * 
 	 * @param qualityThreshold
 	 *            the fraction of the initial quality above which we keep new
 	 *            spots. The highest, the more intolerant.
@@ -130,6 +130,21 @@ public abstract class AbstractSemiAutoTracker<T extends RealType<T> & NativeType
 		return ok;
 	}
 
+	/**
+	 * Recursively investigates a neighborhood to find the most likely successor
+	 * of a spot, starting with the specified spot and operating recursively.
+	 * The found spots are added to the {@link Model} given at construction and
+	 * linked to the previous spot, until:
+	 * <ul>
+	 * <li>a spot of sufficient quality cannot be found in the close vicinity of
+	 * the previous spot;
+	 * <li>the raw image has exhausted all its time-points.
+	 * </ul>
+	 * This method can be called concurrently on several spots.
+	 * 
+	 * @param initialSpot
+	 *            the spot to start detection with.
+	 */
 	public void processSpot(final Spot initialSpot) {
 
 		/*
@@ -242,6 +257,19 @@ public abstract class AbstractSemiAutoTracker<T extends RealType<T> & NativeType
 	}
 
 	/**
+	 * This method is a hook for subclassers. It exposes the newly found spot
+	 * just before it is added to the {@link Model}. This method allows concrete
+	 * implementation to add some specific post-treatment to detected spots.
+	 * 
+	 * @param newSpot
+	 *            the spot that just has been found by the detection mechanism.
+	 * @param previousSpot
+	 *            the spot in the previous frame whose neighborhood has been
+	 *            investigated to find the new spot. Already part of the model.
+	 */
+	protected abstract void exposeSpot(Spot newSpot, Spot previousSpot);
+
+	/**
 	 * Returns a small neighborhood around the specified spot, but taken at the
 	 * specified frame. Implementations have to decide what is the right size
 	 * for the neighborhood, given the specified spot radius and location.
@@ -250,7 +278,7 @@ public abstract class AbstractSemiAutoTracker<T extends RealType<T> & NativeType
 	 * of time frames in the raw source has been exhausted, or if the specified
 	 * spot misses some information. This will be dealt with gracefully in the
 	 * {@link #process()} method.
-	 *
+	 * 
 	 * @param spot
 	 *            the spot the desired neighborhood is centered on.
 	 * @param frame
@@ -266,7 +294,7 @@ public abstract class AbstractSemiAutoTracker<T extends RealType<T> & NativeType
 	/**
 	 * Returns a new instance of a {@link SpotDetector} that will inspect the
 	 * neighborhood.
-	 *
+	 * 
 	 * @param img
 	 *            the neighborhood to inspect.
 	 * @param radius
