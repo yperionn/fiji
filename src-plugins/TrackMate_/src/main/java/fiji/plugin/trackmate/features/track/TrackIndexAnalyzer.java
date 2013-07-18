@@ -18,10 +18,10 @@ public class TrackIndexAnalyzer implements TrackAnalyzer {
 	public static final String TRACK_INDEX = "TRACK_INDEX";
 	public static final String TRACK_ID = "TRACK_ID";
 
-	private static final List<String> FEATURES = new ArrayList<String>(1);
-	private static final Map<String, String> FEATURE_NAMES = new HashMap<String, String>(1);
-	private static final Map<String, String> FEATURE_SHORT_NAMES = new HashMap<String, String>(1);
-	private static final Map<String, Dimension> FEATURE_DIMENSIONS = new HashMap<String, Dimension>(1);
+	public static final List<String> FEATURES = new ArrayList<String>(2);
+	public static final Map<String, String> FEATURE_NAMES = new HashMap<String, String>(2);
+	public static final Map<String, String> FEATURE_SHORT_NAMES = new HashMap<String, String>(2);
+	public static final Map<String, Dimension> FEATURE_DIMENSIONS = new HashMap<String, Dimension>(2);
 
 	static {
 		FEATURES.add(TRACK_INDEX);
@@ -107,8 +107,7 @@ public class TrackIndexAnalyzer implements TrackAnalyzer {
 	 * Ignored. This analyzer is single-threaded.
 	 */
 	@Override
-	public void setNumThreads(final int numThreads) {
-	}
+	public void setNumThreads(final int numThreads) {}
 
 	/**
 	 * Ignore. This analyzer is single-threaded.

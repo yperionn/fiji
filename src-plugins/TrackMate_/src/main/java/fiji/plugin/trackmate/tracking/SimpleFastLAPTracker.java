@@ -1,9 +1,6 @@
 package fiji.plugin.trackmate.tracking;
 
-import java.util.Map;
-
 import fiji.plugin.trackmate.Logger;
-import fiji.plugin.trackmate.SpotCollection;
 
 public class SimpleFastLAPTracker extends FastLAPTracker {
 
@@ -16,13 +13,14 @@ public class SimpleFastLAPTracker extends FastLAPTracker {
 			"in having non-branching tracks." +
 			" </html>";
 
-	public SimpleFastLAPTracker(final SpotCollection spots, final Logger logger) {
-		super(spots, logger);
+	public SimpleFastLAPTracker(final Logger logger) {
+		super(logger);
 	}
 
-	public SimpleFastLAPTracker(final SpotCollection spots, final Map<String, Object> settings) {
-		this(spots, Logger.VOID_LOGGER);
+	public SimpleFastLAPTracker() {
+		this(Logger.VOID_LOGGER);
 	}
+
 
 	@Override
 	public String toString() {

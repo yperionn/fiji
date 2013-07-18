@@ -37,7 +37,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 import org.jdom2.JDOMException;
 import org.scijava.util.AppUtils;
 
-@SuppressWarnings("unused")
 public class TrackVisualizerTestDrive {
 
 	public static void main(final String[] args) throws JDOMException, IOException {

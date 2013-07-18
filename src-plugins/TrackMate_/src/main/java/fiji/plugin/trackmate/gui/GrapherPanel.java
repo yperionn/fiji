@@ -68,8 +68,8 @@ public class GrapherPanel extends ActionListenablePanel {
 		refresh();
 	}
 
-	private void refresh() {
-
+	public void refresh() {
+		
 		// regen spot features
 		panelSpot.removeAll();
 		final Collection<String> spotFeatures = trackmate.getModel().getFeatureModel().getSpotFeatures();

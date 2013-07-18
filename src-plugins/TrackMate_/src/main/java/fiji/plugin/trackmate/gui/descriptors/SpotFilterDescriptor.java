@@ -16,6 +16,7 @@ import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.features.FeatureFilter;
+import fiji.plugin.trackmate.gui.TrackMateGUIController;
 import fiji.plugin.trackmate.gui.panels.components.ColorByFeatureGUIPanel.Category;
 import fiji.plugin.trackmate.gui.panels.components.FilterGuiPanel;
 import fiji.plugin.trackmate.visualization.FeatureColorGenerator;
@@ -28,10 +29,13 @@ public class SpotFilterDescriptor implements WizardPanelDescriptor {
 	private FilterGuiPanel component;
 	private final TrackMate trackmate;
 	private final FeatureColorGenerator<Spot> spotColorGenerator;
+	private final TrackMateGUIController controller;
 
-	public SpotFilterDescriptor(final TrackMate trackmate, final FeatureColorGenerator<Spot> spotColorGenerator) {
+
+	public SpotFilterDescriptor(final TrackMate trackmate, final FeatureColorGenerator<Spot> spotColorGenerator, final TrackMateGUIController controller) {
 		this.trackmate = trackmate;
 		this.spotColorGenerator = spotColorGenerator;
+		this.controller = controller;
 	}
 
 	@Override
@@ -58,6 +62,7 @@ public class SpotFilterDescriptor implements WizardPanelDescriptor {
 				fireThresholdChanged(event);
 			}
 		});
+		controller.getGUI().setNextButtonEnabled(true);
 	}
 
 	@Override
@@ -84,7 +89,7 @@ public class SpotFilterDescriptor implements WizardPanelDescriptor {
 			logger.log("No feature threshold set, kept the " + ntotal + " spots.\n");
 		} else {
 			for (final FeatureFilter ft : featureFilters) {
-				String str = "  - on " + trackmate.getModel().getFeatureModel().getSpotFeatureNames().get(ft.feature);
+				String str = "  - on "+trackmate.getModel().getFeatureModel().getSpotFeatureNames().get(ft.feature);
 				if (ft.isAbove)
 					str += " above ";
 				else
@@ -94,7 +99,7 @@ public class SpotFilterDescriptor implements WizardPanelDescriptor {
 				logger.log(str);
 			}
 			final int nselected = model.getSpots().getNSpots(true);
-			logger.log("Kept " + nselected + " spots out of " + ntotal + ".\n");
+			logger.log("Kept "+nselected+" spots out of " + ntotal + ".\n");
 		}
 	}
 
@@ -102,6 +107,7 @@ public class SpotFilterDescriptor implements WizardPanelDescriptor {
 	public String getKey() {
 		return KEY;
 	}
+
 
 	/**
 	 * Adds an {@link ActionListener} to this panel. These listeners will be
@@ -113,9 +119,7 @@ public class SpotFilterDescriptor implements WizardPanelDescriptor {
 
 	/**
 	 * Removes an ActionListener from this panel.
-	 *
-	 * @return true if the listener was in the ActionListener collection of this
-	 *         instance.
+	 * @return true if the listener was in the ActionListener collection of this instance.
 	 */
 	public boolean removeActionListener(final ActionListener listener) {
 		return actionListeners.remove(listener);
@@ -125,9 +129,9 @@ public class SpotFilterDescriptor implements WizardPanelDescriptor {
 		return actionListeners;
 	}
 
+
 	/**
-	 * Forwards the given {@link ActionEvent} to all the {@link ActionListener}
-	 * of this panel.
+	 * Forwards the given {@link ActionEvent} to all the {@link ActionListener} of this panel.
 	 */
 	private void fireAction(final ActionEvent e) {
 		for (final ActionListener l : actionListeners)
@@ -146,7 +150,6 @@ public class SpotFilterDescriptor implements WizardPanelDescriptor {
 
 	/**
 	 * Remove a ChangeListener from this panel.
-	 *
 	 * @return true if the listener was in listener collection of this instance.
 	 */
 	public boolean removeChangeListener(final ChangeListener listener) {
@@ -158,7 +161,7 @@ public class SpotFilterDescriptor implements WizardPanelDescriptor {
 	}
 
 	private void fireThresholdChanged(final ChangeEvent e) {
-		for (final ChangeListener cl : changeListeners) {
+		for (final ChangeListener cl : changeListeners)  {
 			cl.stateChanged(e);
 		}
 	}

@@ -88,6 +88,7 @@ import ij.ImagePlus;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -122,23 +123,26 @@ import fiji.plugin.trackmate.features.spot.SpotIntensityAnalyzerFactory;
 import fiji.plugin.trackmate.features.spot.SpotMorphologyAnalyzerFactory;
 import fiji.plugin.trackmate.features.track.TrackAnalyzer;
 import fiji.plugin.trackmate.features.track.TrackDurationAnalyzer;
+import fiji.plugin.trackmate.gui.descriptors.ConfigureViewsDescriptor;
 import fiji.plugin.trackmate.providers.DetectorProvider;
 import fiji.plugin.trackmate.providers.EdgeAnalyzerProvider;
 import fiji.plugin.trackmate.providers.SpotAnalyzerProvider;
 import fiji.plugin.trackmate.providers.TrackAnalyzerProvider;
 import fiji.plugin.trackmate.providers.TrackerProvider;
+import fiji.plugin.trackmate.providers.ViewProvider;
 import fiji.plugin.trackmate.tracking.FastLAPTracker;
 import fiji.plugin.trackmate.tracking.SimpleFastLAPTracker;
 import fiji.plugin.trackmate.tracking.SpotTracker;
 import fiji.plugin.trackmate.tracking.kdtree.NearestNeighborTracker;
 import fiji.plugin.trackmate.util.TMUtils;
+import fiji.plugin.trackmate.visualization.TrackMateModelView;
+import fiji.plugin.trackmate.visualization.hyperstack.HyperStackDisplayer;
 
 /**
  * A compatibility xml loader than can load TrackMate xml file saved for version
- * prior to 1.3. In the code, we keep the previous vocable of "segmenter"... The
- * code here is extremely pedestrian; we deal with all particular cases
- * explicitly, and convert on the fly to v1.3 classes.
- *
+ * prior to 2.0. In the code, we keep the previous vocable of "segmenter"...
+ * The code here is extremely pedestrian; we deal with all particular cases
+ * explicitly, and convert on the fly to v2 classes.
  * @author Jean-Yves Tinevez - 2012
  */
 public class TmXmlReader_v12 extends TmXmlReader {
@@ -162,8 +166,8 @@ public class TmXmlReader_v12 extends TmXmlReader {
 	private static final String TRACKER_SETTINGS_GAP_CLOSING_ELEMENT				= "GapClosingCondition";
 	private static final String TRACKER_SETTINGS_MERGING_ELEMENT					= "MergingCondition";
 	private static final String TRACKER_SETTINGS_SPLITTING_ELEMENT					= "SplittingCondition";
-	// Nearest neighbor tracker
-	private static final String MAX_LINKING_DISTANCE_ATTRIBUTE						= "maxdistance";
+	// Nearest meighbor tracker
+	private static final String MAX_LINKING_DISTANCE_ATTRIBUTE = "maxdistance";
 
 	// Forgotten features
 	private static final ArrayList<String> F_FEATURES = new ArrayList<String>(9);
@@ -171,9 +175,9 @@ public class TmXmlReader_v12 extends TmXmlReader {
 	private static final HashMap<String, String> F_FEATURE_SHORT_NAMES = new HashMap<String, String>(9);
 	private static final HashMap<String, Dimension> F_FEATURE_DIMENSIONS = new HashMap<String, Dimension>(9);
 
-	private static final String VARIANCE = "VARIANCE";
-	private static final String KURTOSIS = "KURTOSIS";
-	private static final String SKEWNESS = "SKEWNESS";
+	private static final String	VARIANCE = "VARIANCE";
+	private static final String	KURTOSIS = "KURTOSIS";
+	private static final String	SKEWNESS = "SKEWNESS";
 	static {
 		F_FEATURES.add(VARIANCE);
 		F_FEATURES.add(KURTOSIS);
@@ -189,12 +193,15 @@ public class TmXmlReader_v12 extends TmXmlReader {
 		F_FEATURE_DIMENSIONS.put(SKEWNESS, Dimension.NONE);
 	}
 
+
+
 	/** Stores error messages when reading parameters. */
 	private String errorMessage;
 
 	/*
 	 * CONSTRUCTORS
 	 */
+
 
 	public TmXmlReader_v12(final File file) {
 		super(file);
@@ -204,8 +211,10 @@ public class TmXmlReader_v12 extends TmXmlReader {
 	 * PUBLIC METHODS
 	 */
 
+
 	@Override
-	public void readSettings(final Settings settings, final DetectorProvider detectorProvider, final TrackerProvider trackerProvider, final SpotAnalyzerProvider spotAnalyzerProvider, final EdgeAnalyzerProvider edgeAnalyzerProvider, final TrackAnalyzerProvider trackAnalyzerProvider) {
+	public void readSettings(final Settings settings, final DetectorProvider detectorProvider, final TrackerProvider trackerProvider, final SpotAnalyzerProvider spotAnalyzerProvider,
+			final EdgeAnalyzerProvider edgeAnalyzerProvider, final TrackAnalyzerProvider trackAnalyzerProvider) {
 
 		// Settings
 		getBaseSettings(settings);
@@ -249,6 +258,18 @@ public class TmXmlReader_v12 extends TmXmlReader {
 	}
 
 	@Override
+	public String getGUIState() {
+		return ConfigureViewsDescriptor.KEY;
+	}
+
+	@Override
+	public Collection<TrackMateModelView> getViews(final ViewProvider provider) {
+		final Collection<TrackMateModelView> views = new ArrayList<TrackMateModelView>(1);
+		views.add(provider.getView(HyperStackDisplayer.NAME));
+		return views ;
+	}
+
+	@Override
 	public Model getModel() {
 		final Model model = new Model();
 
@@ -268,7 +289,7 @@ public class TmXmlReader_v12 extends TmXmlReader {
 		readTracks(model);
 
 		// Physical units
-		final Element infoEl = root.getChild(IMAGE_ELEMENT_KEY_v12);
+		final Element infoEl  = root.getChild(IMAGE_ELEMENT_KEY_v12);
 		if (null != infoEl) {
 			final String spaceUnits = infoEl.getAttributeValue(IMAGE_SPATIAL_UNITS_ATTRIBUTE_NAME_v12);
 			final String timeUnits = infoEl.getAttributeValue(IMAGE_TIME_UNITS_ATTRIBUTE_NAME_v12);
@@ -286,28 +307,31 @@ public class TmXmlReader_v12 extends TmXmlReader {
 	 */
 
 	/**
-	 * We must initialize the model with feature declarations that match the
-	 * feature we retrieved from the file.
+	 * We must initialize the model with feature declarations that match the feature we retrieved
+	 * from the file.
 	 */
 	private void declareDefaultFeatures(final FeatureModel fm) {
 		// Spots:
 		fm.declareSpotFeatures(Spot.FEATURES, Spot.FEATURE_NAMES, Spot.FEATURE_SHORT_NAMES, Spot.FEATURE_DIMENSIONS);
-		fm.declareSpotFeatures(SpotContrastAndSNRAnalyzerFactory.FEATURES, SpotContrastAndSNRAnalyzerFactory.FEATURE_NAMES, SpotContrastAndSNRAnalyzerFactory.FEATURE_SHORT_NAMES, SpotContrastAndSNRAnalyzerFactory.FEATURE_DIMENSIONS);
-		fm.declareSpotFeatures(SpotMorphologyAnalyzerFactory.FEATURES, SpotMorphologyAnalyzerFactory.FEATURE_NAMES, SpotMorphologyAnalyzerFactory.FEATURE_SHORT_NAMES, SpotMorphologyAnalyzerFactory.FEATURE_DIMENSIONS);
+		fm.declareSpotFeatures(SpotContrastAndSNRAnalyzerFactory.FEATURES, SpotContrastAndSNRAnalyzerFactory.FEATURE_NAMES,
+				SpotContrastAndSNRAnalyzerFactory.FEATURE_SHORT_NAMES, SpotContrastAndSNRAnalyzerFactory.FEATURE_DIMENSIONS);
+		fm.declareSpotFeatures(SpotMorphologyAnalyzerFactory.FEATURES, SpotMorphologyAnalyzerFactory.FEATURE_NAMES,
+				SpotMorphologyAnalyzerFactory.FEATURE_SHORT_NAMES, SpotMorphologyAnalyzerFactory.FEATURE_DIMENSIONS);
 
-		fm.declareSpotFeatures(SpotIntensityAnalyzerFactory.FEATURES, SpotIntensityAnalyzerFactory.FEATURE_NAMES, SpotIntensityAnalyzerFactory.FEATURE_SHORT_NAMES, SpotIntensityAnalyzerFactory.FEATURE_DIMENSIONS);
+		fm.declareSpotFeatures(SpotIntensityAnalyzerFactory.FEATURES, SpotIntensityAnalyzerFactory.FEATURE_NAMES,
+				SpotIntensityAnalyzerFactory.FEATURE_SHORT_NAMES, SpotIntensityAnalyzerFactory.FEATURE_DIMENSIONS);
 		fm.declareSpotFeatures(F_FEATURES, F_FEATURE_NAMES, F_FEATURE_SHORT_NAMES, F_FEATURE_DIMENSIONS);
 
 		// Edges: no edge features in v1.2
 
 		// Tracks:
-		fm.declareTrackFeatures(TrackDurationAnalyzer.FEATURES, TrackDurationAnalyzer.FEATURE_NAMES, TrackDurationAnalyzer.FEATURE_SHORT_NAMES, TrackDurationAnalyzer.FEATURE_DIMENSIONS);
+		fm.declareTrackFeatures(TrackDurationAnalyzer.FEATURES, TrackDurationAnalyzer.FEATURE_NAMES,
+				TrackDurationAnalyzer.FEATURE_SHORT_NAMES, TrackDurationAnalyzer.FEATURE_DIMENSIONS);
 	}
 
 	/**
-	 * Load the tracks, the track features and the ID of the visible tracks into
-	 * the model modified by this reader.
-	 *
+	 * Load the tracks, the track features and the ID of the visible tracks into the model
+	 * modified by this reader.
 	 * @param model
 	 * @return true if the tracks were found in the file, false otherwise.
 	 */
@@ -330,6 +354,7 @@ public class TmXmlReader_v12 extends TmXmlReader {
 		final Map<Integer, String> trackNames = new HashMap<Integer, String>(trackElements.size());
 
 		for (final Element trackElement : trackElements) {
+
 
 			// Get track ID as it is saved on disk
 			final int trackID = readIntAttribute(trackElement, TRACK_ID_ATTRIBUTE_NAME_v12, logger);
@@ -388,6 +413,7 @@ public class TmXmlReader_v12 extends TmXmlReader {
 				spots.add(targetSpot);
 				edges.add(edge);
 
+
 			} // Finished parsing over the edges of the track
 
 			// Store one of the spot in the saved trackID key map
@@ -439,9 +465,9 @@ public class TmXmlReader_v12 extends TmXmlReader {
 			return null;
 		final List<Element> ftEls = ftCollectionEl.getChildren(FILTER_ELEMENT_KEY);
 		for (final Element ftEl : ftEls) {
-			final String feature = ftEl.getAttributeValue(FILTER_FEATURE_ATTRIBUTE_NAME);
-			final Double value = readDoubleAttribute(ftEl, FILTER_VALUE_ATTRIBUTE_NAME, logger);
-			final boolean isAbove = readBooleanAttribute(ftEl, FILTER_ABOVE_ATTRIBUTE_NAME, logger);
+			final String feature 	= ftEl.getAttributeValue(FILTER_FEATURE_ATTRIBUTE_NAME);
+			final Double value 	= readDoubleAttribute(ftEl, FILTER_VALUE_ATTRIBUTE_NAME, logger);
+			final boolean isAbove	= readBooleanAttribute(ftEl, FILTER_ABOVE_ATTRIBUTE_NAME, logger);
 			final FeatureFilter ft = new FeatureFilter(feature, value, isAbove);
 			featureThresholds.add(ft);
 		}
@@ -453,12 +479,12 @@ public class TmXmlReader_v12 extends TmXmlReader {
 	 * <code>null</code> if the initial threshold data cannot be found in the
 	 * file.
 	 */
-	private FeatureFilter getInitialFilter() {
+	private FeatureFilter getInitialFilter()  {
 		final Element itEl = root.getChild(INITIAL_SPOT_FILTER_ELEMENT_KEY_v12);
 		if (null == itEl)
 			return null;
-		final String feature = itEl.getAttributeValue(FILTER_FEATURE_ATTRIBUTE_NAME_v12);
-		final double value = readFloatAttribute(itEl, FILTER_VALUE_ATTRIBUTE_NAME_v12, logger);
+		final String feature  = itEl.getAttributeValue(FILTER_FEATURE_ATTRIBUTE_NAME_v12);
+		final double value     = readFloatAttribute(itEl, FILTER_VALUE_ATTRIBUTE_NAME_v12, logger);
 		final boolean isAbove = readBooleanAttribute(itEl, FILTER_ABOVE_ATTRIBUTE_NAME_v12, logger);
 		final FeatureFilter ft = new FeatureFilter(feature, value, isAbove);
 		return ft;
@@ -476,8 +502,8 @@ public class TmXmlReader_v12 extends TmXmlReader {
 			return null;
 		final List<Element> ftEls = ftCollectionEl.getChildren(FILTER_ELEMENT_KEY_v12);
 		for (final Element ftEl : ftEls) {
-			final String feature = ftEl.getAttributeValue(FILTER_FEATURE_ATTRIBUTE_NAME_v12);
-			final double value = readFloatAttribute(ftEl, FILTER_VALUE_ATTRIBUTE_NAME_v12, logger);
+			final String feature  = ftEl.getAttributeValue(FILTER_FEATURE_ATTRIBUTE_NAME_v12);
+			final double value     = readFloatAttribute(ftEl, FILTER_VALUE_ATTRIBUTE_NAME_v12, logger);
 			final boolean isAbove = readBooleanAttribute(ftEl, FILTER_ABOVE_ATTRIBUTE_NAME_v12, logger);
 			final FeatureFilter ft = new FeatureFilter(feature, value, isAbove);
 			featureThresholds.add(ft);
@@ -511,7 +537,7 @@ public class TmXmlReader_v12 extends TmXmlReader {
 			final HashMap<String, Double> trackMap = new HashMap<String, Double>();
 
 			final List<Attribute> attributes = trackElement.getAttributes();
-			for (final Attribute attribute : attributes) {
+			for(final Attribute attribute : attributes) {
 
 				final String attName = attribute.getName();
 				if (attName.equals(TRACK_ID_ATTRIBUTE_NAME_v12)) { // Skip trackID attribute
@@ -522,7 +548,7 @@ public class TmXmlReader_v12 extends TmXmlReader {
 				try {
 					attVal = attribute.getDoubleValue();
 				} catch (final DataConversionException e) {
-					logger.error("Track " + trackID + ": Cannot read the feature " + attName + " value. Skipping.\n");
+					logger.error("Track "+trackID+": Cannot read the feature "+attName+" value. Skipping.\n");
 					continue;
 				}
 
@@ -560,7 +586,7 @@ public class TmXmlReader_v12 extends TmXmlReader {
 			settings.tend = readIntAttribute(settingsEl, SETTINGS_TEND_ATTRIBUTE_NAME_v12, logger, 10);
 		}
 		// Image info settings
-		final Element infoEl = root.getChild(IMAGE_ELEMENT_KEY_v12);
+		final Element infoEl  = root.getChild(IMAGE_ELEMENT_KEY_v12);
 		if (null != infoEl) {
 			settings.dx = readFloatAttribute(infoEl, IMAGE_PIXEL_WIDTH_ATTRIBUTE_NAME_v12, logger);
 			settings.dy = readFloatAttribute(infoEl, IMAGE_PIXEL_HEIGHT_ATTRIBUTE_NAME_v12, logger);
@@ -745,10 +771,12 @@ public class TmXmlReader_v12 extends TmXmlReader {
 
 		} else {
 
-			if (trackerClassName.equals("fiji.plugin.trackmate.tracking.SimpleFastLAPTracker") || trackerClassName.equals("fiji.plugin.trackmate.tracking.SimpleLAPTracker")) {
+			if (trackerClassName.equals("fiji.plugin.trackmate.tracking.SimpleFastLAPTracker") ||
+					trackerClassName.equals("fiji.plugin.trackmate.tracking.SimpleLAPTracker")) {
 				trackerKey = SimpleFastLAPTracker.TRACKER_KEY; // convert to simple fast version
 
-			} else if (trackerClassName.equals("fiji.plugin.trackmate.tracking.FastLAPTracker") || trackerClassName.equals("fiji.plugin.trackmate.tracking.LAPTracker")) {
+			} else if (trackerClassName.equals("fiji.plugin.trackmate.tracking.FastLAPTracker") ||
+					trackerClassName.equals("fiji.plugin.trackmate.tracking.LAPTracker")) {
 				trackerKey = FastLAPTracker.TRACKER_KEY; // convert to fast version
 
 			} else if (trackerClassName.equals("fiji.plugin.trackmate.tracking.kdtree.NearestNeighborTracker")) {
@@ -784,38 +812,41 @@ public class TmXmlReader_v12 extends TmXmlReader {
 				// All LAP trackers
 				if (trackerSettingsClassName.equals("fiji.plugin.trackmate.tracking.LAPTrackerSettings")) {
 
-					if (trackerKey.equals(SimpleFastLAPTracker.TRACKER_KEY) || trackerKey.equals(FastLAPTracker.TRACKER_KEY)) {
+					if (trackerKey.equals(SimpleFastLAPTracker.TRACKER_KEY)
+							|| trackerKey.equals(FastLAPTracker.TRACKER_KEY)) {
 
 						/*
 						 * Read
 						 */
 
 						final double alternativeObjectLinkingCostFactor = readDoubleAttribute(element, TRACKER_SETTINGS_ALTERNATE_COST_FACTOR_ATTNAME_v12, Logger.VOID_LOGGER);
-						final double cutoffPercentile = readDoubleAttribute(element, TRACKER_SETTINGS_CUTOFF_PERCENTILE_ATTNAME_v12, Logger.VOID_LOGGER);
-						final double blockingValue = readDoubleAttribute(element, TRACKER_SETTINGS_BLOCKING_VALUE_ATTNAME_v12, Logger.VOID_LOGGER);
+						final double cutoffPercentile 			= readDoubleAttribute(element, TRACKER_SETTINGS_CUTOFF_PERCENTILE_ATTNAME_v12, Logger.VOID_LOGGER);
+						final double blockingValue				= readDoubleAttribute(element, TRACKER_SETTINGS_BLOCKING_VALUE_ATTNAME_v12, Logger.VOID_LOGGER);
 						// Linking
 						final Element linkingElement = element.getChild(TRACKER_SETTINGS_LINKING_ELEMENT);
-						final double linkingDistanceCutOff = readDistanceCutoffAttribute(linkingElement);
+						final double linkingDistanceCutOff 		= readDistanceCutoffAttribute(linkingElement);
 						final Map<String, Double> linkingFeaturePenalties = readTrackerFeatureMap(linkingElement);
 						// Gap-closing
-						final Element gapClosingElement = element.getChild(TRACKER_SETTINGS_GAP_CLOSING_ELEMENT);
-						final boolean allowGapClosing = readBooleanAttribute(gapClosingElement, TRACKER_SETTINGS_ALLOW_EVENT_ATTNAME_v12, Logger.VOID_LOGGER);
-						final double gapClosingDistanceCutoff = readDistanceCutoffAttribute(gapClosingElement);
-						final double gapClosingTimeCutoff = readTimeCutoffAttribute(gapClosingElement);
+						final Element gapClosingElement 			= element.getChild(TRACKER_SETTINGS_GAP_CLOSING_ELEMENT);
+						final boolean allowGapClosing				= readBooleanAttribute(gapClosingElement, TRACKER_SETTINGS_ALLOW_EVENT_ATTNAME_v12, Logger.VOID_LOGGER);
+						final double gapClosingDistanceCutoff 	= readDistanceCutoffAttribute(gapClosingElement);
+						final double gapClosingTimeCutoff 		= readTimeCutoffAttribute(gapClosingElement);
 						final Map<String, Double> gapClosingFeaturePenalties = readTrackerFeatureMap(gapClosingElement);
 						// Splitting
-						final Element splittingElement = element.getChild(TRACKER_SETTINGS_SPLITTING_ELEMENT);
-						final boolean allowSplitting = readBooleanAttribute(splittingElement, TRACKER_SETTINGS_ALLOW_EVENT_ATTNAME_v12, Logger.VOID_LOGGER);
-						final double splittingDistanceCutoff = readDistanceCutoffAttribute(splittingElement);
+						final Element splittingElement	= element.getChild(TRACKER_SETTINGS_SPLITTING_ELEMENT);
+						final boolean allowSplitting				= readBooleanAttribute(splittingElement, TRACKER_SETTINGS_ALLOW_EVENT_ATTNAME_v12, Logger.VOID_LOGGER);
+						final double splittingDistanceCutoff		= readDistanceCutoffAttribute(splittingElement);
 						@SuppressWarnings("unused")
-						final double splittingTimeCutoff = readTimeCutoffAttribute(splittingElement); // IGNORED
+						final
+						double splittingTimeCutoff			= readTimeCutoffAttribute(splittingElement); // IGNORED
 						final Map<String, Double> splittingFeaturePenalties = readTrackerFeatureMap(splittingElement);
 						// Merging
-						final Element mergingElement = element.getChild(TRACKER_SETTINGS_MERGING_ELEMENT);
-						final boolean allowMerging = readBooleanAttribute(mergingElement, TRACKER_SETTINGS_ALLOW_EVENT_ATTNAME_v12, Logger.VOID_LOGGER);
-						final double mergingDistanceCutoff = readDistanceCutoffAttribute(mergingElement);
+						final Element mergingElement 		= element.getChild(TRACKER_SETTINGS_MERGING_ELEMENT);
+						final boolean allowMerging				= readBooleanAttribute(mergingElement, TRACKER_SETTINGS_ALLOW_EVENT_ATTNAME_v12, Logger.VOID_LOGGER);
+						final double mergingDistanceCutoff		= readDistanceCutoffAttribute(mergingElement);
 						@SuppressWarnings("unused")
-						final double mergingTimeCutoff = readTimeCutoffAttribute(mergingElement); // IGNORED
+						final
+						double mergingTimeCutoff			= readTimeCutoffAttribute(mergingElement); // IGNORED
 						final Map<String, Double> mergingFeaturePenalties = readTrackerFeatureMap(mergingElement);
 
 						/*
@@ -943,7 +974,7 @@ public class TmXmlReader_v12 extends TmXmlReader {
 	 *         also to the given collection. Return <code>null</code> if the
 	 *         spot selection section does is not present in the file.
 	 */
-	private Map<Integer, Set<Integer>> getFilteredSpotsIDs() {
+	private Map<Integer, Set<Integer>>  getFilteredSpotsIDs()  {
 		final Element selectedSpotCollection = root.getChild(FILTERED_SPOT_ELEMENT_KEY_v12);
 		if (null == selectedSpotCollection)
 			return null;
@@ -990,12 +1021,12 @@ public class TmXmlReader_v12 extends TmXmlReader {
 		return filteredTrackIndices;
 	}
 
-	private ImagePlus getImage() {
+	private ImagePlus getImage()  {
 		final Element imageInfoElement = root.getChild(IMAGE_ELEMENT_KEY_v12);
 		if (null == imageInfoElement)
 			return null;
 		final String filename = imageInfoElement.getAttributeValue(IMAGE_FILENAME_v12_ATTRIBUTE_NAME_v12);
-		String folder = imageInfoElement.getAttributeValue(IMAGE_FOLDER_ATTRIBUTE_NAME_v12);
+		String folder   = imageInfoElement.getAttributeValue(IMAGE_FOLDER_ATTRIBUTE_NAME_v12);
 		if (null == filename || filename.isEmpty())
 			return null;
 		if (null == folder || folder.isEmpty())
@@ -1035,6 +1066,7 @@ public class TmXmlReader_v12 extends TmXmlReader {
 		return spot;
 	}
 
+
 	private boolean readDouble(final Element element, final String attName, final Map<String, Object> settings, final String mapKey) {
 		final String str = element.getAttributeValue(attName);
 		if (null == str) {
@@ -1045,7 +1077,7 @@ public class TmXmlReader_v12 extends TmXmlReader {
 			final double val = Double.parseDouble(str);
 			settings.put(mapKey, val);
 		} catch (final NumberFormatException nfe) {
-			errorMessage = "Could not read " + attName + " attribute as a double value. Got " + str + ".";
+			errorMessage = "Could not read "+attName+" attribute as a double value. Got "+str+".";
 			return false;
 		}
 		return true;
@@ -1061,7 +1093,7 @@ public class TmXmlReader_v12 extends TmXmlReader {
 			final int val = Integer.parseInt(str);
 			settings.put(mapKey, val);
 		} catch (final NumberFormatException nfe) {
-			errorMessage = "Could not read " + attName + " attribute as an integer value. Got " + str + ".";
+			errorMessage = "Could not read "+attName+" attribute as an integer value. Got "+str+".";
 			return false;
 		}
 		return true;
@@ -1077,7 +1109,7 @@ public class TmXmlReader_v12 extends TmXmlReader {
 			final boolean val = Boolean.parseBoolean(str);
 			settings.put(mapKey, val);
 		} catch (final NumberFormatException nfe) {
-			errorMessage = "Could not read " + attName + " attribute as an boolean value. Got " + str + ".";
+			errorMessage = "Could not read "+attName+" attribute as an boolean value. Got "+str+".";
 			return false;
 		}
 		return true;
@@ -1086,25 +1118,24 @@ public class TmXmlReader_v12 extends TmXmlReader {
 	private static final double readDistanceCutoffAttribute(final Element element) {
 		double val = 0;
 		try {
-			val = element.getChild(TRACKER_SETTINGS_DISTANCE_CUTOFF_ELEMENT).getAttribute(TRACKER_SETTINGS_DISTANCE_CUTOFF_ATTNAME_v12).getDoubleValue();
-		} catch (final DataConversionException e) {
-		}
+			val = element.getChild(TRACKER_SETTINGS_DISTANCE_CUTOFF_ELEMENT)
+					.getAttribute(TRACKER_SETTINGS_DISTANCE_CUTOFF_ATTNAME_v12).getDoubleValue();
+		} catch (final DataConversionException e) { }
 		return val;
 	}
 
 	private static final double readTimeCutoffAttribute(final Element element) {
 		double val = 0;
 		try {
-			val = element.getChild(TRACKER_SETTINGS_TIME_CUTOFF_ELEMENT).getAttribute(TRACKER_SETTINGS_TIME_CUTOFF_ATTNAME_v12).getDoubleValue();
-		} catch (final DataConversionException e) {
-		}
+			val = element.getChild(TRACKER_SETTINGS_TIME_CUTOFF_ELEMENT)
+					.getAttribute(TRACKER_SETTINGS_TIME_CUTOFF_ATTNAME_v12).getDoubleValue();
+		} catch (final DataConversionException e) { }
 		return val;
 	}
 
 	/**
-	 * Look for all the sub-elements of <code>element</code> with the name
-	 * TRACKER_SETTINGS_FEATURE_ELEMENT, fetch the feature attributes from them,
-	 * and returns them in a map.
+	 * Look for all the sub-elements of <code>element</code> with the name TRACKER_SETTINGS_FEATURE_ELEMENT,
+	 * fetch the feature attributes from them, and returns them in a map.
 	 */
 	private static final Map<String, Double> readTrackerFeatureMap(final Element element) {
 		final Map<String, Double> map = new HashMap<String, Double>();

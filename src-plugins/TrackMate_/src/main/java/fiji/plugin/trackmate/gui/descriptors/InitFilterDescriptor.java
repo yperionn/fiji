@@ -6,6 +6,7 @@ import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.SpotCollection;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.features.FeatureFilter;
+import fiji.plugin.trackmate.gui.TrackMateGUIController;
 import fiji.plugin.trackmate.gui.panels.InitFilterPanel;
 
 public class InitFilterDescriptor implements WizardPanelDescriptor {
@@ -13,11 +14,15 @@ public class InitFilterDescriptor implements WizardPanelDescriptor {
 	private static final String KEY = "InitialFiltering";
 	private final InitFilterPanel component;
 	private final TrackMate trackmate;
+	private final TrackMateGUIController controller;
 
-	public InitFilterDescriptor(final TrackMate trackmate) {
+
+	public InitFilterDescriptor(final TrackMate trackmate, final TrackMateGUIController controller) {
 		this.trackmate = trackmate;
+		this.controller = controller;
 		this.component = new InitFilterPanel();
 	}
+
 
 	@Override
 	public InitFilterPanel getComponent() {
@@ -42,6 +47,7 @@ public class InitFilterDescriptor implements WizardPanelDescriptor {
 
 	@Override
 	public void displayingPanel() {
+		controller.getGUI().setNextButtonEnabled(true);
 	}
 
 	@Override
@@ -50,8 +56,8 @@ public class InitFilterDescriptor implements WizardPanelDescriptor {
 		final Model model = trackmate.getModel();
 		final Logger logger = model.getLogger();
 		final FeatureFilter initialThreshold = component.getFeatureThreshold();
-		final String str = "Initial thresholding with a quality threshold above " + String.format("%.1f", initialThreshold.value) + " ...\n";
-		logger.log(str, Logger.BLUE_COLOR);
+		final String str = "Initial thresholding with a quality threshold above "+ String.format("%.1f", initialThreshold.value) + " ...\n";
+		logger.log(str,Logger.BLUE_COLOR);
 		final int ntotal = model.getSpots().getNSpots(false);
 		trackmate.getSettings().initialSpotFilterValue = initialThreshold.value;
 		trackmate.execInitialSpotFiltering();
@@ -66,8 +72,8 @@ public class InitFilterDescriptor implements WizardPanelDescriptor {
 		// Calculate features
 		final long start = System.currentTimeMillis();
 		trackmate.computeSpotFeatures(true);
-		final long end = System.currentTimeMillis();
-		logger.log(String.format("Calculating features done in %.1f s.\n", (end - start) / 1e3f), Logger.BLUE_COLOR);
+		final long end  = System.currentTimeMillis();
+		logger.log(String.format("Calculating features done in %.1f s.\n", (end-start)/1e3f), Logger.BLUE_COLOR);
 	}
 
 	@Override

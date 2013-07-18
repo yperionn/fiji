@@ -27,10 +27,10 @@ public class EdgeTargetAnalyzer implements EdgeAnalyzer, MultiThreaded {
 	public static final String SPOT_TARGET_ID = "SPOT_TARGET_ID";
 	public static final String EDGE_COST = "LINK_COST";
 
-	private static final List<String> FEATURES = new ArrayList<String>(4);
-	private static final Map<String, String> FEATURE_NAMES = new HashMap<String, String>(4);
-	private static final Map<String, String> FEATURE_SHORT_NAMES = new HashMap<String, String>(4);
-	private static final Map<String, Dimension> FEATURE_DIMENSIONS = new HashMap<String, Dimension>(4);
+	public static final List<String> FEATURES = new ArrayList<String>(4);
+	public static final Map<String, String> FEATURE_NAMES = new HashMap<String, String>(4);
+	public static final Map<String, String> FEATURE_SHORT_NAMES = new HashMap<String, String>(4);
+	public static final Map<String, Dimension> FEATURE_DIMENSIONS = new HashMap<String, Dimension>(4);
 
 	static {
 		FEATURES.add(SPOT_SOURCE_ID);

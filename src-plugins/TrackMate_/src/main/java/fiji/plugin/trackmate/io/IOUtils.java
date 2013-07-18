@@ -1,12 +1,16 @@
 package fiji.plugin.trackmate.io;
 
+import static fiji.plugin.trackmate.gui.TrackMateWizard.TRACKMATE_ICON;
 import ij.IJ;
 
+import java.awt.Component;
 import java.awt.FileDialog;
 import java.awt.Frame;
+import java.awt.HeadlessException;
 import java.io.File;
 import java.io.FilenameFilter;
 
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -40,7 +44,8 @@ public class IOUtils {
 
 		if (IJ.isMacintosh()) {
 			// use the native file dialog on the mac
-			final FileDialog dialog = new FileDialog(parent, "Save to a XML file", FileDialog.SAVE);
+			FileDialog dialog =	new FileDialog(parent, "Save to a XML file", FileDialog.SAVE);
+			dialog.setIconImage(TRACKMATE_ICON.getImage());
 			dialog.setDirectory(file.getParent());
 			dialog.setFile(file.getName());
 			final FilenameFilter filter = new FilenameFilter() {
@@ -60,7 +65,15 @@ public class IOUtils {
 				selectedFile += ".xml";
 			file = new File(dialog.getDirectory(), selectedFile);
 		} else {
-			final JFileChooser fileChooser = new JFileChooser(file.getParent());
+			JFileChooser fileChooser = new JFileChooser(file.getParent()) {
+				private static final long serialVersionUID = 1L;
+				@Override
+			    protected JDialog createDialog( Component parent ) throws HeadlessException {
+			        JDialog dialog = super.createDialog( parent );
+			        dialog.setIconImage( TRACKMATE_ICON.getImage() );
+			        return dialog;
+			    }
+			};
 			fileChooser.setSelectedFile(file);
 			final FileNameExtensionFilter filter = new FileNameExtensionFilter("XML files", "xml");
 			fileChooser.setFileFilter(filter);
@@ -95,7 +108,8 @@ public class IOUtils {
 
 		if (IJ.isMacintosh()) {
 			// use the native file dialog on the mac
-			final FileDialog dialog = new FileDialog(parent, title, FileDialog.LOAD);
+			FileDialog dialog =	new FileDialog(parent, title, FileDialog.LOAD);
+			dialog.setIconImage(TRACKMATE_ICON.getImage());
 			dialog.setDirectory(file.getParent());
 			dialog.setFile(file.getName());
 			final FilenameFilter filter = new FilenameFilter() {
@@ -115,7 +129,15 @@ public class IOUtils {
 				selectedFile += ".xml";
 			file = new File(dialog.getDirectory(), selectedFile);
 		} else {
-			final JFileChooser fileChooser = new JFileChooser(file.getParent());
+			JFileChooser fileChooser = new JFileChooser(file.getParent()) {
+				private static final long serialVersionUID = 1L;
+				@Override
+			    protected JDialog createDialog( Component parent ) throws HeadlessException {
+			        JDialog dialog = super.createDialog( parent );
+			        dialog.setIconImage( TRACKMATE_ICON.getImage() );
+			        return dialog;
+			    }
+			};
 			fileChooser.setName(title);
 			fileChooser.setSelectedFile(file);
 			final FileNameExtensionFilter filter = new FileNameExtensionFilter("XML files", "xml");

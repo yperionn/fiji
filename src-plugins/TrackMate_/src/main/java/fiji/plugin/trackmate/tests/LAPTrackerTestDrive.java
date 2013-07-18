@@ -36,14 +36,14 @@ public class LAPTrackerTestDrive {
 		final File file = new File(AppUtils.getBaseDirectory(TrackMate.class), "samples/FakeTracks.xml");
 
 		// 1 - Load test spots
-		System.out.println("Opening file: " + file.getAbsolutePath());
+		System.out.println("Opening file: "+file.getAbsolutePath());
 		final TmXmlReader reader = new TmXmlReader(file);
 		final Model model = reader.getModel();
 		final Settings settings = new Settings();
 		reader.readSettings(settings, null, new TrackerProvider(model), null, null, null);
 
-		System.out.println("Spots: " + model.getSpots());
-		System.out.println("Found " + model.getTrackModel().nTracks(false) + " tracks in the file:");
+		System.out.println("Spots: "+ model.getSpots());
+		System.out.println("Found "+model.getTrackModel().nTracks(false)+" tracks in the file:");
 		System.out.println();
 
 		// 1.5 - Set the tracking settings
@@ -61,14 +61,15 @@ public class LAPTrackerTestDrive {
 
 		// 2 - Track the test spots
 		final long start = System.currentTimeMillis();
-		final LAPTracker lap = new LAPTracker(model.getSpots(), Logger.DEFAULT_LOGGER);
-		lap.setSettings(ts);
+		final LAPTracker lap = new LAPTracker(Logger.DEFAULT_LOGGER);
+		lap.setTarget(model.getSpots(), ts);
 
 		if (!lap.checkInput())
 			System.err.println("Error checking input: " + lap.getErrorMessage());
 		if (!lap.process())
-			System.err.println("Error in process: " + lap.getErrorMessage());
+			System.err.println("Error in process: "+lap.getErrorMessage());
 		final long end = System.currentTimeMillis();
+
 
 		// 2.5 check the track visibility prior and after
 		System.out.println("Track visibility before new graph allocation:");

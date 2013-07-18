@@ -177,8 +177,8 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 		final FontMetrics fm = g.getFontMetrics();
 		final String minStr = String.format("%.1f", min);
 		final String maxStr = String.format("%.1f", max);
-		g.drawString(minStr, 1, height / 2 + fm.getHeight() / 2);
-		g.drawString(maxStr, width - fm.stringWidth(maxStr) - 1, height / 2 + fm.getHeight() / 2);
+		g.drawString(minStr, 1, height/2 + fm.getHeight()/2);
+		g.drawString(maxStr, width - fm.stringWidth(maxStr)-1, height/2 + fm.getHeight()/2);
 	}
 
 	private void initGUI() {
@@ -253,9 +253,7 @@ public class ColorByFeatureGUIPanel extends ActionListenablePanel {
 
 	/**
 	 * Return the {@link CategoryJComboBox} that configures this selector.
-	 * Subclasses can override this method to decide what items are in the combo
-	 * box list.
-	 *
+	 * Subclasses can override this method to decide what items are in the combo box list.
 	 * @return a new {@link CategoryJComboBox}.
 	 */
 	protected CategoryJComboBox<Category, String> createComboBoxSelector(final List<Category> categories) {

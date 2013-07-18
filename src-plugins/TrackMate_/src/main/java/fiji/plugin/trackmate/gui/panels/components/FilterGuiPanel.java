@@ -148,11 +148,8 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 
 	/**
 	 * Set the feature filters to display and layout in this panel.
-	 *
-	 * @param filters
-	 *            the list of {@link FeatureFilter}s that should be already
-	 *            present in the GUI (for loading purpose). Can be
-	 *            <code>null</code> or empty.
+	 * @param filters  the list of {@link FeatureFilter}s that should be already present in the GUI
+	 * (for loading purpose). Can be <code>null</code> or empty.
 	 */
 	public void setFilters(final List<FeatureFilter> filters) {
 		// Clean current panels
@@ -216,7 +213,6 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 
 	/**
 	 * Remove a ChangeListener from this panel.
-	 *
 	 * @return true if the listener was in listener collection of this instance.
 	 */
 	public boolean removeChangeListener(final ChangeListener listener) {
@@ -232,7 +228,7 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 	 */
 
 	private void fireThresholdChanged(final ChangeEvent e) {
-		for (final ChangeListener cl : changeListeners) {
+		for (final ChangeListener cl : changeListeners)  {
 			cl.stateChanged(e);
 		}
 	}
@@ -262,6 +258,7 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 		stateChanged(CHANGE_EVENT);
 	}
 
+
 	public void addFilterPanel(final String feature) {
 		if (null == featureValues)
 			return;
@@ -288,8 +285,7 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 			jPanelAllThresholds.remove(tp);
 			jPanelAllThresholds.repaint();
 			stateChanged(CHANGE_EVENT);
-		} catch (final EmptyStackException ese) {
-		}
+		} catch (final EmptyStackException ese) {	}
 	}
 
 	private void refresh() {
@@ -317,15 +313,15 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 
 		if (nobjects == 0) {
 			info = "No objects.";
-		} else if (featureFilters == null || featureFilters.isEmpty()) {
-			info = "Keep all " + nobjects + " " + categories + ".";
+		} else if (featureFilters == null || featureFilters.isEmpty() ) {
+			info = "Keep all "+nobjects+" "+categories.get(0)+".";
 		} else {
 			int nselected = 0;
 			double val;
 			for (int i = 0; i < nobjects; i++) {
 				boolean ok = true;
 				for (final FeatureFilter filter : featureFilters) {
-					final double[] values = featureValues.get(filter.feature);
+					final double[] values =  featureValues.get(filter.feature);
 					if (i >= values.length || values.length == 0) { // bulletproof
 						continue;
 					}
@@ -345,7 +341,7 @@ public class FilterGuiPanel extends ActionListenablePanel implements ChangeListe
 				if (ok)
 					nselected++;
 			}
-			info = "Keep " + nselected + " " + categories + " out of  " + nobjects + ".";
+			info = "Keep "+nselected+" "+categories.get(0)+" out of  "+nobjects+".";
 		}
 		jLabelInfo.setText(info);
 

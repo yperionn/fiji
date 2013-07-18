@@ -127,4 +127,8 @@ public class SemiAutoTracker<T extends RealType<T> & NativeType<T>> extends Abst
 		return sn;
 	}
 
+	@Override
+	protected void exposeSpot(final Spot newSpot, final Spot previousSpot) {
+	}
+
 }

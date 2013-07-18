@@ -26,6 +26,7 @@ public class DetectionDescriptor implements WizardPanelDescriptor {
 	protected Thread motherThread;
 	protected TrackMateGUIController controller;
 
+
 	public DetectionDescriptor(final TrackMateGUIController controller) {
 		this.controller = controller;
 		this.logPanel = controller.getGUI().getLogPanel();
@@ -50,31 +51,35 @@ public class DetectionDescriptor implements WizardPanelDescriptor {
 		logger.log("with settings:\n");
 		logger.log(TMUtils.echoMap(settings.detectorSettings, 2));
 
+		final JButton nextButton = controller.getGUI().getNextButton();
+		// We have to tweak the GUI a bit from here
+		final ActionListener[] actionListeners = nextButton.getActionListeners();
+		for (final ActionListener actionListener : actionListeners) {
+			nextButton.removeActionListener(actionListener);
+		}
+		nextButton.setText(CANCEL_TEXT);
+		nextButton.setIcon(CANCEL_ICON);
+		final CancelListener cancel = new CancelListener();
+		nextButton.addActionListener(cancel);
+
+		controller.getGUI().setNextButtonEnabled(true);
+
+//		nextButton.setEnabled(true);
+
 		motherThread = new Thread("TrackMate detection mother thread") {
 			@Override
 			public void run() {
 
-				// We have to tweak the GUI a bit from here
-				final JButton nextButton = controller.getGUI().getNextButton();
-				final ActionListener[] actionListeners = nextButton.getActionListeners();
-				for (final ActionListener actionListener : actionListeners) {
-					nextButton.removeActionListener(actionListener);
-				}
-				nextButton.setText(CANCEL_TEXT);
-				nextButton.setIcon(CANCEL_ICON);
-				final CancelListener cancel = new CancelListener();
-				nextButton.addActionListener(cancel);
-				nextButton.setEnabled(true);
 
 				final long start = System.currentTimeMillis();
 				try {
 					trackmate.execDetection();
 				} catch (final Exception e) {
-					logger.error("An error occured:\n" + e + '\n');
+					logger.error("An error occured:\n"+e+'\n');
 					e.printStackTrace(logger);
 				} finally {
 					final long end = System.currentTimeMillis();
-					logger.log(String.format("Detection done in %.1f s.\n", (end - start) / 1e3f), Logger.BLUE_COLOR);
+					logger.log(String.format("Detection done in %.1f s.\n", (end-start)/1e3f), Logger.BLUE_COLOR);
 				}
 				motherThread = null;
 

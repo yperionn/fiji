@@ -17,14 +17,11 @@ public class TrackMateGUIModel {
 	 * re-generate the data.
 	 */
 	boolean actionFlag = true;
-
-	/**
-	 * Is used to determine whether we are currently displaying the log panel
-	 * after the user has pressed the log button. If true, then our state is
-	 * "currently displaying log".
-	 */
-	boolean logButtonState = false;
-
+	
+	/** Is used to determine whether we are currently displaying the log panel after the
+	 * user has pressed the log button. If true, then our state is "currently displaying log". */
+	boolean displayingLog = false;
+	
 	boolean loadButtonState;
 
 	boolean saveButtonState;

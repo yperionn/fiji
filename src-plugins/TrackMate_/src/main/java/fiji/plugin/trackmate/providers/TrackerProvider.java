@@ -28,7 +28,6 @@ import org.jdom2.Element;
 
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Model;
-import fiji.plugin.trackmate.SpotCollection;
 import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.detection.SpotDetector;
 import fiji.plugin.trackmate.gui.ConfigurationPanel;
@@ -58,19 +57,18 @@ public class TrackerProvider extends AbstractProvider {
 	 */
 
 	/**
-	 * This provider provides the GUI with the spot trackers currently available
-	 * in the TrackMate trackmate. Each tracker is identified by a key String,
-	 * which can be used to retrieve new instance of the tracker, settings for
-	 * the target tracker and a GUI panel able to configure these settings.
+	 * This provider provides the GUI with the spot trackers currently available in the
+	 * TrackMate trackmate. Each tracker is identified by a key String, which can be used
+	 * to retrieve new instance of the tracker, settings for the target tracker and a
+	 * GUI panel able to configure these settings.
 	 * <p>
-	 * To proper instantiate the target {@link SpotTracker}s, this provider has
-	 * a reference to the target model. It is this provider's responsibility to
-	 * pass the required info to the concrete {@link SpotTracker}, extracted
-	 * from the stored model.
+	 * To proper instantiate the target {@link SpotTracker}s, this provider has a reference
+	 * to the target model. It is this provider's responsibility to pass the required
+	 * info to the concrete {@link SpotTracker}, extracted from the stored model.
 	 * <p>
-	 * If you want to add custom trackers to TrackMate, a simple way is to
-	 * extend this factory so that it is registered with the custom trackers and
-	 * pass this extended provider to the {@link TrackMate} trackmate.
+	 * If you want to add custom trackers to TrackMate, a simple way is to extend this
+	 * factory so that it is registered with the custom trackers and pass this
+	 * extended provider to the {@link TrackMate} trackmate.
 	 */
 	public TrackerProvider(final Model model) {
 		this.model = model;
@@ -107,25 +105,23 @@ public class TrackerProvider extends AbstractProvider {
 	}
 
 	/**
-	 * Returns a new instance of the target tracker identified by the key
-	 * parameter. If the key is unknown to this factory, <code>null</code> is
-	 * returned. The tracker returned is <b>not</b> configured.
-	 *
+	 * Returns a new instance of the target tracker identified by the key parameter.
+	 * If the key is unknown to this factory, <code>null</code> is returned.
+	 * The tracker returned is <b>not</b> configured.
 	 * @return a new {@link SpotTracker}.
 	 */
 	public SpotTracker getTracker() {
 
-		final SpotCollection spots = model.getSpots();
 		final Logger logger = model.getLogger();
 		SpotTracker tracker;
 		if (currentKey.equals(SimpleFastLAPTracker.TRACKER_KEY)) {
-			tracker = new SimpleFastLAPTracker(spots, logger);
+			tracker = new SimpleFastLAPTracker(logger);
 
 		} else if (currentKey.equals(FastLAPTracker.TRACKER_KEY)) {
-			tracker = new FastLAPTracker(spots, logger);
+			tracker = new FastLAPTracker(logger);
 
 		} else if (currentKey.equals(NearestNeighborTracker.TRACKER_KEY)) {
-			tracker = new NearestNeighborTracker(spots, logger);
+			tracker = new NearestNeighborTracker(logger);
 
 		} else if (currentKey.equals(ManualTracker.TRACKER_KEY)) {
 			tracker = new ManualTracker();
@@ -184,9 +180,9 @@ public class TrackerProvider extends AbstractProvider {
 	}
 
 	/**
-	 * Returns a new GUI panel able to configure the settings suitable for the
-	 * target tracker identified by the key parameter. If the key is unknown to
-	 * this factory, <code>null</code> is returned.
+	 * Returns a new GUI panel able to configure the settings suitable for the target tracker
+	 * identified by the key parameter.
+	 * If the key is unknown to this factory, <code>null</code> is returned.
 	 */
 	public ConfigurationPanel getTrackerConfigurationPanel() {
 
@@ -210,10 +206,9 @@ public class TrackerProvider extends AbstractProvider {
 	}
 
 	/**
-	 * @return a new default settings map suitable for the target tracker
-	 *         identified by the {@link #currentKey}. Settings are instantiated
-	 *         with default values. If the key is unknown to this provider,
-	 *         <code>null</code> is returned.
+	 * @return a new default settings map suitable for the target tracker identified by
+	 * the {@link #currentKey}. Settings are instantiated with default values.
+	 * If the key is unknown to this provider, <code>null</code> is returned.
 	 */
 	public Map<String, Object> getDefaultSettings() {
 		Map<String, Object> settings;
@@ -233,16 +228,14 @@ public class TrackerProvider extends AbstractProvider {
 	}
 
 	/**
-	 * Marshalls a settings map to a JDom element, ready for saving to XML. The
-	 * element is <b>updated</b> with new attributes.
+	 * Marshalls a settings map to a JDom element, ready for saving to XML.
+	 * The element is <b>updated</b> with new attributes.
 	 * <p>
 	 * Only parameters specific to the target tracker factory are marshalled.
-	 * The element also always receive an attribute named
-	 * {@value TrackerKeys#XML_ATTRIBUTE_DETECTOR_NAME} that saves the target
-	 * {@link SpotTracker} key.
+	 * The element also always receive an attribute named {@value TrackerKeys#XML_ATTRIBUTE_DETECTOR_NAME}
+	 * that saves the target {@link SpotTracker} key.
 	 *
-	 * @return true if marshalling was successful. If not, check
-	 *         {@link #getErrorMessage()}
+	 * @return true if marshalling was successful. If not, check {@link #getErrorMessage()}
 	 */
 	public boolean marshall(final Map<String, Object> settings, final Element element) {
 
@@ -316,6 +309,7 @@ public class TrackerProvider extends AbstractProvider {
 		} else if (currentKey.equals(ManualTracker.TRACKER_KEY)) {
 			return true;
 
+
 		} else {
 
 			errorMessage = "Unknow detector factory key: " + currentKey + ".\n";
@@ -328,16 +322,13 @@ public class TrackerProvider extends AbstractProvider {
 	 * tracker of this provider from the element.
 	 * <p>
 	 * Concretely: the tracker key is read from the element, and is used to set
-	 * the target {@link #currentKey} of this provider. The the specific
-	 * settings map for the targeted tracker is updated from the element.
+	 * the target {@link #currentKey} of this provider. The the specific settings
+	 * map for the targeted tracker is updated from the element.
 	 *
-	 * @param element
-	 *            the JDom element to read from.
-	 * @param settings
-	 *            the map to update. Is cleared prior to updating, so that it
-	 *            contains only the parameters specific to the target tracker.
-	 * @return true if unmarshalling was successful. If not, check
-	 *         {@link #getErrorMessage()}
+	 * @param element the JDom element to read from.
+	 * @param settings the map to update. Is cleared prior to updating, so that it contains
+	 * only the parameters specific to the target tracker.
+	 * @return true if unmarshalling was successful. If not, check {@link #getErrorMessage()}
 	 */
 	public boolean unmarshall(final Element element, final Map<String, Object> settings) {
 
@@ -448,7 +439,7 @@ public class TrackerProvider extends AbstractProvider {
 		} else if (currentKey.equals(NearestNeighborTracker.TRACKER_KEY)) {
 
 			final StringBuilder errorHolder = new StringBuilder();
-			ok = ok & readDoubleAttribute(element, settings, KEY_LINKING_MAX_DISTANCE, errorHolder);
+			ok = ok & readDoubleAttribute(element, settings, KEY_LINKING_MAX_DISTANCE, errorHolder );
 			if (!ok) {
 				errorMessage = errorHolder.toString();
 			}
@@ -457,6 +448,7 @@ public class TrackerProvider extends AbstractProvider {
 		} else if (currentKey.equals(ManualTracker.TRACKER_KEY)) {
 
 			return true;
+
 
 		} else {
 
@@ -499,7 +491,8 @@ public class TrackerProvider extends AbstractProvider {
 		final StringBuilder str = new StringBuilder();
 		boolean ok = true;
 
-		if (currentKey.equals(FastLAPTracker.TRACKER_KEY) || currentKey.equals(SimpleFastLAPTracker.TRACKER_KEY)) {
+		if (currentKey.equals(FastLAPTracker.TRACKER_KEY)
+				|| currentKey.equals(SimpleFastLAPTracker.TRACKER_KEY)) {
 
 			ok = LAPUtils.checkSettingsValidity(settings, str);
 			if (!ok) {

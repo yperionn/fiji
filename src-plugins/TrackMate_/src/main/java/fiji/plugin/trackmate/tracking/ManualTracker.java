@@ -6,6 +6,7 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
 import fiji.plugin.trackmate.Spot;
+import fiji.plugin.trackmate.SpotCollection;
 
 public class ManualTracker implements SpotTracker {
 
@@ -14,6 +15,7 @@ public class ManualTracker implements SpotTracker {
 	public static final String INFO_TEXT =  "<html>" +
 			"Choosing this tracker skips the automated tracking step <br>" +
 			"and keeps the current annotation.</html>";
+
 
 	@Override
 	public SimpleWeightedGraph<Spot, DefaultWeightedEdge> getResult() {
@@ -46,7 +48,6 @@ public class ManualTracker implements SpotTracker {
 	}
 
 	@Override
-	public void setSettings(final Map<String, Object> settings) {
-	}
+	public void setTarget(final SpotCollection spots, final Map<String, Object> settings) {}
 
 }
