@@ -232,6 +232,12 @@ public abstract class AbstractSemiAutoTracker<T extends RealType<T> & NativeType
 			}
 
 			/*
+			 * Expose new spot
+			 */
+
+			exposeSpot(target, spot);
+
+			/*
 			 * Update model
 			 */
 
