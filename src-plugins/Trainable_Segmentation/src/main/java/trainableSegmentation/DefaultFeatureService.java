@@ -151,7 +151,11 @@ public class DefaultFeatureService extends AbstractService implements FeatureSer
 
 	public static void main(String... args) {
 		final ImagePlus bridge = loadFromResource("/bridge.png");
-		if (bridge == null) System.exit(1);
+		if (bridge == null)
+		{
+			System.err.println("bridge.png not found");
+			System.exit(1);
+		}
 
 		final Context context = new Context( FeatureService.class );
 		final FeatureService featureService = context.getService( FeatureService.class );
