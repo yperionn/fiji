@@ -33,6 +33,7 @@ import ij.measure.Measurements;
 import ij.plugin.filter.GaussianBlur;
 import ij.process.Blitter;
 import ij.process.ByteProcessor;
+import ij.process.ColorProcessor;
 import ij.process.FloatProcessor;
 import ij.process.FloodFiller;
 import ij.process.ImageProcessor;
@@ -40,7 +41,6 @@ import ij.process.ImageStatistics;
 import trainableSegmentation.metrics.ClassificationStatistics;
 import util.FindConnectedRegions;
 import util.FindConnectedRegions.Results;
-import weka.core.Instances;
 
 /**
  * This class implements useful methods for the Weka Segmentation library.
@@ -801,6 +801,41 @@ public class Utils {
 		maxPool[ 1 ] = new ImagePlus("Labels", isMaxPoolLabel );
 		
 		return maxPool;
+	}
+
+	
+	/**
+	 * Extract channels from input image if it is RGB
+	 * @param originalImage input image
+	 * @return array of channels
+	 */
+	public static ImagePlus[] extractChannels(final ImagePlus originalImage) 
+	{
+		final int width = originalImage.getWidth();
+		final int height = originalImage.getHeight();
+		ImagePlus[] channels;
+		if( originalImage.getType() == ImagePlus.COLOR_RGB )
+		{
+			final ByteProcessor redBp = new ByteProcessor(width, height);
+			final ByteProcessor greenBp = new ByteProcessor(width, height);
+			final ByteProcessor blueBp = new ByteProcessor(width, height);
+
+			final byte[] redPixels = (byte[]) redBp.getPixels();
+			final byte[] greenPixels = (byte[]) greenBp.getPixels();
+			final byte[] bluePixels = (byte[]) blueBp.getPixels();
+
+			((ColorProcessor)(originalImage.getProcessor().duplicate())).getRGB(redPixels, greenPixels, bluePixels);
+
+			channels = new ImagePlus[]{new ImagePlus("red", redBp.convertToFloat()), 
+					new ImagePlus("green", greenBp.convertToFloat()), 
+					new ImagePlus("blue", blueBp.convertToFloat() )};
+		}
+		else
+		{
+			channels = new ImagePlus[1];
+			channels[0] = new ImagePlus(originalImage.getTitle(), originalImage.getProcessor().duplicate().convertToFloat() );
+		}
+		return channels;
 	}
 	
 }
