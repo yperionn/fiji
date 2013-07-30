@@ -13,7 +13,7 @@ import trainableSegmentation.Feature;
 public class DifferenceOfGaussian extends AbstractFeature
 {
 		
-	public DifferenceOfGaussian(String[] parameterNames) 
+	public DifferenceOfGaussian() 
 	{
 		super(new String[]{ "sigma1", "sigma2" });
 	}
