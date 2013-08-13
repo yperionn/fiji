@@ -12,6 +12,7 @@ import fiji.plugin.trackmate.action.ExportTracksToXML;
 import fiji.plugin.trackmate.action.ExtractTrackStackAction;
 import fiji.plugin.trackmate.action.ISBIChallengeExporter;
 import fiji.plugin.trackmate.action.LinkNew3DViewerAction;
+import fiji.plugin.trackmate.action.MergeFileAction;
 import fiji.plugin.trackmate.action.PlotNSpotsVsTimeAction;
 import fiji.plugin.trackmate.action.RadiusToEstimatedAction;
 import fiji.plugin.trackmate.action.RecalculateFeatureAction;
@@ -42,7 +43,7 @@ public class ActionProvider {
 	 * If you want to add custom actions to TrackMate, a simple way is to extend
 	 * this factory so that it is registered with the custom actions and provide
 	 * this extended factory to the {@link TrackMate} trackmate.
-	 *
+	 * 
 	 * @param trackmate
 	 *            the {@link TrackMate} instance these actions will operate on.
 	 * @param guiController
@@ -75,6 +76,7 @@ public class ActionProvider {
 		names.add(RecalculateFeatureAction.NAME);
 		names.add(RadiusToEstimatedAction.NAME);
 		names.add(ResetRadiusAction.NAME);
+		names.add(MergeFileAction.NAME);
 		//		names.add(fiji.plugin.trackmate.action.ISBIChallengeExporter.NAME);
 	}
 
@@ -82,7 +84,7 @@ public class ActionProvider {
 	 * Returns a new instance of the target action identified by the key
 	 * parameter. If the key is unknown to this factory, <code>null</code> is
 	 * returned.
-	 *
+	 * 
 	 * @return a new {@link TrackMateAction}.
 	 */
 	public TrackMateAction getAction(final String key) {
@@ -119,6 +121,9 @@ public class ActionProvider {
 
 		} else if (ISBIChallengeExporter.NAME.equals(key)) {
 			return new ISBIChallengeExporter(trackmate, controller);
+
+		} else if (MergeFileAction.NAME.equals(key)) {
+			return new MergeFileAction(trackmate, controller);
 		}
 
 		return null;
@@ -159,6 +164,9 @@ public class ActionProvider {
 
 		} else if (ExportTracksToXML.NAME.equals(key)) {
 			return ExportTracksToXML.INFO_TEXT;
+
+		} else if (MergeFileAction.NAME.equals(key)) {
+			return MergeFileAction.INFO_TEXT;
 		}
 
 		return null;
@@ -198,6 +206,9 @@ public class ActionProvider {
 
 		} else if (ExportTracksToXML.NAME.equals(key)) {
 			return ExportTracksToXML.ICON;
+
+		} else if (MergeFileAction.NAME.equals(key)) {
+			return MergeFileAction.ICON;
 		}
 
 		return null;

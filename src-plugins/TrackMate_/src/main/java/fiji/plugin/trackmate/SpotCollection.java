@@ -29,8 +29,9 @@ import fiji.plugin.trackmate.features.FeatureFilter;
  * This class is {@link MultiThreaded}. There are a few processes that can
  * benefit from multithreaded computation ({@link #filter(Collection)},
  * {@link #filter(FeatureFilter)}
- *
+ * 
  * @author Jean-Yves Tinevez <jeanyves.tinevez@gmail.com> - Feb 2011 - 2013
+ * 
  */
 public class SpotCollection implements MultiThreaded {
 
@@ -68,6 +69,27 @@ public class SpotCollection implements MultiThreaded {
 	/*
 	 * METHODS
 	 */
+
+	/**
+	 * Retrieves and returns the {@link Spot} object in this collection with the
+	 * specified ID. Returns <code>null</code> if the spot cannot be found. All
+	 * spots, visible or not, are searched for.
+	 * 
+	 * @param ID
+	 *            the ID to look for.
+	 * @return the spot with the specified ID or <code>null</code> if this spot
+	 *         does not exist or does not belong to this collection.
+	 */
+	public Spot search(final int ID) {
+		Spot spot = null;
+		for (final Spot s : iterable(false)) {
+			if (s.ID() == ID) {
+				spot = s;
+				break;
+			}
+		}
+		return spot;
+	}
 
 	@Override
 	public String toString() {
@@ -115,7 +137,7 @@ public class SpotCollection implements MultiThreaded {
 
 	/**
 	 * Mark all the content of this collection as visible or invisible,
-	 *
+	 * 
 	 * @param visible
 	 *            if true, all spots will be marked as visible.
 	 */
@@ -261,7 +283,7 @@ public class SpotCollection implements MultiThreaded {
 	 * Returns the closest {@link Spot} to the given location (encoded as a
 	 * Spot), contained in the frame <code>frame</code>. If the frame has no
 	 * spot, return <code>null</code>.
-	 *
+	 * 
 	 * @param location
 	 *            the location to search for.
 	 * @param frame
@@ -300,7 +322,7 @@ public class SpotCollection implements MultiThreaded {
 	 * contained in the frame <code>frame</code>. A spot is returned <b>only</b>
 	 * if there exists a spot such that the given location is within the spot
 	 * radius. Otherwise <code>null</code> is returned.
-	 *
+	 * 
 	 * @param location
 	 *            the location to search for.
 	 * @param frame
@@ -344,7 +366,7 @@ public class SpotCollection implements MultiThreaded {
 	 * number of spots in the frame is exhausted, a shorter list is returned.
 	 * <p>
 	 * The list is ordered by increasing distance to the given location.
-	 *
+	 * 
 	 * @param location
 	 *            the location to search for.
 	 * @param frame
@@ -383,7 +405,7 @@ public class SpotCollection implements MultiThreaded {
 
 	/**
 	 * Returns the total number of spots in this collection, over all frames.
-	 *
+	 * 
 	 * @param visibleSpotsOnly
 	 *            if true, will only count visible spots. If false count all
 	 *            spots.
@@ -409,7 +431,7 @@ public class SpotCollection implements MultiThreaded {
 
 	/**
 	 * Returns the number of spots at the given frame.
-	 *
+	 * 
 	 * @param visibleSpotsOnly
 	 *            if true, will only count visible spots. If false count all
 	 *            spots.
@@ -443,7 +465,7 @@ public class SpotCollection implements MultiThreaded {
 	 * Builds and returns a new map of feature values for this spot collection.
 	 * Each feature maps a double array, with 1 element per {@link Spot}, all
 	 * pooled together.
-	 *
+	 * 
 	 * @param features
 	 *            the features to collect
 	 * @param visibleOnly
@@ -482,7 +504,7 @@ public class SpotCollection implements MultiThreaded {
 
 	/**
 	 * Returns the feature values of this Spot collection as a new double array.
-	 *
+	 * 
 	 * @param feature
 	 *            the feature to collect.
 	 * @param visibleOnly
@@ -507,7 +529,7 @@ public class SpotCollection implements MultiThreaded {
 	/**
 	 * Return an iterator that iterates over all the spots contained in this
 	 * collection.
-	 *
+	 * 
 	 * @param visibleSpotsOnly
 	 *            if true, the returned iterator will only iterate through
 	 *            visible spots. If false, it will iterate over all spots.
@@ -523,7 +545,7 @@ public class SpotCollection implements MultiThreaded {
 
 	/**
 	 * Return an iterator that iterates over the spots in the specified frame.
-	 *
+	 * 
 	 * @param visibleSpotsOnly
 	 *            if true, the returned iterator will only iterate through
 	 *            visible spots. If false, it will iterate over all spots.
@@ -547,7 +569,7 @@ public class SpotCollection implements MultiThreaded {
 	/**
 	 * A convenience methods that returns an {@link Iterable} wrapper for this
 	 * collection as a whole.
-	 *
+	 * 
 	 * @param visibleSpotsOnly
 	 *            if true, the iterable will contains only visible spots.
 	 *            Otherwise, it will contain all the spots.
@@ -561,7 +583,7 @@ public class SpotCollection implements MultiThreaded {
 	 * A convenience methods that returns an {@link Iterable} wrapper for a
 	 * specific frame of this spot collection. The iterable is backed-up by the
 	 * actual collection content, so modifying it can have unexpected results.
-	 *
+	 * 
 	 * @param visibleSpotsOnly
 	 *            if true, the iterable will contains only visible spots of the
 	 *            specified frame. Otherwise, it will contain all the spots of
@@ -587,7 +609,7 @@ public class SpotCollection implements MultiThreaded {
 	 * Stores the specified spots as the content of the specified frame. The
 	 * added spots are all marked as not visible. Their {@link Spot#FRAME} is
 	 * updated to be the specified frame.
-	 *
+	 * 
 	 * @param frame
 	 *            the frame to store these spots at. The specified spots replace
 	 *            the previous content of this frame, if any.
@@ -605,7 +627,7 @@ public class SpotCollection implements MultiThreaded {
 
 	/**
 	 * Returns the first (lowest) frame currently in this collection.
-	 *
+	 * 
 	 * @return the first (lowest) frame currently in this collection.
 	 */
 	public Integer firstKey() {
@@ -617,7 +639,7 @@ public class SpotCollection implements MultiThreaded {
 
 	/**
 	 * Returns the last (highest) frame currently in this collection.
-	 *
+	 * 
 	 * @return the last (highest) frame currently in this collection.
 	 */
 	public Integer lastKey() {
@@ -850,7 +872,7 @@ public class SpotCollection implements MultiThreaded {
 	/**
 	 * Returns a new {@link SpotCollection}, made of only the spots marked as
 	 * visible. All the spots will then be marked as not-visible.
-	 *
+	 * 
 	 * @return a new spot collection, made of only the spots marked as visible.
 	 */
 	public SpotCollection crop() {
@@ -944,8 +966,7 @@ public class SpotCollection implements MultiThreaded {
 		}
 
 		@Override
-		public void remove() {
-		}
+		public void remove() {}
 	};
 
 	/*
@@ -957,7 +978,7 @@ public class SpotCollection implements MultiThreaded {
 	 * Their frame origin is retrieved from their {@link Spot#FRAME} feature, so
 	 * it must be set properly for all spots. All the spots of the new
 	 * collection have the same visibility that the one they carry.
-	 *
+	 * 
 	 * @param spots
 	 *            the spot collection to build from.
 	 * @return a new {@link SpotCollection} instance.
@@ -981,7 +1002,7 @@ public class SpotCollection implements MultiThreaded {
 	 * sets. The spots added this way are completely untouched. In particular,
 	 * their {@link #VISIBLITY} feature is left untouched, which makes this
 	 * method suitable to de-serialize a {@link SpotCollection}.
-	 *
+	 * 
 	 * @param source
 	 *            the map to buidl the spot collection from.
 	 * @return a new SpotCollection.

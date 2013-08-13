@@ -12,16 +12,16 @@ import net.imglib2.view.Views;
 
 /**
  * A collection of static utilities related to {@link TrackMateModelView}s.
- *
+ * 
  * @author Jean-Yves Tinevez - 2013
+ * 
  */
 public class ViewUtils {
 
 	private static final double TARGET_X_IMAGE_SIZE = 512;
 	private static final double TARGET_Z_IMAGE_SIZE = 128;
 
-	private ViewUtils() {
-	}
+	private ViewUtils() {}
 
 	public static final ImagePlus makeEmpytImagePlus(final int width, final int height, final int nslices, final int nframes, final double[] calibration) {
 
@@ -35,6 +35,7 @@ public class ViewUtils {
 		imp.getCalibration().pixelHeight = calibration[1];
 		imp.getCalibration().pixelDepth = calibration[2];
 		imp.setDimensions(1, nslices, nframes);
+		imp.setOpenAsHyperStack(true);
 
 		return imp;
 	}

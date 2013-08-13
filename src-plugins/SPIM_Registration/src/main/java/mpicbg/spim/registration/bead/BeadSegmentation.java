@@ -316,7 +316,15 @@ public class BeadSegmentation
 		final FloatType min = new FloatType();
 		final FloatType max = new FloatType();
 		
-		DOM.computeMinMax( img, min, max );
+		if ( ViewDataBeads.minmaxset == null )
+		{
+			DOM.computeMinMax( img, min, max );
+		}
+		else
+		{
+			min.set( ViewDataBeads.minmaxset[ 0 ] );
+			max.set( ViewDataBeads.minmaxset[ 1 ] );
+		}
 
 		if ( viewStructure.getDebugLevel() <= ViewStructure.DEBUG_MAIN )
 			IOFunctions.println("(" + new Date(System.currentTimeMillis()) + "): min intensity = " + min.get() + ", max intensity = " + max.get() );
@@ -446,8 +454,11 @@ public class BeadSegmentation
             minInitialPeakValue = view.getMinInitialPeakValue();
         }        
 
-        IOFunctions.println( view.getName() + " sigma: " + initialSigma + " minPeakValue: " + minPeakValue );
-
+		if ( viewStructure.getDebugLevel() <= ViewStructure.DEBUG_MAIN )
+		{
+			IOFunctions.println("(" + new Date(System.currentTimeMillis()) + "): min intensity = " + view.getMinValue() + ", max intensity = " + view.getMaxValue() );
+			IOFunctions.println( view.getName() + " sigma: " + initialSigma + " minPeakValue: " + minPeakValue );
+		}
         final float k = LaPlaceFunctions.computeK(conf.stepsPerOctave);
         final float K_MIN1_INV = LaPlaceFunctions.computeKWeight(k);
         final int steps = conf.steps;
@@ -474,13 +485,15 @@ public class BeadSegmentation
 			
 			return new BeadStructure();
 		}
-
-		// remove all minima
-        final ArrayList< DifferenceOfGaussianPeak<FloatType> > peakList = dog.getPeaks();
-        for ( int i = peakList.size() - 1; i >= 0; --i )
-        	if ( peakList.get( i ).isMin() )
-        		peakList.remove( i );
 		
+		// remove all minima
+        final ArrayList< DifferenceOfGaussianPeak<FloatType> > peakListOld = dog.getPeaks();
+        final ArrayList< DifferenceOfGaussianPeak<FloatType> > peakList = new ArrayList<DifferenceOfGaussianPeak<FloatType>>();
+        
+        for ( int i = peakListOld.size() - 1; i >= 0; --i )
+        	if ( peakListOld.get( i ).isMax() )
+        		peakList.add( peakListOld.get( i ) );
+
 		// do quadratic fit??
 		if ( conf.doFit == 1 )
 		{

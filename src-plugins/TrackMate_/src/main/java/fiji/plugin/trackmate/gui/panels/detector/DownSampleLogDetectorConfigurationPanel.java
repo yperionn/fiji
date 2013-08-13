@@ -66,12 +66,18 @@ public class DownSampleLogDetectorConfigurationPanel extends LogDetectorConfigur
 			jTextFieldDownSample = new JNumericTextField();
 			jTextFieldDownSample.setHorizontalAlignment(SwingConstants.CENTER);
 			jTextFieldDownSample.setText("1");
-			
+
 			layout.putConstraint(SpringLayout.NORTH, jTextFieldDownSample, 290, SpringLayout.NORTH, this);
 			layout.putConstraint(SpringLayout.WEST, jTextFieldDownSample, 168, SpringLayout.WEST, this);
 			layout.putConstraint(SpringLayout.EAST, jTextFieldDownSample, 208, SpringLayout.WEST, this);
 			jTextFieldDownSample.setFont(FONT);
 			add(jTextFieldDownSample);
+		}
+		{
+			remove(jLabelThreshold);
+			layout.putConstraint(SpringLayout.NORTH, jLabelThreshold, 270, SpringLayout.NORTH, this);
+			layout.putConstraint(SpringLayout.WEST, jLabelThreshold, 16, SpringLayout.WEST, this);
+			add(jLabelThreshold);
 		}
 	}
 
