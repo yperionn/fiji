@@ -6,7 +6,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>jama</groupId>
-	<artifactId>Jama</artifactId>
+	<artifactId>jama</artifactId>
 	<version>1.0.3-SNAPSHOT</version>
 
 	<name>jars/Jama.jar</name>
