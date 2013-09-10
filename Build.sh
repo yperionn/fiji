@@ -318,9 +318,9 @@ EOF
 
 # make sure that javac and ij-minimaven are up-to-date
 
-FIJI_VERSION="$(maven_helper property-from-pom "$CWD"/pom.xml fiji.version)"
+JAVAC_VERSION="$(maven_helper latest-version sc.fiji:javac)"
 IMAGEJ_VERSION="$(maven_helper property-from-pom "$CWD"/pom.xml imagej.version)"
-maven_update sc.fiji:javac:$FIJI_VERSION \
+maven_update sc.fiji:javac:$JAVAC_VERSION \
 	net.imagej:ij-minimaven:$IMAGEJ_VERSION
 
 # command-line options
@@ -385,11 +385,13 @@ else
 		artifactId="${artifactId%%-[0-9]*}"
 		case "$name" in
 		*-rebuild)
+			artifactId=${artifactId%-rebuild}
+			artifactId="${artifactId%.jar}"
 			eval sh -$- "$CWD/bin/ImageJ.sh" --mini-maven \
-				"$OPTIONS" -DartifactId="$artifactId" clean
+				"$OPTIONS" -DartifactId="$artifactId" -- clean
 			;;
 		esac
 		eval sh -$- "$CWD/bin/ImageJ.sh" --mini-maven \
-			"$OPTIONS" -DartifactId="$artifactId" install
+			"$OPTIONS" -DartifactId="$artifactId" -- install
 	done
 fi

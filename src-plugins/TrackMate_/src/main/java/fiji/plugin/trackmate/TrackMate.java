@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import net.imglib2.algorithm.Algorithm;
 import net.imglib2.algorithm.Benchmark;
 import net.imglib2.algorithm.MultiThreaded;
-import net.imglib2.img.ImgPlus;
+import net.imglib2.meta.ImgPlus;
 import net.imglib2.multithreading.SimpleMultiThreading;
 
 import org.jgrapht.graph.SimpleWeightedGraph;
@@ -584,17 +584,31 @@ public class TrackMate implements Benchmark, MultiThreaded, Algorithm {
 		if (!execInitialSpotFiltering()) {
 			return false;
 		}
-		computeSpotFeatures(true);
+
+		if (!computeSpotFeatures(true)) {
+			return false;
+		}
+
 		if (!execSpotFiltering(true)) {
 			return false;
 		}
+
 		if (!execTracking()) {
 			return false;
 		}
-		computeTrackFeatures(true);
+
+		if (!computeTrackFeatures(true)) {
+			return false;
+		}
+
 		if (!execTrackFiltering(true)) {
 			return false;
 		}
+
+		if (!computeEdgeFeatures(true)) {
+			return false;
+		}
+
 		return true;
 	}
 
