@@ -70,7 +70,7 @@ public class TrackSchemePopupMenu extends JPopupMenu {
 		/*
 		 * We want to display the editing window in the cell that is the closer
 		 * to where the user clicked. That is not perfect, because we can
-		 * imaging the click is made for from the selected cells, and that the
+		 * imagine the click is made for from the selected cells, and that the
 		 * editing window will not even be displayed on the screen. No idea for
 		 * that yet, because JGraphX is expecting to receive a cell as location
 		 * for the editing window.
@@ -174,11 +174,11 @@ public class TrackSchemePopupMenu extends JPopupMenu {
 			});
 
 			// Fold
-//			add(new AbstractAction("Fold/Unfold branch") {
-//				public void actionPerformed(ActionEvent e) {
-//					toggleBranchFolding();
-//				}
-//			});
+			//			add(new AbstractAction("Fold/Unfold branch") {
+			//				public void actionPerformed(ActionEvent e) {
+			//					toggleBranchFolding();
+			//				}
+			//			});
 
 		} else {
 

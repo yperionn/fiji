@@ -81,6 +81,11 @@ public class TrackSchemeGraphComponent extends mxGraphComponent implements mxIEv
 	 * METHODS
 	 */
 
+	@Override
+	public JGraphXAdapter getGraph() {
+		return (JGraphXAdapter) super.getGraph();
+	}
+
 	public void setDoPaintDecorations(final boolean doPaintDecorations) {
 		this.doPaintDecorations = doPaintDecorations;
 	}

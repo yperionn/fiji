@@ -54,12 +54,7 @@ public class TrackScheme extends AbstractTrackMateModelView {
 	private static final boolean DEBUG = false;
 	private static final boolean DEBUG_SELECTION = false;
 	public static final String KEY = "TrackScheme";
-	public static final String INFO_TEXT = "<html>" +
-			"TrackScheme displays the tracking results as track lanes, <br>" +
-			"ignoring the spot actual position. " +
-			"<p>" +
-			"Tracks can be edited through link creation and removal." +
-			"</html>";
+	public static final String INFO_TEXT = "<html>" + "TrackScheme displays the tracking results as track lanes, <br>" + "ignoring the spot actual position. " + "<p>" + "Tracks can be edited through link creation and removal." + "</html>";
 	static final int Y_COLUMN_SIZE = 96;
 	static final int X_COLUMN_SIZE = 160;
 
@@ -232,7 +227,7 @@ public class TrackScheme extends AbstractTrackMateModelView {
 	/**
 	 * Updates or creates a cell for the target spot. Is called after the user
 	 * modified a spot (location, radius, ...) somewhere else.
-	 *
+	 * 
 	 * @param spot
 	 *            the spot that was modified.
 	 */
@@ -295,7 +290,7 @@ public class TrackScheme extends AbstractTrackMateModelView {
 
 	/**
 	 * Import a whole track from the {@link Model} and make it visible
-	 *
+	 * 
 	 * @param trackIndex
 	 *            the index of the track to show in TrackScheme
 	 */
@@ -330,7 +325,7 @@ public class TrackScheme extends AbstractTrackMateModelView {
 	 * graph, by dragging a link between two spot cells. It checks whether the
 	 * matching edge in the model exists, and tune what should be done
 	 * accordingly.
-	 *
+	 * 
 	 * @param cell
 	 *            the mxCell of the edge that has been manually created.
 	 */
@@ -733,7 +728,7 @@ public class TrackScheme extends AbstractTrackMateModelView {
 	 * Called when the user makes a selection change in the graph. Used to
 	 * forward this event to the {@link InfoPane} and to other
 	 * {@link SelectionChangeListener}s.
-	 *
+	 * 
 	 * @param model
 	 *            the selection model
 	 * @param added
@@ -922,7 +917,7 @@ public class TrackScheme extends AbstractTrackMateModelView {
 
 	/**
 	 * Toggle whether drag-&-drop linking is allowed.
-	 *
+	 * 
 	 * @return the current settings value, after toggling.
 	 */
 	public boolean toggleLinking() {
@@ -933,7 +928,7 @@ public class TrackScheme extends AbstractTrackMateModelView {
 
 	/**
 	 * Toggle whether thumbnail capture is enabled.
-	 *
+	 * 
 	 * @return the current settings value, after toggling.
 	 */
 	public boolean toggleThumbnail() {

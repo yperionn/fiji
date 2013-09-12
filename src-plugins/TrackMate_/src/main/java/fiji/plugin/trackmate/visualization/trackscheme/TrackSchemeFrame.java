@@ -18,7 +18,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 
 import com.mxgraph.model.mxICell;
-import com.mxgraph.swing.handler.mxKeyboardHandler;
 import com.mxgraph.swing.handler.mxRubberband;
 
 import fiji.plugin.trackmate.Logger;
@@ -100,7 +99,6 @@ public class TrackSchemeFrame extends JFrame {
 				log(status, Logger.BLUE_COLOR);
 			}
 		};
-
 	}
 
 	/*
@@ -139,7 +137,8 @@ public class TrackSchemeFrame extends JFrame {
 		gc.getConnectionHandler().setEnabled(TrackScheme.DEFAULT_LINKING_ENABLED); // By default, can be changed in the track scheme toolbar
 
 		new mxRubberband(gc);
-		new mxKeyboardHandler(gc);
+		//		new mxKeyboardHandler(gc);
+		new TrackSchemeKeyboardHandler(gc);
 
 		// Popup menu
 		gc.getGraphControl().addMouseListener(new MouseAdapter() {
@@ -155,6 +154,7 @@ public class TrackSchemeFrame extends JFrame {
 					displayPopupMenu(gc.getCellAt(e.getX(), e.getY(), false), e.getPoint());
 			}
 		});
+
 		return gc;
 	}
 
