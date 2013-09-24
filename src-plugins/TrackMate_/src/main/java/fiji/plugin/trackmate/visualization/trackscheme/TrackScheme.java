@@ -660,21 +660,8 @@ public class TrackScheme extends AbstractTrackMateModelView {
 				gui.logger.setStatus("Executing layout.");
 				doTrackLayout();
 
-				gui.logger.setProgress(1);
-				refresh();
+				gui.logger.setProgress(0.9);
 
-				gui.logger.setProgress(0);
-				final long end = System.currentTimeMillis();
-				gui.logger.log(String.format("Rendering done in %.1f s.", (end - start) / 1000d));
-			}
-		});
-	}
-
-	@Override
-	public void refresh() {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
 				gui.logger.setStatus("Refreshing display.");
 				gui.graphComponent.refresh();
 				final mxRectangle bounds = graph.getView().validatePoints(null, graph.getDefaultParent());
@@ -685,9 +672,16 @@ public class TrackScheme extends AbstractTrackMateModelView {
 				dim.setSize(bounds.getRectangle().width + bounds.getRectangle().x, bounds.getRectangle().height + bounds.getRectangle().y);
 				gui.graphComponent.getGraphControl().setPreferredSize(dim);
 				gui.logger.setStatus("");
+
+				gui.logger.setProgress(0);
+				final long end = System.currentTimeMillis();
+				gui.logger.log(String.format("Rendering done in %.1f s.", (end - start) / 1000d));
 			}
 		});
 	}
+
+	@Override
+	public void refresh() {}
 
 	@Override
 	public void clear() {
