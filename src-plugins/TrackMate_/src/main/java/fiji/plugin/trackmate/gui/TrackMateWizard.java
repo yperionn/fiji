@@ -23,8 +23,9 @@ import fiji.plugin.trackmate.visualization.TrackMateModelView;
 
 /**
  * A view for the TrackMate_ trackmate, strongly inspired from the spots
- * detection GUI of the Imaris® software from <a href="http://www.bitplane.com/">Bitplane</a>.
- *
+ * detection GUI of the Imaris® software from <a
+ * href="http://www.bitplane.com/">Bitplane</a>.
+ * 
  * @author Jean-Yves Tinevez <tinevez@pasteur.fr> - September 2010 - 2011
  */
 public class TrackMateWizard extends JFrame implements ActionListener {
@@ -113,7 +114,7 @@ public class TrackMateWizard extends JFrame implements ActionListener {
 
 	/**
 	 * Remove an {@link ActionListener} from the list of listeners of this GUI.
-	 *
+	 * 
 	 * @return true if the listener was present in the list for this GUI and was
 	 *         successfully removed from it.
 	 */
@@ -159,7 +160,7 @@ public class TrackMateWizard extends JFrame implements ActionListener {
 	 * Sets the current panel to that identified by the String passed in. It
 	 * must be the {@link WizardPanelDescriptor} string ID, not the component
 	 * string ID.
-	 *
+	 * 
 	 * @param descriptorID
 	 *            String-based panel identifier
 	 */
@@ -191,14 +192,15 @@ public class TrackMateWizard extends JFrame implements ActionListener {
 			}
 		});
 	}
-	
+
 	public void setLogButtonEnabled(final boolean b) {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
-			public void run() { jButtonLog.setEnabled(b); }
+			public void run() {
+				jButtonLog.setEnabled(b);
+			}
 		});
 	}
-
 
 	public void setPreviousButtonEnabled(final boolean b) {
 		SwingUtilities.invokeLater(new Runnable() {
@@ -259,12 +261,15 @@ public class TrackMateWizard extends JFrame implements ActionListener {
 			jPanelButtons.setLayout(new BoxLayout(jPanelButtons, BoxLayout.X_AXIS));
 			getContentPane().add(jPanelButtons, BorderLayout.SOUTH);
 			jPanelButtons.setLayout(new BoxLayout(jPanelButtons, BoxLayout.LINE_AXIS));
-			
-			/*  We don't show the load button anymore. Load action can be accessed from the menu.
-			 *  Out of simplicity, we leave the load button logic in place, but do not show it. */
+
+			/*
+			 * We don't show the load button anymore. Load action can be
+			 * accessed from the menu. Out of simplicity, we leave the load
+			 * button logic in place, but do not show it.
+			 */
 			jButtonLoad = addButton("Load", LOAD_ICON, 2, 2, 76, 25, LOAD_BUTTON_PRESSED);
 			jPanelButtons.remove(jButtonLoad);
-			
+
 			jButtonSave = addButton("Save", SAVE_ICON, 78, 2, 76, 25, SAVE_BUTTON_PRESSED);
 			jPanelButtons.add(Box.createHorizontalGlue());
 			jButtonLog = addButton(null, LOG_ICON, 157, 2, 30, 25, LOG_BUTTON_PRESSED);
