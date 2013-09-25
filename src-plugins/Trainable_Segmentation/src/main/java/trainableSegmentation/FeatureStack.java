@@ -43,8 +43,7 @@ package trainableSegmentation;
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- * Authors: Verena Kaynig (verena.kaynig@inf.ethz.ch), Ignacio Arganda-Carreras (iarganda@mit.edu)
- *          Albert Cardona (acardona@ini.phys.ethz.ch)
+ * Authors: Verena Kaynig, Ignacio Arganda-Carreras, Albert Cardona
  */
 
 import java.io.BufferedWriter;
@@ -202,6 +201,9 @@ public class FeatureStack
 	
 	/** flag to specify the use of color features */
 	final boolean colorFeatures;
+	
+	/** flag to specify the use of the old color format (using directly the RGB values as float) */
+	private boolean oldColorFormat = false; 
 	
 	/** executor service to produce concurrent threads */
 	ExecutorService exe = Executors.newFixedThreadPool( Prefs.getThreads() );
@@ -383,10 +385,22 @@ public class FeatureStack
 	 * @param numBins number of bins to use in the histogram
 	 */
 	public void addEntropy(int radius, int numBins)
-	{
-		ImageProcessor ip = originalImage.getProcessor().duplicate();
-		Entropy_Filter filter = new Entropy_Filter();
-		wholeStack.addSlice(availableFeatures[ENTROPY] + "_" + radius + "_" + numBins, filter.getEntropy(ip, radius, numBins));
+	{		
+		Entropy_Filter filter = new Entropy_Filter();		
+		
+		ImagePlus[] channels = extractChannels(originalImage);
+
+		ImagePlus[] results = new ImagePlus[ channels.length ];
+		
+		
+		for(int ch=0; ch < channels.length; ch++)
+		{
+			final ImageProcessor ip = channels[ ch ].getProcessor().duplicate();								
+			results[ ch ] = new ImagePlus( availableFeatures[ENTROPY] + "_" + radius + "_" + numBins,
+											filter.getEntropy(ip, radius, numBins));
+		}
+		ImagePlus merged = mergeResultChannels(results);
+		wholeStack.addSlice(merged.getTitle(), merged.getProcessor());		
 	}
 	/**
 	 * Calculate entropy filter filter concurrently
@@ -403,12 +417,23 @@ public class FeatureStack
 		if (Thread.currentThread().isInterrupted()) 
 			return null;
 		
-		return new Callable<ImagePlus>(){
+		return new Callable<ImagePlus>()
+				{
 			public ImagePlus call(){
 		
-				ImageProcessor ip = originalImage.getProcessor().duplicate();
+				ImagePlus[] channels = extractChannels(originalImage);
+
+				ImagePlus[] results = new ImagePlus[ channels.length ];
+
 				Entropy_Filter filter = new Entropy_Filter();
-				return new ImagePlus (availableFeatures[ENTROPY] + "_" + radius + "_" + numBins, filter.getEntropy(ip, radius, numBins));
+				
+				for(int ch=0; ch < channels.length; ch++)
+				{
+					final ImageProcessor ip = channels[ ch ].getProcessor().duplicate();										
+					results[ ch ] = new ImagePlus( availableFeatures[ENTROPY] + "_" + radius + "_" + numBins,
+							filter.getEntropy(ip, radius, numBins) );
+				}
+				return mergeResultChannels(results);				
 			}
 		};
 	}
@@ -449,7 +474,7 @@ public class FeatureStack
 
 
 				for(int i=0; i<8; i++)
-					result.addSlice(availableFeatures[ NEIGHBORS] + "_" + sigma +"_" +  i, new FloatProcessor( originalImage.getWidth(), originalImage.getHeight(), neighborhood[ i ]));						
+					result.addSlice(availableFeatures[ NEIGHBORS ] + "_" + sigma +"_" +  i, new FloatProcessor( originalImage.getWidth(), originalImage.getHeight(), neighborhood[ i ]));						
 			}
 			results[ ch ] = new ImagePlus("Neighbors", result);
 		}
@@ -2413,6 +2438,9 @@ public class FeatureStack
 		if (Thread.currentThread().isInterrupted()) 
 			return null;
 		
+		if( oldColorFormat ) 
+			IJ.log( "Using old color format...");
+		
 		ArrayList<Attribute> attributes = new ArrayList<Attribute>();
 		for (int i=1; i<=wholeStack.getSize(); i++){
 			String attString = wholeStack.getSliceLabel(i);
@@ -2938,7 +2966,7 @@ public class FeatureStack
 			}
 			
 			// Entropy
-			if(enableFeatures[ENTROPY])
+			if(enableFeatures[ ENTROPY ])
 			{
 				for(int nBins = 32; nBins <= 256; nBins *=2)
 					addEntropy((int)i, nBins);
@@ -2946,7 +2974,7 @@ public class FeatureStack
 
 		}
 		// Membrane projections
-		if(enableFeatures[MEMBRANE])
+		if(enableFeatures[ MEMBRANE ])
 		{
 			if (Thread.currentThread().isInterrupted()) 
 				return false;
@@ -3386,7 +3414,7 @@ public class FeatureStack
 		final double[] values = new double[ getSize() + 1 + extra ];
 		int n = 0;
 		
-		if( colorFeatures == false)
+		if( colorFeatures == false || oldColorFormat == true)
 		{
 			for (int z=1; z<=getSize(); z++, n++)		
 				values[ z-1 ] = getProcessor( z ).getf( x, y );
@@ -3433,7 +3461,7 @@ public class FeatureStack
 	{		
 		int n = 0;
 		
-		if( colorFeatures == false)
+		if( colorFeatures == false || oldColorFormat == true )
 		{
 			for (int z=1; z<=getSize(); z++, n++)		
 				ins.setValue( z-1, getProcessor( z ).getf( x, y ) );
@@ -3495,6 +3523,16 @@ public class FeatureStack
 	public ImageStack getStack()
 	{
 		return wholeStack;
+	}
+	
+	public void setOldColorFormat( boolean b )
+	{
+		this.oldColorFormat = b;
+	}
+	
+	public boolean isOldColorFormat()
+	{
+		return this.oldColorFormat;
 	}
 	
 }
