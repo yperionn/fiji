@@ -22,19 +22,20 @@ public class SpotIntensityAnalyzerFactory<T extends RealType<T> & NativeType<T>>
 
 	public static final String KEY = "Spot descriptive statistics";
 
-	public static final String MEAN_INTENSITY = "MEAN_INTENSITY";
-	public static final String MEDIAN_INTENSITY = "MEDIAN_INTENSITY";
-	public static final String MIN_INTENSITY = "MIN_INTENSITY";
-	public static final String MAX_INTENSITY = "MAX_INTENSITY";
-	public static final String TOTAL_INTENSITY = "TOTAL_INTENSITY";
-	public static final String STANDARD_DEVIATION = "STANDARD_DEVIATION";
-//	public static final String VARIANCE = "VARIANCE";
-//	public static final String KURTOSIS = "KURTOSIS";
-//	public static final String SKEWNESS = "SKEWNESS";
 
-	public static final ArrayList<String> FEATURES = new ArrayList<String>(9);
-	public static final HashMap<String, String> FEATURE_NAMES = new HashMap<String, String>(9);
-	public static final HashMap<String, String> FEATURE_SHORT_NAMES = new HashMap<String, String>(9);
+	public static final String	MEAN_INTENSITY 	= "MEAN_INTENSITY";
+	public static final String	MEDIAN_INTENSITY = "MEDIAN_INTENSITY";
+	public static final String	MIN_INTENSITY = "MIN_INTENSITY";
+	public static final String	MAX_INTENSITY = "MAX_INTENSITY";
+	public static final String	TOTAL_INTENSITY = "TOTAL_INTENSITY";
+	public static final String	STANDARD_DEVIATION = "STANDARD_DEVIATION";
+//	public static final String	VARIANCE = "VARIANCE";
+//	public static final String	KURTOSIS = "KURTOSIS";
+//	public static final String	SKEWNESS = "SKEWNESS";
+
+	public static final ArrayList<String> 			FEATURES = new ArrayList<String>(9);
+	public static final HashMap<String, String> 	FEATURE_NAMES = new HashMap<String, String>(9);
+	public static final HashMap<String, String> 	FEATURE_SHORT_NAMES = new HashMap<String, String>(9);
 	public static final HashMap<String, Dimension> FEATURE_DIMENSIONS = new HashMap<String, Dimension>(9);
 	static {
 		FEATURES.add(MEAN_INTENSITY);
@@ -78,24 +79,13 @@ public class SpotIntensityAnalyzerFactory<T extends RealType<T> & NativeType<T>>
 //		FEATURE_DIMENSIONS.put(SKEWNESS, Dimension.NONE);
 	}
 
-	private final Model model;
-	private final ImgPlus<T> img;
-
-	/*
-	 * CONSTRUCTOR
-	 */
-
-	public SpotIntensityAnalyzerFactory(final Model model, final ImgPlus<T> img) {
-		this.model = model;
-		this.img = img;
-	}
 
 	/*
 	 * METHODS
 	 */
 
 	@Override
-	public SpotIntensityAnalyzer<T> getAnalyzer(final int frame, final int channel) {
+	public SpotIntensityAnalyzer<T> getAnalyzer(final Model model, final ImgPlus<T> img, final int frame, final int channel) {
 		final ImgPlus<T> imgC = HyperSliceImgPlus.fixChannelAxis(img, channel);
 		final ImgPlus<T> imgCT = HyperSliceImgPlus.fixTimeAxis(imgC, frame);
 		final Iterator<Spot> spots = model.getSpots().iterator(frame, false);

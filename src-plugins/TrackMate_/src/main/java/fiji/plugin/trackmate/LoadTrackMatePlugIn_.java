@@ -105,8 +105,8 @@ public class LoadTrackMatePlugIn_ extends SomeDialogDescriptor implements PlugIn
 
 		// Tune model and settings to be usable in the GUI even with old versions
 		if (version.compareTo(new Version("2.0.0")) < 0) {
-			settings.addEdgeAnalyzer(new EdgeTargetAnalyzer(model));
-			settings.addEdgeAnalyzer(new EdgeVelocityAnalyzer(model));
+			settings.addEdgeAnalyzer(new EdgeTargetAnalyzer());
+			settings.addEdgeAnalyzer(new EdgeVelocityAnalyzer());
 			trackmate.computeEdgeFeatures(true);
 			model.setLogger(Logger.IJ_LOGGER);
 			trackmate.computeEdgeFeatures(true);
@@ -133,7 +133,7 @@ public class LoadTrackMatePlugIn_ extends SomeDialogDescriptor implements PlugIn
 
 		// Views
 		final ViewProvider viewProvider = controller.getViewProvider();
-		final Collection<TrackMateModelView> views = reader.getViews(viewProvider);
+		final Collection<TrackMateModelView> views = reader.getViews(viewProvider, model, settings, controller.getSelectionModel());
 		for (final TrackMateModelView view : views) {
 			if (view.getKey().equals(TrackScheme.KEY)) {
 				final TrackScheme trackscheme = (TrackScheme) view;

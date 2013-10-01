@@ -30,8 +30,8 @@ public class ExportStats_TestDrive {
 		final TrackMate trackmate = new TrackMate(model, null);
 
 		// Export
-		final ExportStatsToIJAction exporter = new ExportStatsToIJAction(trackmate, null);
-		exporter.execute();
+		final ExportStatsToIJAction exporter = new ExportStatsToIJAction();
+		exporter.execute(trackmate);
 
 	}
 

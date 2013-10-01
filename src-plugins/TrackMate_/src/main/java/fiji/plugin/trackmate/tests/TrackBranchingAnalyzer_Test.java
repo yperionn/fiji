@@ -18,8 +18,8 @@ public class TrackBranchingAnalyzer_Test {
 		final TmXmlReader reader = new TmXmlReader(file);
 
 		// Analyze
-		final TrackBranchingAnalyzer analyzer = new TrackBranchingAnalyzer(reader.getModel());
-		analyzer.process(reader.getModel().getTrackModel().trackIDs(false));
+		final TrackBranchingAnalyzer analyzer = new TrackBranchingAnalyzer();
+		analyzer.process(reader.getModel().getTrackModel().trackIDs(false), reader.getModel());
 		System.out.println("Analysis done in " + analyzer.getProcessingTime() + " ms.");
 
 	}

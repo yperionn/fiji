@@ -9,8 +9,8 @@ import fiji.plugin.trackmate.features.FeatureAnalyzer;
 
 /**
  * Mother interface for the classes that can compute the feature of tracks.
- * Target tracks are given through their IDs, which means that concrete
- * implementations must be instantiated with the model that stores the tracks.
+ * Target tracks are given through a {@link Model} and their IDs. Therefore and
+ * ideally, concrete implementations can be made stateless.
  * <p>
  * Note: ideally concrete implementation should work in a multi-threaded fashion
  * for performance reason, when possible.
@@ -36,9 +36,15 @@ import fiji.plugin.trackmate.features.FeatureAnalyzer;
 public interface TrackAnalyzer extends Benchmark, FeatureAnalyzer, MultiThreaded {
 
 	/**
-	 * Score the track whose ID is given.
+	 * Compute the features of the track whose ID is given.
+	 *
+	 * @param trackIDs
+	 *            the IDs of the track whose features are to be calculated.
+	 * @param model
+	 *            the {@link Model} from which actual tracks are to be
+	 *            retrieved.
 	 */
-	public void process(final Collection<Integer> trackIDs);
+	public void process(final Collection<Integer> trackIDs, final Model model);
 
 	/**
 	 * Returns <code>true</code> if this analyzer is a local analyzer. That is:

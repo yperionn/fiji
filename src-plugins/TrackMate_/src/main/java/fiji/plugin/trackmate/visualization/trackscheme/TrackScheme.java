@@ -289,7 +289,7 @@ public class TrackScheme extends AbstractTrackMateModelView {
 	}
 
 	/**
-	 * Import a whole track from the {@link Model} and make it visible
+	 * Import a whole track from the {@link Model} and make it visible.
 	 * 
 	 * @param trackIndex
 	 *            the index of the track to show in TrackScheme
@@ -388,7 +388,7 @@ public class TrackScheme extends AbstractTrackMateModelView {
 						// We also need now to check if the edge belonged to a visible track. If not,
 						// we make it visible.
 						final int ID = model.getTrackModel().trackIDOf(edge);
-						// This will work, because track indices will be reprocessed only after the graphModel.endUpdate()
+						// This will work, because track indices will be reprocessed only after the graphModel.endUpdate() 
 						// reaches 0. So now, it's like we are dealing with the track indices priori to modification.
 						if (model.getTrackModel().isVisible(ID)) {
 							if (DEBUG) {
@@ -848,13 +848,13 @@ public class TrackScheme extends AbstractTrackMateModelView {
 				final mxCell cell = (mxCell) obj;
 				if (null != cell) {
 					if (cell.isVertex()) {
-						// Build list of removed spots
+						// Build list of removed spots 
 						final Spot spot = graph.getSpotFor(cell);
 						spotsToRemove.add(spot);
 						// Clean maps
 						graph.removeMapping(spot);
 					} else if (cell.isEdge()) {
-						// Build list of removed edges
+						// Build list of removed edges 
 						final DefaultWeightedEdge edge = graph.getEdgeFor(cell);
 						if (null == edge)
 							continue;
@@ -954,7 +954,7 @@ public class TrackScheme extends AbstractTrackMateModelView {
 		graph.getModel().beginUpdate();
 		try {
 
-			// Collect edges
+			// Collect edges 
 			final Set<Integer> trackIDs = model.getTrackModel().trackIDs(true);
 			final HashMap<Integer, Set<mxCell>> edgeMap = new HashMap<Integer, Set<mxCell>>(trackIDs.size());
 			for (final Integer trackID : trackIDs) {

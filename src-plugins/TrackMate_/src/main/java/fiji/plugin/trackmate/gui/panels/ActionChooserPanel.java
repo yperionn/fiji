@@ -19,8 +19,10 @@ import javax.swing.JList;
 import javax.swing.SpringLayout;
 
 import fiji.plugin.trackmate.Logger;
+import fiji.plugin.trackmate.TrackMate;
 import fiji.plugin.trackmate.action.TrackMateAction;
 import fiji.plugin.trackmate.gui.LogPanel;
+import fiji.plugin.trackmate.gui.TrackMateGUIController;
 import fiji.plugin.trackmate.gui.TrackMateWizard;
 import fiji.plugin.trackmate.providers.ActionProvider;
 
@@ -37,18 +39,24 @@ public class ActionChooserPanel {
 	private final ActionProvider actionProvider;
 	private SpringLayout layout;
 
+	private final TrackMateGUIController	controller;
+
+	private final TrackMate					trackmate;
+
 	/*
 	 * CONSTRUCTORS
 	 */
 
-	public ActionChooserPanel(final ActionProvider actionProvider) {
+	public ActionChooserPanel(final ActionProvider actionProvider, final TrackMate trackmate, final TrackMateGUIController controller) {
 
+		this.controller = controller;
+		this.trackmate = trackmate;
 		final List<String> actions = actionProvider.getAvailableActions();
 		final List<String> infoTexts = new ArrayList<String>(actions.size());
 		icons = new ArrayList<ImageIcon>(actions.size());
-		for (final String key : actions) {
-			infoTexts.add(actionProvider.getInfoText(key));
-			icons.add(actionProvider.getIcon(key));
+		for(final String key : actions) {
+			infoTexts.add( actionProvider.getInfoText(key) );
+			icons.add( actionProvider.getIcon(key) );
 		}
 
 		this.panel = new ListChooserPanel(actions, infoTexts, "action");
@@ -71,7 +79,7 @@ public class ActionChooserPanel {
 	 */
 
 	private void init() {
-		
+
 		layout = (SpringLayout) panel.getLayout();
 		layout.removeLayoutComponent(panel.jLabelHelpText);
 
@@ -89,10 +97,14 @@ public class ActionChooserPanel {
 							panel.fireAction(ACTION_STARTED);
 							final int actionIndex = panel.getChoice();
 							final String actionName = actionProvider.getAvailableActions().get(actionIndex);
-							final TrackMateAction action = actionProvider.getAction(actionName);
-							action.setLogger(logger);
-							action.execute();
-							panel.fireAction(ACTION_FINISHED);
+							final TrackMateAction action = actionProvider.getAction(actionName, controller);
+							if (null == action) {
+								logger.error("Unknown action: " + actionName + ".\n");
+							} else {
+								action.setLogger(logger);
+								action.execute(trackmate);
+								panel.fireAction(ACTION_FINISHED);
+							}
 						} finally {
 							executeButton.setEnabled(true);
 						}
@@ -102,29 +114,29 @@ public class ActionChooserPanel {
 		});
 		panel.add(executeButton);
 
-		
+
 		layout.putConstraint(SpringLayout.NORTH, panel.jLabelHelpText, 5, SpringLayout.SOUTH, panel.jComboBoxChoice);
 		layout.putConstraint(SpringLayout.WEST, panel.jLabelHelpText, 10, SpringLayout.WEST, panel);
 		layout.putConstraint(SpringLayout.EAST, panel.jLabelHelpText, -10, SpringLayout.EAST, panel);
 		panel.jLabelHelpText.setPreferredSize(new Dimension(600, 150));
-		
+
 		layout.putConstraint(SpringLayout.WEST, executeButton, 10, SpringLayout.WEST, panel);
 		layout.putConstraint(SpringLayout.EAST, executeButton, 170, SpringLayout.WEST, panel);
 		layout.putConstraint(SpringLayout.NORTH, executeButton, 5, SpringLayout.SOUTH, panel.jLabelHelpText);
-		
+
 		layout.putConstraint(SpringLayout.NORTH, logPanel, 5, SpringLayout.SOUTH, executeButton);
 		layout.putConstraint(SpringLayout.SOUTH, logPanel, -10, SpringLayout.SOUTH, panel);
 		layout.putConstraint(SpringLayout.WEST, logPanel, 10, SpringLayout.WEST, panel);
 		layout.putConstraint(SpringLayout.EAST, logPanel, -10, SpringLayout.EAST, panel);
 
-		
-		HashMap<String, ImageIcon> iconMap = new HashMap<String, ImageIcon>();
-		for (int i = 0; i < icons.size(); i++) { 
+
+		final HashMap<String, ImageIcon> iconMap = new HashMap<String, ImageIcon>();
+		for (int i = 0; i < icons.size(); i++) {
 			iconMap.put(panel.items.get(i), icons.get(i));
 		}
 		final IconListRenderer renderer = new IconListRenderer(iconMap);
 		panel.jComboBoxChoice.setRenderer(renderer);
-		
+
 
 	}
 

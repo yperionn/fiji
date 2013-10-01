@@ -10,7 +10,6 @@ import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.Spot;
 import fiji.plugin.trackmate.SpotCollection;
 import fiji.plugin.trackmate.TrackMate;
-import fiji.plugin.trackmate.gui.TrackMateGUIController;
 import fiji.plugin.trackmate.gui.TrackMateWizard;
 
 public class ResetRadiusAction extends AbstractTMAction {
@@ -23,13 +22,12 @@ public class ResetRadiusAction extends AbstractTMAction {
 			"</html>";
 	private static final double FALL_BACK_RADIUS = 5;
 
-	public ResetRadiusAction(final TrackMate trackmate, final TrackMateGUIController controller) {
-		super(trackmate, controller);
+	public ResetRadiusAction() {
 		this.icon = ICON;
 	}
 
 	@Override
-	public void execute() {
+	public void execute(final TrackMate trackmate) {
 		Double radius = (Double) trackmate.getSettings().detectorSettings.get(KEY_RADIUS);
 		if (null == radius) {
 			radius = FALL_BACK_RADIUS;

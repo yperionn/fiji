@@ -5,7 +5,6 @@ import javax.swing.ImageIcon;
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.TrackMate;
-import fiji.plugin.trackmate.gui.TrackMateGUIController;
 import fiji.plugin.trackmate.gui.TrackMateWizard;
 
 public class RecalculateFeatureAction extends AbstractTMAction {
@@ -13,17 +12,16 @@ public class RecalculateFeatureAction extends AbstractTMAction {
 	public static final ImageIcon ICON = new ImageIcon(TrackMateWizard.class.getResource("images/calculator.png"));
 	public static final String NAME = "Recompute all spot features";
 	public static final String INFO_TEXT = "<html>" +
-			"Calling this action causes the model to recompute all the feautures <br>" +
-			"for all the un-filtered spots." +
+			"Calling this action causes the model to recompute all the features <br>" +
+			"for all spots." +
 			"</html>";
 
-	public RecalculateFeatureAction(final TrackMate trackmate, final TrackMateGUIController controller) {
-		super(trackmate, controller);
+	public RecalculateFeatureAction() {
 		this.icon = ICON;
 	}
 
 	@Override
-	public void execute() {
+	public void execute(final TrackMate trackmate) {
 		logger.log("Recalculating all features.\n");
 		final Model model = trackmate.getModel();
 		final Logger oldLogger = model.getLogger();

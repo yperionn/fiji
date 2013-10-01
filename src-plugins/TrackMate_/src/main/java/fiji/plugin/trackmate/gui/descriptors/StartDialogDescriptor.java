@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import net.imglib2.meta.ImgPlus;
 import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.SelectionModel;
 import fiji.plugin.trackmate.Settings;
@@ -23,7 +22,6 @@ import fiji.plugin.trackmate.gui.panels.StartDialogPanel;
 import fiji.plugin.trackmate.providers.EdgeAnalyzerProvider;
 import fiji.plugin.trackmate.providers.SpotAnalyzerProvider;
 import fiji.plugin.trackmate.providers.TrackAnalyzerProvider;
-import fiji.plugin.trackmate.util.TMUtils;
 import fiji.plugin.trackmate.visualization.hyperstack.HyperStackDisplayer;
 
 public class StartDialogDescriptor implements WizardPanelDescriptor {
@@ -76,7 +74,7 @@ public class StartDialogDescriptor implements WizardPanelDescriptor {
 	public void aboutToDisplayPanel() { }
 
 	@Override
-	public void displayingPanel() { 
+	public void displayingPanel() {
 		ImagePlus imp;
 		final TrackMate trackmate = controller.getPlugin();
 		if (null == trackmate.getSettings().imp) {
@@ -106,28 +104,28 @@ public class StartDialogDescriptor implements WizardPanelDescriptor {
 		 * specified in the providers.
 		 */
 
-		final ImgPlus<?> img = TMUtils.rawWraps(settings.imp);
+
 		settings.clearSpotAnalyzerFactories();
 		final SpotAnalyzerProvider spotAnalyzerProvider = controller.getSpotAnalyzerProvider();
-		final List<String> spotAnalyzerKeys = spotAnalyzerProvider.getAvailableSpotFeatureAnalyzers();
+		final List<String> spotAnalyzerKeys = spotAnalyzerProvider.getAvailableFeatureAnalyzers();
 		for (final String key : spotAnalyzerKeys) {
-			final SpotAnalyzerFactory<?> spotFeatureAnalyzer = spotAnalyzerProvider.getSpotFeatureAnalyzer(key, img);
+			final SpotAnalyzerFactory<?> spotFeatureAnalyzer = spotAnalyzerProvider.getFeatureAnalyzer(key);
 			settings.addSpotAnalyzerFactory(spotFeatureAnalyzer);
 		}
 
 		settings.clearEdgeAnalyzers();
 		final EdgeAnalyzerProvider edgeAnalyzerProvider = controller.getEdgeAnalyzerProvider();
-		final List<String> edgeAnalyzerKeys = edgeAnalyzerProvider.getAvailableEdgeFeatureAnalyzers();
+		final List<String> edgeAnalyzerKeys = edgeAnalyzerProvider.getAvailableFeatureAnalyzers();
 		for (final String key : edgeAnalyzerKeys) {
-			final EdgeAnalyzer edgeAnalyzer = edgeAnalyzerProvider.getEdgeFeatureAnalyzer(key);
+			final EdgeAnalyzer edgeAnalyzer = edgeAnalyzerProvider.getFeatureAnalyzer(key);
 			settings.addEdgeAnalyzer(edgeAnalyzer);
 		}
 
 		settings.clearTrackAnalyzers();
 		final TrackAnalyzerProvider trackAnalyzerProvider = controller.getTrackAnalyzerProvider();
-		final List<String> trackAnalyzerKeys = trackAnalyzerProvider.getAvailableTrackFeatureAnalyzers();
+		final List<String> trackAnalyzerKeys = trackAnalyzerProvider.getAvailableFeatureAnalyzers();
 		for (final String key : trackAnalyzerKeys) {
-			final TrackAnalyzer trackAnalyzer = trackAnalyzerProvider.getTrackFeatureAnalyzer(key);
+			final TrackAnalyzer trackAnalyzer = trackAnalyzerProvider.getFeatureAnalyzer(key);
 			settings.addTrackAnalyzer(trackAnalyzer);
 		}
 
@@ -172,9 +170,7 @@ public class StartDialogDescriptor implements WizardPanelDescriptor {
 
 	/**
 	 * Removes an ActionListener from this panel.
-	 *
-	 * @return true if the listener was in the ActionListener collection of this
-	 *         instance.
+	 * @return true if the listener was in the ActionListener collection of this instance.
 	 */
 	public boolean removeActionListener(final ActionListener listener) {
 		return actionListeners.remove(listener);
@@ -184,13 +180,12 @@ public class StartDialogDescriptor implements WizardPanelDescriptor {
 		return actionListeners;
 	}
 
+
 	/**
-	 * Forward the given {@link ActionEvent} to all the {@link ActionListener}
-	 * of this panel.
+	 * Forward the given {@link ActionEvent} to all the {@link ActionListener} of this panel.
 	 */
 	private void fireAction(final ActionEvent e) {
 		for (final ActionListener l : actionListeners)
 			l.actionPerformed(e);
 	}
-
 }

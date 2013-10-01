@@ -114,6 +114,10 @@ public class TrackMateWizard extends JFrame implements ActionListener {
 
 	/**
 	 * Remove an {@link ActionListener} from the list of listeners of this GUI.
+<<<<<<< HEAD
+=======
+	 * =======
+>>>>>>> origin/track-mate
 	 * 
 	 * @return true if the listener was present in the list for this GUI and was
 	 *         successfully removed from it.
@@ -134,8 +138,13 @@ public class TrackMateWizard extends JFrame implements ActionListener {
 	}
 
 	/**
+<<<<<<< HEAD
 	 * @return a reference to the {@link TrackMateModelView} linked to this
 	 *         wizard.
+=======
+	 * Returns a reference to the {@link TrackMateModelView} linked to this
+	 * wizard.
+>>>>>>> origin/track-mate
 	 */
 	public TrackMateModelView getDisplayer() {
 		return displayer;

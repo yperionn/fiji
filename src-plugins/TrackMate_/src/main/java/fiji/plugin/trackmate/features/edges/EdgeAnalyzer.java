@@ -8,6 +8,7 @@ import net.imglib2.algorithm.MultiThreaded;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
 import fiji.plugin.trackmate.FeatureModel;
+import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.features.FeatureAnalyzer;
 
 public interface EdgeAnalyzer extends Benchmark, FeatureAnalyzer, MultiThreaded {
@@ -19,9 +20,14 @@ public interface EdgeAnalyzer extends Benchmark, FeatureAnalyzer, MultiThreaded 
 	 * Note: ideally concrete implementation should work in a multi-threaded
 	 * fashion for performance reason, when possible.
 	 *
+	 * @param edges
+	 *            the collection of edges whose features are to be calculated.
+	 * @param model
+	 *            the {@link Model} they belong to.
+	 * 
 	 * @author Jean-Yves Tinevez
 	 */
-	public void process(final Collection<DefaultWeightedEdge> edges);
+	public void process(final Collection<DefaultWeightedEdge> edges, Model model);
 
 	/**
 	 * Returns <code>true</code> if this analyzer is a local analyzer. That is:

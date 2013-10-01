@@ -19,21 +19,22 @@ public class LinkNew3DViewerAction extends AbstractTMAction {
 			"Useful to have synchronized 2D vs 3D views." +
 			"</html>";
 	public static final ImageIcon ICON = new ImageIcon(TrackMateWizard.class.getResource("images/page_white_link.png"));
+	private final TrackMateGUIController	controller;
 
-	public LinkNew3DViewerAction(final TrackMate trackmate, final TrackMateGUIController controller) {
-		super(trackmate, controller);
+	public LinkNew3DViewerAction(final TrackMateGUIController controller) {
+		this.controller = controller;
 		this.icon = ICON;
 	}
 
 	@Override
-	public void execute() {
+	public void execute(final TrackMate trackmate) {
 		new Thread("TrackMate new 3D viewer thread") {
 			@Override
 			public void run() {
 				logger.log("Rendering 3D overlay...\n");
 				final Image3DUniverse universe = new Image3DUniverse();
 				universe.show();
-				final SpotDisplayer3D newDisplayer = new SpotDisplayer3D(trackmate.getModel(), controller.getSelectionModel(), universe);
+				final SpotDisplayer3D newDisplayer = new SpotDisplayer3D(trackmate.getModel(), controller.getSelectionModel(), universe );
 				for (final String key : controller.getGuimodel().getDisplaySettings().keySet()) {
 					newDisplayer.setDisplaySettings(key, controller.getGuimodel().getDisplaySettings().get(key));
 				}

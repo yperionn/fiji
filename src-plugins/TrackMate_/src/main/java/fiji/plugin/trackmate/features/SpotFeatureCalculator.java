@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.imglib2.algorithm.MultiThreadedBenchmarkAlgorithm;
+import net.imglib2.meta.ImgPlus;
 import net.imglib2.multithreading.SimpleMultiThreading;
 import fiji.plugin.trackmate.Dimension;
 import fiji.plugin.trackmate.Logger;
@@ -17,6 +18,7 @@ import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.SpotCollection;
 import fiji.plugin.trackmate.features.spot.SpotAnalyzer;
 import fiji.plugin.trackmate.features.spot.SpotAnalyzerFactory;
+import fiji.plugin.trackmate.util.TMUtils;
 
 /**
  * A class dedicated to centralizing the calculation of the numerical features
@@ -53,8 +55,13 @@ public class SpotFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 	}
 
 	/**
+<<<<<<< HEAD
 	 * Calculates the spot features configured in the {@link Settings} for all
 	 * the spots of this model,
+=======
+	 * Calculates the spot features configured in the {@link Settings}
+	 * for all the spots of this model,
+>>>>>>> origin/track-mate
 	 * <p>
 	 * Features are calculated for each spot, using their location, and the raw
 	 * image. Since a {@link SpotAnalyzer} can compute more than a feature at
@@ -82,9 +89,16 @@ public class SpotFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 	}
 
 	/**
+<<<<<<< HEAD
 	 * Calculates all the spot features configured in the {@link Settings}
 	 * object for the specified spot collection. Features are calculated for
 	 * each spot, using their location, and the raw image.
+=======
+	 * Calculates all the spot features configured in the {@link Settings} object
+	 * for the specified spot collection.
+	 * Features are calculated for each spot, using their location, and the raw
+	 * image.
+>>>>>>> origin/track-mate
 	 */
 	public void computeSpotFeatures(final SpotCollection toCompute, final boolean doLogIt) {
 		final List<SpotAnalyzerFactory<?>> spotFeatureAnalyzers = settings.getSpotAnalyzerFactories();
@@ -130,6 +144,9 @@ public class SpotFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 		}
 		final int targetChannel = tc;
 
+		@SuppressWarnings("rawtypes")
+		final ImgPlus img = TMUtils.rawWraps(settings.imp);
+
 		// Prepare the thread array
 		for (int ithread = 0; ithread < threads.length; ithread++) {
 
@@ -142,7 +159,8 @@ public class SpotFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 
 						final int frame = frameSet.get(index);
 						for (final SpotAnalyzerFactory<?> factory : analyzerFactories) {
-							final SpotAnalyzer<?> analyzer = factory.getAnalyzer(frame, targetChannel);
+							@SuppressWarnings("unchecked")
+							final SpotAnalyzer<?> analyzer = factory.getAnalyzer(model, img, frame, targetChannel);
 							analyzer.process();
 						}
 

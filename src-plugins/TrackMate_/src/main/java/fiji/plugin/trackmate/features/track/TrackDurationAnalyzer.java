@@ -52,10 +52,8 @@ public class TrackDurationAnalyzer implements TrackAnalyzer, MultiThreaded {
 
 	private int numThreads;
 	private long processingTime;
-	private final Model model;
 
-	public TrackDurationAnalyzer(final Model model) {
-		this.model = model;
+	public TrackDurationAnalyzer() {
 		setNumThreads();
 	}
 
@@ -65,7 +63,7 @@ public class TrackDurationAnalyzer implements TrackAnalyzer, MultiThreaded {
 	}
 
 	@Override
-	public void process(final Collection<Integer> trackIDs) {
+	public void process(final Collection<Integer> trackIDs, final Model model) {
 
 		if (trackIDs.isEmpty()) {
 			return;

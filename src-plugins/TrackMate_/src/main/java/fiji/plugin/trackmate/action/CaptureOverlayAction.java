@@ -16,7 +16,6 @@ import java.awt.Robot;
 import javax.swing.ImageIcon;
 
 import fiji.plugin.trackmate.TrackMate;
-import fiji.plugin.trackmate.gui.TrackMateGUIController;
 import fiji.plugin.trackmate.visualization.trackscheme.TrackSchemeFrame;
 
 public class CaptureOverlayAction extends AbstractTMAction {
@@ -34,13 +33,12 @@ public class CaptureOverlayAction extends AbstractTMAction {
 			"Also, make sure nothing is moved over the image while capturing. "+
 			"</html>";
 
-	public CaptureOverlayAction(final TrackMate trackmate, final TrackMateGUIController controller) {
-		super(trackmate, controller);
+	public CaptureOverlayAction() {
 		this.icon = ICON;
 	}
 
 	@Override
-	public void execute() {
+	public void execute(final TrackMate trackmate) {
 		logger.log("Capturing TrackMate overlay.\n");
 		logger.log("  Preparing and allocating memory...");
 		try {
@@ -58,7 +56,7 @@ public class CaptureOverlayAction extends AbstractTMAction {
 			try {
 				robot = new Robot();
 			} catch (final AWTException e) {
-				logger.error("Problem creating the image grabber:\n" + e.getLocalizedMessage());
+				logger.error("Problem creating the image grabber:\n"+e.getLocalizedMessage());
 				return;
 			}
 			logger.log(" done.\n");

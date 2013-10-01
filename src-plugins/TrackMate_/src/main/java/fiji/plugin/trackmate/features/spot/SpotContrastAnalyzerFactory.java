@@ -33,24 +33,12 @@ public class SpotContrastAnalyzerFactory<T extends RealType<T> & NativeType<T>> 
 		FEATURE_DIMENSIONS.put(KEY, Dimension.NONE);
 	}
 
-	private final Model model;
-	private final ImgPlus<T> img;
-
-	/*
-	 * CONSTRUCTOR
-	 */
-
-	public SpotContrastAnalyzerFactory(final Model model, final ImgPlus<T> img) {
-		this.model = model;
-		this.img = img;
-	}
-
 	/*
 	 * METHODS
 	 */
 
 	@Override
-	public final SpotContrastAnalyzer<T> getAnalyzer(final int frame, final int channel) {
+	public final SpotContrastAnalyzer<T> getAnalyzer(final Model model, final ImgPlus<T> img, final int frame, final int channel) {
 		final ImgPlus<T> imgC = HyperSliceImgPlus.fixChannelAxis(img, channel);
 		final ImgPlus<T> imgCT = HyperSliceImgPlus.fixTimeAxis(imgC, frame);
 		final Iterator<Spot> spots = model.getSpots().iterator(frame, false);

@@ -19,7 +19,6 @@ import fiji.plugin.trackmate.features.edges.EdgeAnalyzer;
  * of spots, through {@link EdgeAnalyzer}s.
  *
  * @author Jean-Yves Tinevez - 2013
- *
  */
 public class EdgeFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 
@@ -50,8 +49,8 @@ public class EdgeFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 	}
 
 	/**
-	 * Calculates the edge features configured in the {@link Settings} for all
-	 * the edges of this model.
+	 * Calculates the edge features configured in the {@link Settings}
+	 * for all the edges of this model.
 	 */
 	@Override
 	public boolean process() {
@@ -78,8 +77,8 @@ public class EdgeFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 	}
 
 	/**
-	 * Calculates all the edge features configured in the {@link Settings}
-	 * object for the specified edges.
+	 * Calculates all the edge features configured in the {@link Settings} object
+	 * for the specified edges.
 	 */
 	public void computeSpotFeatures(final Collection<DefaultWeightedEdge> edges, final boolean doLogIt) {
 		final List<EdgeAnalyzer> spotFeatureAnalyzers = settings.getEdgeAnalyzers();
@@ -98,7 +97,7 @@ public class EdgeFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 
 		for (final EdgeAnalyzer analyzer : analyzers) {
 			analyzer.setNumThreads(numThreads);
-			analyzer.process(edges);
+			analyzer.process(edges, model);
 			if (doLogIt)
 				logger.log("  - " + analyzer.getKey() + " in " + analyzer.getProcessingTime() + " ms.\n");
 		}

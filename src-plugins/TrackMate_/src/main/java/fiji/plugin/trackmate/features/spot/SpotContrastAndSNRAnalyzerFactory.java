@@ -39,24 +39,12 @@ public class SpotContrastAndSNRAnalyzerFactory<T extends RealType<T> & NativeTyp
 	}
 	public static final String KEY = "Spot contrast and SNR";
 
-	private final Model model;
-	private final ImgPlus<T> img;
-
-	/*
-	 * CONSTRUCTOR
-	 */
-
-	public SpotContrastAndSNRAnalyzerFactory(final Model model, final ImgPlus<T> img) {
-		this.model = model;
-		this.img = img;
-	}
-
 	/*
 	 * METHODS
 	 */
 
 	@Override
-	public SpotContrastAndSNRAnalyzer<T> getAnalyzer(final int frame, final int channel) {
+	public SpotContrastAndSNRAnalyzer<T> getAnalyzer(final Model model, final ImgPlus<T> img, final int frame, final int channel) {
 		final ImgPlus<T> imgC = HyperSliceImgPlus.fixChannelAxis(img, channel);
 		final ImgPlus<T> imgCT = HyperSliceImgPlus.fixTimeAxis(imgC, frame);
 		final Iterator<Spot> spots = model.getSpots().iterator(frame, false);

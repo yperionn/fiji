@@ -46,8 +46,8 @@ public class TrackFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 	}
 
 	/**
-	 * Calculates the track features configured in the {@link Settings} for all
-	 * the tracks of this model.
+	 * Calculates the track features configured in the {@link Settings}
+	 * for all the tracks of this model.
 	 */
 	@Override
 	public boolean process() {
@@ -74,8 +74,8 @@ public class TrackFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 	}
 
 	/**
-	 * Calculates all the track features configured in the {@link Settings}
-	 * object for the specified tracks.
+	 * Calculates all the track features configured in the {@link Settings} object
+	 * for the specified tracks.
 	 */
 	public void computeTrackFeatures(final Collection<Integer> trackIDs, final boolean doLogIt) {
 		final List<TrackAnalyzer> trackFeatureAnalyzers = settings.getTrackAnalyzers();
@@ -87,7 +87,7 @@ public class TrackFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 	 */
 
 	/**
-	 * Calculate all features for the tracks with the given IDs.
+	 * Calculates all features for the tracks with the given IDs.
 	 */
 	private void computeTrackFeaturesAgent(final Collection<Integer> trackIDs, final List<TrackAnalyzer> analyzers, final boolean doLogIt) {
 		final Logger logger = model.getLogger();
@@ -98,9 +98,9 @@ public class TrackFeatureCalculator extends MultiThreadedBenchmarkAlgorithm {
 		for (final TrackAnalyzer analyzer : analyzers) {
 			analyzer.setNumThreads(numThreads);
 			if (analyzer.isLocal()) {
-				analyzer.process(trackIDs);
+				analyzer.process(trackIDs, model);
 			} else {
-				analyzer.process(model.getTrackModel().trackIDs(false));
+				analyzer.process(model.getTrackModel().trackIDs(false), model);
 			}
 			if (doLogIt)
 				logger.log("  - " + analyzer.getKey() + " in " + analyzer.getProcessingTime() + " ms.\n");

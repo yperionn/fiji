@@ -14,6 +14,7 @@ import org.jdom2.Element;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
+import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.Settings;
 import fiji.plugin.trackmate.Spot;
@@ -28,25 +29,26 @@ public class ExportTracksToXML extends AbstractTMAction {
 	public static final ImageIcon ICON = new ImageIcon(TrackMateWizard.class.getResource("images/page_save.png"));
 	public static final String NAME = "Export tracks to XML file";
 	public static final String INFO_TEXT = "<html>" +
-			"Export the tracks in the current model content to a XML " +
-			"file in a simple format. " +
-			"<p> " +
-			"The file will have one element per track, and each track " +
-			"contains several spot elements. These spots are " +
-			"sorted by frame number, and have 4 numerical attributes: " +
-			"the frame number this spot is in, and its X, Y, Z position in " +
-			"physical units as specified in the image properties. " +
-			"<p>" +
-			"As such, this format <u>cannot</u> handle track merging and " +
-			"splitting properly, and is suited only for non-branching tracks." +
-			"</html>";
+				"Export the tracks in the current model content to a XML " +
+				"file in a simple format. " +
+				"<p> " +
+				"The file will have one element per track, and each track " +
+				"contains several spot elements. These spots are " +
+				"sorted by frame number, and have 4 numerical attributes: " +
+				"the frame number this spot is in, and its X, Y, Z position in " +
+				"physical units as specified in the image properties. " +
+				"<p>" +
+				"As such, this format <u>cannot</u> handle track merging and " +
+				"splitting properly, and is suited only for non-branching tracks." +
+				"</html>";
+	private final TrackMateGUIController	controller;
 
 	/*
 	 * CONSTRUCTOR
 	 */
 
-	public ExportTracksToXML(final TrackMate trackmate, final TrackMateGUIController controller) {
-		super(trackmate, controller);
+	public ExportTracksToXML(final TrackMateGUIController controller) {
+		this.controller = controller;
 		this.icon = ICON;
 	}
 
@@ -54,8 +56,31 @@ public class ExportTracksToXML extends AbstractTMAction {
 	 * METHODS
 	 */
 
+	/**
+	 * Static utility that silently exports tracks in a simplified xml format,
+	 * describe in this class.
+	 *
+	 * @param model
+	 *            the {@link Model} that contains the tracks to export.
+	 * @param settings
+	 *            a {@link Settings} object, only used to read its
+	 *            {@link Settings#dt} field, the frame interval.
+	 * @param file
+	 *            the file to save to.
+	 * @throws FileNotFoundException
+	 *             if the target file cannot be written.
+	 * @throws IOException
+	 *             if there is a problem writing the file.
+	 */
+	public static void export(final Model model, final Settings settings, final File file) throws FileNotFoundException, IOException {
+		final Element root = marshall(model, settings, Logger.VOID_LOGGER);
+		final Document document = new Document(root);
+		final XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
+		outputter.output(document, new FileOutputStream(file));
+	}
+
 	@Override
-	public void execute() {
+	public void execute(final TrackMate trackmate) {
 
 		logger.log("Exporting tracks to simple XML format.\n");
 		final Model model = trackmate.getModel();
@@ -66,7 +91,7 @@ public class ExportTracksToXML extends AbstractTMAction {
 		}
 
 		logger.log("  Preparing XML data.\n");
-		final Element root = marshall(model, trackmate.getSettings());
+		final Element root = marshall(model, trackmate.getSettings(), logger);
 
 		File folder;
 		try {
@@ -79,7 +104,7 @@ public class ExportTracksToXML extends AbstractTMAction {
 		try {
 			String filename = trackmate.getSettings().imageFileName;
 			filename = filename.substring(0, filename.indexOf("."));
-			file = new File(folder.getPath() + File.separator + filename + "_Tracks.xml");
+			file = new File(folder.getPath() + File.separator + filename +"_Tracks.xml");
 		} catch (final NullPointerException npe) {
 			file = new File(folder.getPath() + File.separator + "Tracks.xml");
 		}
@@ -94,9 +119,9 @@ public class ExportTracksToXML extends AbstractTMAction {
 		try {
 			outputter.output(document, new FileOutputStream(file));
 		} catch (final FileNotFoundException e) {
-			logger.error("Trouble writing to " + file + ":\n" + e.getMessage());
+			logger.error("Trouble writing to "+file+":\n" + e.getMessage());
 		} catch (final IOException e) {
-			logger.error("Trouble writing to " + file + ":\n" + e.getMessage());
+			logger.error("Trouble writing to "+file+":\n" + e.getMessage());
 		}
 		logger.log("Done.\n");
 	}
@@ -111,11 +136,11 @@ public class ExportTracksToXML extends AbstractTMAction {
 		return NAME;
 	}
 
-	private Element marshall(final Model model, final Settings settings) {
+	private static Element marshall(final Model model, final Settings settings, final Logger logger) {
 		logger.setStatus("Marshalling...");
 		final Element content = new Element(CONTENT_KEY);
 
-		content.setAttribute(NTRACKS_ATT, "" + model.getTrackModel().nTracks(true));
+		content.setAttribute(NTRACKS_ATT, ""+model.getTrackModel().nTracks(true));
 		content.setAttribute(PHYSUNIT_ATT, model.getSpaceUnits());
 		content.setAttribute(FRAMEINTERVAL_ATT, "" + settings.dt);
 		content.setAttribute(FRAMEINTERVALUNIT_ATT, "" + model.getTimeUnits());
@@ -129,7 +154,7 @@ public class ExportTracksToXML extends AbstractTMAction {
 			final Set<Spot> track = model.getTrackModel().trackSpots(trackID);
 
 			final Element trackElement = new Element(TRACK_KEY);
-			trackElement.setAttribute(NSPOTS_ATT, "" + track.size());
+			trackElement.setAttribute(NSPOTS_ATT, ""+track.size());
 
 			// Sort them by time
 			final TreeSet<Spot> sortedTrack = new TreeSet<Spot>(Spot.timeComparator);
@@ -142,10 +167,10 @@ public class ExportTracksToXML extends AbstractTMAction {
 				final double z = spot.getFeature(Spot.POSITION_Z);
 
 				final Element spotElement = new Element(SPOT_KEY);
-				spotElement.setAttribute(T_ATT, "" + frame);
-				spotElement.setAttribute(X_ATT, "" + x);
-				spotElement.setAttribute(Y_ATT, "" + y);
-				spotElement.setAttribute(Z_ATT, "" + z);
+				spotElement.setAttribute(T_ATT, ""+frame);
+				spotElement.setAttribute(X_ATT, ""+x);
+				spotElement.setAttribute(Y_ATT, ""+y);
+				spotElement.setAttribute(Z_ATT, ""+z);
 				trackElement.addContent(spotElement);
 			}
 			content.addContent(trackElement);
@@ -161,14 +186,14 @@ public class ExportTracksToXML extends AbstractTMAction {
 	 * XML KEYS
 	 */
 
-	private static final String CONTENT_KEY = "Tracks";
-	private static final String DATE_ATT = "generationDateTime";
-	private static final String PHYSUNIT_ATT = "spaceUnits";
-	private static final String FRAMEINTERVAL_ATT = "frameInterval";
-	private static final String FRAMEINTERVALUNIT_ATT = "timeUnits";
-	private static final String FROM_ATT = "from";
-	private static final String NTRACKS_ATT = "nTracks";
-	private static final String NSPOTS_ATT = "nSpots";
+	private static final String CONTENT_KEY 	= "Tracks";
+	private static final String DATE_ATT 		= "generationDateTime";
+	private static final String PHYSUNIT_ATT 	= "spaceUnits";
+	private static final String FRAMEINTERVAL_ATT 	= "frameInterval";
+	private static final String FRAMEINTERVALUNIT_ATT 	= "timeUnits";
+	private static final String FROM_ATT 		= "from";
+	private static final String NTRACKS_ATT		= "nTracks";
+	private static final String NSPOTS_ATT		= "nSpots";
 
 	private static final String TRACK_KEY = "particle";
 	private static final String SPOT_KEY = "detection";

@@ -85,20 +85,9 @@ public class TrackSchemeFrame extends JFrame {
 				statusLabel.setForeground(color);
 			}
 
-			@Override
-			public void error(final String message) {
-				log(message, Color.RED);
-			}
-
-			@Override
-			public void setProgress(final double val) {
-				progressBar.setValue((int) (val * 100));
-			}
-
-			@Override
-			public void setStatus(final String status) {
-				log(status, Logger.BLUE_COLOR);
-			}
+			@Override public void error(final String message) { log(message, Color.RED);}
+			@Override public void setProgress(final double val) { progressBar.setValue( (int) (val * 100) ); }
+			@Override public void setStatus(final String status) { log(status, Logger.BLUE_COLOR); }
 		};
 	}
 

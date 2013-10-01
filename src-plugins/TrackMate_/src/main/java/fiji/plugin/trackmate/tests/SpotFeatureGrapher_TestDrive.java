@@ -38,11 +38,11 @@ public class SpotFeatureGrapher_TestDrive {
 			spots.add(it.next());
 		}
 
-		final SpotFeatureGrapher grapher = new SpotFeatureGrapher(Spot.POSITION_X, Y, spots, model);
+		final SpotFeatureGrapher grapher = new SpotFeatureGrapher(Spot.POSITION_X, Y, spots , model);
 		grapher.render();
 
-		final TrackIndexAnalyzer analyzer = new TrackIndexAnalyzer(model);
-		analyzer.process(model.getTrackModel().trackIDs(true)); // needed for trackScheme
+		final TrackIndexAnalyzer analyzer = new TrackIndexAnalyzer();
+		analyzer.process(model.getTrackModel().trackIDs(true), model); // needed for trackScheme
 
 		final TrackScheme trackScheme = new TrackScheme(model, new SelectionModel(model));
 		trackScheme.render();
@@ -60,8 +60,8 @@ public class SpotFeatureGrapher_TestDrive {
 		final SpotCollection sc = new SpotCollection();
 		for (int i = 0; i < N_SPOTS; i++) {
 			final double[] coordinates = new double[3];
-			coordinates[0] = 100 + 100 * i / 100. * Math.cos(i / 100. * 5 * 2 * Math.PI);
-			coordinates[1] = 100 + 100 * i / 100. * Math.sin(i / 100. * 5 * 2 * Math.PI);
+			coordinates[0] = 100 + 100 * i / 100. * Math.cos(i / 100. * 5 * 2*Math.PI);
+			coordinates[1] = 100 + 100 * i / 100. * Math.sin(i / 100. * 5 * 2*Math.PI);
 			coordinates[2] = 0;
 			final Spot spot = new Spot(coordinates);
 			spot.putFeature(Spot.POSITION_T, Double.valueOf(i));

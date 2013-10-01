@@ -173,13 +173,6 @@ public class TrackSchemePopupMenu extends JPopupMenu {
 				}
 			});
 
-			// Fold
-			//			add(new AbstractAction("Fold/Unfold branch") {
-			//				public void actionPerformed(ActionEvent e) {
-			//					toggleBranchFolding();
-			//				}
-			//			});
-
 		} else {
 
 			if (vertices.size() > 1) {

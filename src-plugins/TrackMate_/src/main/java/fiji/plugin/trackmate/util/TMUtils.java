@@ -298,9 +298,7 @@ public class TMUtils {
 							spotToRemove.add(spot);
 					}
 				}
-				spotToKeep.removeAll(spotToRemove); // no need to treat them
-													// multiple times
-
+				spotToKeep.removeAll(spotToRemove); // no need to treat them multiple times
 			}
 
 			selectedSpots.put(timepoint, spotToKeep);
@@ -364,8 +362,8 @@ public class TMUtils {
 	 */
 
 	/**
-	 * @return the index of the target axis in the given metadata. Return -1 if
-	 *         the axis was not found.
+	 * Returns the index of the target axis in the given metadata. Return -1 if
+	 * the axis was not found.
 	 */
 	public static final int findAxisIndex(final ImgPlusMetadata img, final AxisType axis) {
 		return img.dimensionIndex(axis);
@@ -392,23 +390,18 @@ public class TMUtils {
 	}
 
 	/**
-	 * <<<<<<< HEAD Return the xyz calibration stored in an {@link Metadata} in
-	 * a 3-elements double array. Calibration is ordered as X, Y, Z. If one axis
+	 * Return the xyz calibration stored in an {@link ImgPlusMetadata} in a
+	 * 3-elements double array. Calibration is ordered as X, Y, Z. If one axis
 	 * is not found, then the calibration for this axis takes the value of 1.
-	 * ======= Return the xyz calibration stored in an {@link ImgPlusMetadata}
-	 * in a 3-elements double array. Calibration is ordered as X, Y, Z. If one
-	 * axis is not found, then the calibration for this axis takes the value of
-	 * 1. >>>>>>> origin/track-mate
 	 */
 	public static final double[] getSpatialCalibration(final ImgPlusMetadata img) {
+		final AxisType[] axesQuery = new AxisType[] { Axes.X, Axes.Y, Axes.Z };
 		final double[] calibration = Util.getArrayFromValue(1d, 3);
-		for (int d = 0; d < img.numDimensions(); d++) {
-			if (img.axis(d).type() == Axes.X) {
-				calibration[0] = img.calibration(d);
-			} else if (img.axis(d).type() == Axes.Y) {
-				calibration[1] = img.calibration(d);
-			} else if (img.axis(d).type() == Axes.Z) {
-				calibration[2] = img.calibration(d);
+		int index = 0;
+		for (final AxisType axisType : axesQuery) {
+			final int dimensionIndex = img.dimensionIndex(axisType);
+			if (dimensionIndex >= 0) {
+				calibration[index++] = img.calibration(dimensionIndex);
 			}
 		}
 		return calibration;

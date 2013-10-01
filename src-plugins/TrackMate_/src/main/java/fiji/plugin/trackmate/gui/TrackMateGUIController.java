@@ -17,7 +17,6 @@ import static fiji.plugin.trackmate.visualization.TrackMateModelView.KEY_TRACK_C
 import static fiji.plugin.trackmate.visualization.TrackMateModelView.KEY_TRACK_DISPLAY_DEPTH;
 import static fiji.plugin.trackmate.visualization.TrackMateModelView.KEY_TRACK_DISPLAY_MODE;
 import ij.IJ;
-import ij.ImagePlus;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -194,13 +193,12 @@ public class TrackMateGUIController implements ActionListener {
 
 	/**
 	 * Creates a new {@link TrackMateGUIController} instance, set to operate on
-	 * the specified {@link TrackMate} instance and with the specified
-	 * {@link ImagePlus} as a starting source.
-	 * 
+	 * the specified {@link TrackMate} instance.
+	 * <p>
+	 * Subclassers want to override this method to return the correct type.
+	 *
 	 * @param trackmate
 	 *            the instance that will be piloted by the new controller.
-	 * @param imp
-	 *            the {@link ImagePlus} that will be used as a source.
 	 * @return a new instance of the controller.
 	 */
 	public TrackMateGUIController createOn(final TrackMate trackmate) {
@@ -231,7 +229,7 @@ public class TrackMateGUIController implements ActionListener {
 	/**
 	 * Exposes the {@link SelectionModel} shared amongst all
 	 * {@link SelectionChangeListener}s controlled by this instance.
-	 * 
+	 *
 	 * @return the {@link SelectionModel}.
 	 */
 	public SelectionModel getSelectionModel() {
@@ -250,7 +248,11 @@ public class TrackMateGUIController implements ActionListener {
 	 * {@link LogPanel}.
 	 * <p>
 	 * This method is typically called to restore a saved GUI state.
+<<<<<<< HEAD
 	 * 
+=======
+	 *
+>>>>>>> origin/track-mate
 	 * @param stateKey
 	 *            the target state string.
 	 */
@@ -291,7 +293,7 @@ public class TrackMateGUIController implements ActionListener {
 	/**
 	 * Returns the {@link ViewProvider} instance, serving
 	 * {@link TrackMateModelView}s to this GUI
-	 * 
+	 *
 	 * @return the view provider.
 	 */
 	public ViewProvider getViewProvider() {
@@ -301,7 +303,7 @@ public class TrackMateGUIController implements ActionListener {
 	/**
 	 * Returns the {@link DetectorProvider} instance, serving
 	 * {@link SpotDetectorFactory}s to this GUI
-	 * 
+	 *
 	 * @return the detector provider.
 	 */
 	public DetectorProvider getDetectorProvider() {
@@ -311,7 +313,7 @@ public class TrackMateGUIController implements ActionListener {
 	/**
 	 * Returns the {@link SpotAnalyzerProvider} instance, serving
 	 * {@link SpotAnalyzerFactory}s to this GUI.
-	 * 
+	 *
 	 * @return the spot analyzer provider.
 	 */
 	public SpotAnalyzerProvider getSpotAnalyzerProvider() {
@@ -321,7 +323,7 @@ public class TrackMateGUIController implements ActionListener {
 	/**
 	 * Returns the {@link EdgeAnalyzerProvider} instance, serving
 	 * {@link EdgeAnalyzer}s to this GUI.
-	 * 
+	 *
 	 * @return the edge analyzer provider.
 	 */
 	public EdgeAnalyzerProvider getEdgeAnalyzerProvider() {
@@ -331,7 +333,7 @@ public class TrackMateGUIController implements ActionListener {
 	/**
 	 * Returns the {@link TrackAnalyzerProvider} instance, serving
 	 * {@link TrackAnalyzer}s to this GUI.
-	 * 
+	 *
 	 * @return the track analyzer provider.
 	 */
 	public TrackAnalyzerProvider getTrackAnalyzerProvider() {
@@ -341,7 +343,7 @@ public class TrackMateGUIController implements ActionListener {
 	/**
 	 * Returns the {@link TrackerProvider} instance, serving {@link SpotTracker}
 	 * s to this GUI.
-	 * 
+	 *
 	 * @return the tracker provider.
 	 */
 	public TrackerProvider getTrackerProvider() {
@@ -370,18 +372,18 @@ public class TrackMateGUIController implements ActionListener {
 	}
 
 	protected void createProviders() {
-		spotAnalyzerProvider = new SpotAnalyzerProvider(trackmate.getModel());
-		edgeAnalyzerProvider = new EdgeAnalyzerProvider(trackmate.getModel());
-		trackAnalyzerProvider = new TrackAnalyzerProvider(trackmate.getModel());
-		detectorProvider = new DetectorProvider(trackmate.getModel());
-		viewProvider = new ViewProvider(trackmate.getModel(), trackmate.getSettings(), selectionModel);
-		trackerProvider = new TrackerProvider(trackmate.getModel());
-		actionProvider = new ActionProvider(trackmate, this);
+		spotAnalyzerProvider = new SpotAnalyzerProvider();
+		edgeAnalyzerProvider = new EdgeAnalyzerProvider();
+		trackAnalyzerProvider = new TrackAnalyzerProvider();
+		detectorProvider = new DetectorProvider();
+		viewProvider = new ViewProvider();
+		trackerProvider = new TrackerProvider();
+		actionProvider = new ActionProvider();
 	}
 
 	/**
 	 * Creates the map of next descriptor for each descriptor.
-	 * 
+	 *
 	 * @return
 	 */
 	protected Collection<WizardPanelDescriptor> createDescriptors() {
@@ -541,7 +543,7 @@ public class TrackMateGUIController implements ActionListener {
 		/*
 		 * Offer to take some actions on the data.
 		 */
-		actionChooserDescriptor = new ActionChooserDescriptor(actionProvider);
+		actionChooserDescriptor = new ActionChooserDescriptor(actionProvider, trackmate, this);
 
 		/*
 		 * Save descriptor
@@ -721,7 +723,7 @@ public class TrackMateGUIController implements ActionListener {
 	/**
 	 * Returns the starting display settings that will be passed to any new view
 	 * registered within this GUI.
-	 * 
+	 *
 	 * @param model
 	 *            the model this GUI will configure; might be required by some
 	 *            display settings.
@@ -761,6 +763,14 @@ public class TrackMateGUIController implements ActionListener {
 			previous();
 
 		} else if (event == gui.LOAD_BUTTON_PRESSED && guimodel.actionFlag) {
+
+			/*
+			 * TODO: There is actually NO load button anymore. The user load the
+			 * data directly through another plugin call. We left this code here
+			 * intact in case I change my mind. Removing it will actually
+			 * trigger an appreciable simplification of the code, but I let it
+			 * linger here a bit more. - Sep 2013
+			 */
 
 			guimodel.actionFlag = false;
 			gui.jButtonNext.setText("Resume");
@@ -944,8 +954,8 @@ public class TrackMateGUIController implements ActionListener {
 			@Override
 			public void run() {
 				try {
-					final ExportStatsToIJAction action = new ExportStatsToIJAction(trackmate, TrackMateGUIController.this);
-					action.execute();
+					final ExportStatsToIJAction action = new ExportStatsToIJAction();
+					action.execute(trackmate);
 				} finally {
 					gui.show(configureViewsDescriptor);
 					restoreButtonsState();

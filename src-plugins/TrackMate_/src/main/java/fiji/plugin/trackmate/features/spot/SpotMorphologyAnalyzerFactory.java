@@ -21,15 +21,15 @@ public class SpotMorphologyAnalyzerFactory<T extends RealType<T> & NativeType<T>
 	 * CONSTANTS
 	 */
 
-	public final static String[] featurelist_sa = { "ELLIPSOIDFIT_SEMIAXISLENGTH_C", "ELLIPSOIDFIT_SEMIAXISLENGTH_B", "ELLIPSOIDFIT_SEMIAXISLENGTH_A" };
-	public final static String[] featurelist_phi = { "ELLIPSOIDFIT_AXISPHI_C", "ELLIPSOIDFIT_AXISPHI_B", "ELLIPSOIDFIT_AXISPHI_A" };
-	public final static String[] featurelist_theta = { "ELLIPSOIDFIT_AXISTHETA_C", "ELLIPSOIDFIT_AXISTHETA_B", "ELLIPSOIDFIT_AXISTHETA_A" };
+	public final static String[] featurelist_sa 	= { "ELLIPSOIDFIT_SEMIAXISLENGTH_C", "ELLIPSOIDFIT_SEMIAXISLENGTH_B", 	"ELLIPSOIDFIT_SEMIAXISLENGTH_A" };
+	public final static String[] featurelist_phi 	= { "ELLIPSOIDFIT_AXISPHI_C", 		"ELLIPSOIDFIT_AXISPHI_B", 			"ELLIPSOIDFIT_AXISPHI_A" };
+	public final static String[] featurelist_theta = { "ELLIPSOIDFIT_AXISTHETA_C", 	"ELLIPSOIDFIT_AXISTHETA_B", 		"ELLIPSOIDFIT_AXISTHETA_A" };
 	/** The key name of the morphology feature this analyzer computes. */
 	public final static String MORPHOLOGY = "MORPHOLOGY";
 
-	public static final ArrayList<String> FEATURES = new ArrayList<String>(10);
-	public static final HashMap<String, String> FEATURE_NAMES = new HashMap<String, String>(10);
-	public static final HashMap<String, String> FEATURE_SHORT_NAMES = new HashMap<String, String>(10);
+	public static final ArrayList<String> 			FEATURES = new ArrayList<String>(10);
+	public static final HashMap<String, String> 	FEATURE_NAMES = new HashMap<String, String>(10);
+	public static final HashMap<String, String> 	FEATURE_SHORT_NAMES = new HashMap<String, String>(10);
 	public static final HashMap<String, Dimension> FEATURE_DIMENSIONS = new HashMap<String, Dimension>(10);
 	static {
 		FEATURES.add(MORPHOLOGY);
@@ -81,24 +81,13 @@ public class SpotMorphologyAnalyzerFactory<T extends RealType<T> & NativeType<T>
 	/** Scalene shape, nothing particular, a > b > c. */
 	public static final Double SCALENE = Double.valueOf(3);
 
-	private final Model model;
-	private final ImgPlus<T> img;
-
-	/*
-	 * CONSTRUCTOR
-	 */
-
-	public SpotMorphologyAnalyzerFactory(final Model model, final ImgPlus<T> img) {
-		this.model = model;
-		this.img = img;
-	}
 
 	/*
 	 * METHODS
 	 */
 
 	@Override
-	public SpotMorphologyAnalyzer<T> getAnalyzer(final int frame, final int channel) {
+	public SpotMorphologyAnalyzer<T> getAnalyzer(final Model model, final ImgPlus<T> img, final int frame, final int channel) {
 		final ImgPlus<T> imgC = HyperSliceImgPlus.fixChannelAxis(img, channel);
 		final ImgPlus<T> imgCT = HyperSliceImgPlus.fixTimeAxis(imgC, frame);
 		final Iterator<Spot> spots = model.getSpots().iterator(frame, false);

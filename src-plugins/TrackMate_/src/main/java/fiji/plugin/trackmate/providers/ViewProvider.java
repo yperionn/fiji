@@ -25,27 +25,21 @@ public class ViewProvider {
 	 * will be used as keys to access relevant view classes.
 	 */
 	protected List<String> names;
-	protected final Model model;
-	protected final Settings settings;
-	protected final SelectionModel selectionModel;
 
 	/*
 	 * BLANK CONSTRUCTOR
 	 */
 
 	/**
-	 * This provider provides the GUI with the model views currently available
-	 * in the TrackMate trackmate. Each view is identified by a key String,
-	 * which can be used to retrieve new instance of the view.
+	 * This provider provides the GUI with the model views currently available in the
+	 * TrackMate trackmate. Each view is identified by a key String, which can be used
+	 * to retrieve new instance of the view.
 	 * <p>
-	 * If you want to add custom views to TrackMate, a simple way is to extend
-	 * this factory so that it is registered with the custom views and provide
-	 * this extended factory to the {@link TrackMate} trackmate.
+	 * If you want to add custom views to TrackMate, a simple way is to extend this
+	 * factory so that it is registered with the custom views and provide this
+	 * extended factory to the {@link TrackMate} trackmate.
 	 */
-	public ViewProvider(final Model model, final Settings settings, final SelectionModel selectionModel) {
-		this.model = model;
-		this.settings = settings;
-		this.selectionModel = selectionModel;
+	public ViewProvider() {
 		registerViews();
 	}
 
@@ -67,8 +61,19 @@ public class ViewProvider {
 	 * Returns a new instance of the target view identified by the key
 	 * parameter. If the key is unknown to this factory, <code>null</code> is
 	 * returned.
+	 *
+	 * @param key
+	 *            the key of the desired view.
+	 * @param model
+	 *            the model to display in the view.
+	 * @param settings
+	 *            a {@link Settings} object, which specific implementation might
+	 *            use to display the model.
+	 * @param selectionModel
+	 *            the {@link SelectionModel} model to share in the created view.
+	 * @return a new view of the specified model.
 	 */
-	public TrackMateModelView getView(final String key) {
+	public TrackMateModelView getView(final String key, final Model model, final Settings settings, final SelectionModel selectionModel) {
 
 		if (key.equals(HyperStackDisplayer.NAME)) {
 
@@ -81,7 +86,8 @@ public class ViewProvider {
 			universe.show();
 			final ImagePlus imp = settings.imp;
 			if (null != imp) {
-				universe.addVoltex(imp, new Color3f(Color.WHITE), imp.getShortTitle(), 0, new boolean[] { true, true, true }, 1);
+				universe.addVoltex(imp, new Color3f(Color.WHITE),
+						imp.getShortTitle(), 0, new boolean[] {true, true, true}, 1);
 			}
 
 			return new SpotDisplayer3D(model, selectionModel, universe);
@@ -96,16 +102,15 @@ public class ViewProvider {
 	}
 
 	/**
-	 * @return a list of the view names available through this factory.
+	 * Returns a list of the view names available through this factory.
 	 */
 	public List<String> getAvailableViews() {
 		return names;
 	}
 
 	/**
-	 * @return the html String containing a descriptive information about the
-	 *         target view, or <code>null</code> if it is unknown to this
-	 *         factory.
+	 * Returns the html String containing a descriptive information about the
+	 * target view, or <code>null</code> if it is unknown to this factory.
 	 */
 	public String getInfoText(final String key) {
 

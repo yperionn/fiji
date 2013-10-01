@@ -19,12 +19,12 @@ public class TmXmlReaderTestDrive {
 	public static void main(final String args[]) {
 
 		final File file = new File(AppUtils.getBaseDirectory(TrackMate.class), "samples/FakeTracks.xml");
-		System.out.println("Opening file: " + file.getAbsolutePath());
+		System.out.println("Opening file: "+file.getAbsolutePath());
 		final TmXmlReader reader = new TmXmlReader(file);
 		final Model model = reader.getModel();
 
 		final Settings settings = new Settings();
-		reader.readSettings(settings, new DetectorProvider(model), new TrackerProvider(model), new SpotAnalyzerProvider(model), new EdgeAnalyzerProvider(model), new TrackAnalyzerProvider(model));
+		reader.readSettings(settings, new DetectorProvider(), new TrackerProvider(), new SpotAnalyzerProvider(), new EdgeAnalyzerProvider(), new TrackAnalyzerProvider());
 
 		System.out.println(settings);
 		System.out.println(model);

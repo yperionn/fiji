@@ -26,7 +26,7 @@ public class SpotFilteringPerf_TestDrive {
 		final TmXmlReader reader = new TmXmlReader(file);
 		final Model model = reader.getModel();
 		final Settings settings = new Settings();
-		reader.readSettings(settings, null, null, new SpotAnalyzerProvider(model), new EdgeAnalyzerProvider(model), new TrackAnalyzerProvider(model));
+		reader.readSettings(settings, null, null, new SpotAnalyzerProvider(), new EdgeAnalyzerProvider(), new TrackAnalyzerProvider());
 		final TrackMate trackmate = new TrackMate(model, settings);
 		System.out.println("Done loading.");
 
@@ -64,7 +64,8 @@ public class SpotFilteringPerf_TestDrive {
 		displayer.render();
 
 		final FilterGuiPanel component = new FilterGuiPanel();
-		component.setTarget(model.getFeatureModel().getSpotFeatures(), model.getSettings().getSpotFilters(), model.getFeatureModel().getSpotFeatureNames(), model.getFeatureModel().getSpotFeatureValues(), "spots");
+		component.setTarget(model.getFeatureModel().getSpotFeatures(), model.getSettings().getSpotFilters(),
+				model.getFeatureModel().getSpotFeatureNames(), model.getFeatureModel().getSpotFeatureValues(), "spots");
 		JFrame frame = new JFrame("Spot filters");
 		frame.getContentPane().add(component);
 		frame.setSize(600, 800);

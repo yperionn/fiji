@@ -37,7 +37,7 @@ public class ConcurrentSpotTestDrive {
 		// Make settings
 		final Settings settings = new Settings();
 		settings.setFrom(imp);
-		final DetectorProvider provider = new DetectorProvider(model);
+		final DetectorProvider provider = new DetectorProvider();
 		provider.select(LogDetectorFactory.DETECTOR_KEY);
 		settings.detectorFactory = provider.getDetectorFactory();
 		settings.detectorSettings = provider.getDefaultSettings();
@@ -50,9 +50,9 @@ public class ConcurrentSpotTestDrive {
 		final SpotCollection spots = trackmate.getModel().getSpots();
 
 		// Parse spots and detect duplicate IDs
-		final int[] IDs = new int[Spot.IDcounter.get()];
+		final int[] IDs = new int[Spot.IDcounter.get() + 1];
 		final Iterator<Spot> it = spots.iterator(false);
-		while (it.hasNext()) {
+		while(it.hasNext()) {
 			final Spot si = it.next();
 			final int id = si.ID();
 			IDs[id]++;

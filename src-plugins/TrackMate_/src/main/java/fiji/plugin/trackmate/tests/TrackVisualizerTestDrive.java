@@ -61,7 +61,8 @@ public class TrackVisualizerTestDrive {
 		final TmXmlReader reader = new TmXmlReader(file);
 		final Model model = reader.getModel();
 		final Settings settings = new Settings();
-		reader.readSettings(settings, null, null, new SpotAnalyzerProvider(model), new EdgeAnalyzerProvider(model), new TrackAnalyzerProvider(model));
+		reader.readSettings(settings, null, null,
+				new SpotAnalyzerProvider(), new EdgeAnalyzerProvider(), new TrackAnalyzerProvider());
 		final TrackMate trackmate = new TrackMate(model, settings);
 		new ModelFeatureUpdater(model, settings);
 
@@ -74,7 +75,7 @@ public class TrackVisualizerTestDrive {
 		System.out.println();
 
 		final FeatureFilter filter = new FeatureFilter(TrackBranchingAnalyzer.NUMBER_SPOTS, 5d, true);
-		System.out.println("We add an extra track filter: " + filter);
+		System.out.println("We add an extra track filter: "+filter);
 		settings.addTrackFilter(filter);
 		trackmate.execTrackFiltering(true);
 		System.out.println("After filtering, retaining " + model.getTrackModel().nTracks(true) + " tracks, which are:");

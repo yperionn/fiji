@@ -15,17 +15,20 @@ import fiji.plugin.trackmate.TrackMate;
 public interface TrackMateAction extends InfoTextable {
 
 	/**
-	 * Execute this action using the given trackmate
+	 * Executes this action using the specified trackmate instance.
+	 *
+	 * @param trackmate
+	 *            the {@link TrackMate} instance to use to exectue the action.
 	 */
-	public void execute();
+	public void execute(TrackMate trackmate);
 
 	/**
-	 * Set the logger that will receive logs when this action is executed.
+	 * Sets the logger that will receive logs when this action is executed.
 	 */
 	public void setLogger(Logger logger);
 
 	/**
-	 * Return the icon for this action. Can be null.
+	 * Returns the icon for this action. Can be null.
 	 */
 	public ImageIcon getIcon();
 
