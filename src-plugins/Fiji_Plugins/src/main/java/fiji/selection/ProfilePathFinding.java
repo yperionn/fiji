@@ -8,6 +8,7 @@ import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import ij.gui.Toolbar;
 import ij.measure.ResultsTable;
+import ij.plugin.Duplicator;
 import ij.plugin.PlugIn;
 
 import java.awt.Color;
@@ -85,12 +86,11 @@ public class ProfilePathFinding implements PlugIn
 
 		} );
 
-		final ProfilePathFindingFrame frame = new ProfilePathFindingFrame( 0, 255 );
+		final int max = ( int ) imp.getProcessor().getMax();
+		final ProfilePathFindingFrame frame = new ProfilePathFindingFrame( 0, max );
 		frame.setVisible( true );
 		frame.addActionListener( new ActionListener()
 		{
-
-
 			@Override
 			public void actionPerformed( final ActionEvent e )
 			{
@@ -125,24 +125,13 @@ public class ProfilePathFinding implements PlugIn
 		if ( nPoints < 2 ) { return; }
 
 		final Polygon polygon = pointRoi.getPolygon();
-		final int zPosition = pointRoi.getZPosition();
-
-		final long[] end;
-		final long[] start;
-		if ( imp.getNSlices() > 1 )
-		{
-			start = new long[] { polygon.xpoints[ 0 ], polygon.ypoints[ 0 ], zPosition };
-			end = new long[] { polygon.xpoints[ nPoints - 1 ], polygon.ypoints[ nPoints - 1 ], zPosition };
-		}
-		else
-		{
-			start = new long[] { polygon.xpoints[ 0 ], polygon.ypoints[ 0 ] };
-			end = new long[] { polygon.xpoints[ nPoints - 1 ], polygon.ypoints[ nPoints - 1 ] };
-		}
+		final long[] start = new long[] { polygon.xpoints[ 0 ], polygon.ypoints[ 0 ] };
+		final long[] end = new long[] { polygon.xpoints[ nPoints - 1 ], polygon.ypoints[ nPoints - 1 ] };
 
 		if ( start[ 0 ] < 0 || start[ 1 ] < 0 || start[ 0 ] >= imp.getWidth() || start[ 1 ] >= imp.getHeight() || end[ 0 ] < 0 || end[ 1 ] < 0 || end[ 0 ] >= imp.getWidth() || end[ 1 ] >= imp.getHeight() ) { return; }
 
-		final Img source = ImageJFunctions.wrap( imp );
+		final ImagePlus dup = new Duplicator().run( imp, imp.getSlice(), imp.getSlice() );
+		final Img source = ImageJFunctions.wrap( dup );
 
 		final AStar pathfinder;
 		switch ( pathType )
@@ -249,7 +238,9 @@ public class ProfilePathFinding implements PlugIn
 	public static void main( final String[] args )
 	{
 		ImageJ.main( args );
-		new ImagePlus( "/Users/tinevez/Desktop/Data/PathExample.tif" ).show();
+		// new ImagePlus( "/Users/tinevez/Desktop/Data/PathExample.tif"
+		// ).show();
+		new ImagePlus( "/Users/tinevez/Desktop/test3DPath.tif" ).show();
 		new ProfilePathFinding().run( "" );
 	}
 
