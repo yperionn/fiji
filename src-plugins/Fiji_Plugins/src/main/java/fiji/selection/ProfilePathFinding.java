@@ -18,6 +18,8 @@ import java.awt.Polygon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.List;
 
 import net.imglib2.Cursor;
@@ -66,6 +68,7 @@ public class ProfilePathFinding implements PlugIn
 
 	private final DisplayUpdater updater = new DisplayUpdater();
 
+	@SuppressWarnings( "rawtypes" )
 	private RandomAccessibleInterval source;
 
 	private double maxPixelVal;
@@ -79,7 +82,6 @@ public class ProfilePathFinding implements PlugIn
 
 		new SliceObserver( imp, new SliceListener()
 		{
-
 			@Override
 			public void sliceChanged( final ImagePlus image )
 			{
@@ -89,7 +91,7 @@ public class ProfilePathFinding implements PlugIn
 
 		imp.setOverlay( new Overlay() );
 		imp.getOverlay().setStrokeColor( Color.RED );
-		imp.getCanvas().addMouseMotionListener( new MouseAdapter()
+		final MouseAdapter ma = new MouseAdapter()
 		{
 			@Override
 			public void mouseDragged( final java.awt.event.MouseEvent e )
@@ -97,12 +99,13 @@ public class ProfilePathFinding implements PlugIn
 				updater.doUpdate();
 			};
 
-		} );
+		};
+		imp.getCanvas().addMouseMotionListener( ma );
 
 		final int max = ( int ) imp.getProcessor().getMax();
 		final ProfilePathFindingFrame frame = new ProfilePathFindingFrame( 0, max );
 		frame.setVisible( true );
-		frame.addActionListener( new ActionListener()
+		final ActionListener al = new ActionListener()
 		{
 			@Override
 			public void actionPerformed( final ActionEvent e )
@@ -122,9 +125,30 @@ public class ProfilePathFinding implements PlugIn
 					System.err.println( "Unknown event: " + e );
 				}
 			}
-		} );
+		};
+		frame.addActionListener( al );
 		heuristicStrength = frame.getSliderValue();
 		pathType = frame.getPathType();
+
+		imp.getWindow().addWindowListener( new WindowAdapter()
+		{
+
+			@Override
+			public void windowClosing( final WindowEvent e )
+			{
+					frame.dispose();
+			}
+
+		} );
+
+		frame.addWindowListener( new WindowAdapter()
+		{
+			@Override
+			public void windowClosing( final WindowEvent arg0 )
+			{
+				imp.getCanvas().removeMouseMotionListener( ma );
+			}
+		} );
 	}
 
 	@SuppressWarnings( { "unchecked", "rawtypes" } )
