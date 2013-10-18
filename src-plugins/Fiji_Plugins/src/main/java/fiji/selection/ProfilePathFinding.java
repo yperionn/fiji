@@ -29,10 +29,8 @@ import net.imglib2.algorithm.pathfinding.DefaultAStar;
 import net.imglib2.algorithm.pathfinding.InvertedCostAStar;
 import net.imglib2.algorithm.pathfinding.ListPathIterable;
 import net.imglib2.algorithm.pathfinding.PathCursor;
-import net.imglib2.img.Img;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.view.Views;
 
 /**
  * A simple ImageJ plugin that generate paths over an image, following "veins"
@@ -103,7 +101,7 @@ public class ProfilePathFinding implements PlugIn
 		imp.getCanvas().addMouseMotionListener( ma );
 
 		final int max = ( int ) imp.getProcessor().getMax();
-		final ProfilePathFindingFrame frame = new ProfilePathFindingFrame( 0, max );
+		final ProfilePathFindingFrame frame = new ProfilePathFindingFrame( 0, max, imp.getShortTitle() );
 		frame.setVisible( true );
 		final ActionListener al = new ActionListener()
 		{
@@ -136,9 +134,9 @@ public class ProfilePathFinding implements PlugIn
 			@Override
 			public void windowClosing( final WindowEvent e )
 			{
-					frame.dispose();
+				frame.dispose();
+				updater.quit();
 			}
-
 		} );
 
 		frame.addWindowListener( new WindowAdapter()
@@ -147,16 +145,17 @@ public class ProfilePathFinding implements PlugIn
 			public void windowClosing( final WindowEvent arg0 )
 			{
 				imp.getCanvas().removeMouseMotionListener( ma );
+				updater.quit();
 			}
 		} );
 	}
 
-	@SuppressWarnings( { "unchecked", "rawtypes" } )
 	protected void regenerateProcessor()
 	{
-		final Img img = ImageJFunctions.wrap( imp );
-		final long pos = imp.getSlice();
-		source = Views.hyperSlice( img, 2, pos );
+
+		final int pos = imp.getSlice();
+		final ImagePlus dup = new ImagePlus( "dup", imp.getProcessor() );
+		source = ImageJFunctions.wrap( dup );
 
 		final ImageStatistics statistics = ImageStatistics.getStatistics( imp.getProcessor(), ImageStatistics.MIN_MAX, null );
 		maxPixelVal = statistics.max;
@@ -217,10 +216,16 @@ public class ProfilePathFinding implements PlugIn
 		}
 
 		final PolygonRoi nroi = new PolygonRoi( xPoints, yPoints, nSteps, Roi.POLYLINE );
-		imp.getOverlay().clear();
-		imp.getOverlay().add( nroi );
+		if ( null != imp.getOverlay() )
+		{
+			imp.getOverlay().clear();
+			imp.getOverlay().add( nroi );
+		}
+		else
+		{
+			imp.setOverlay( new Overlay( nroi ) );
+		}
 		imp.updateAndDraw();
-
 	}
 
 	private void generateResultTable()

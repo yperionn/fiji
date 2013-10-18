@@ -1,6 +1,7 @@
 package fiji.selection;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -16,6 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.SwingConstants;
+import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -37,7 +39,7 @@ final class ProfilePathFindingFrame extends JFrame
 
 	private final Set< ActionListener > actionListener = new HashSet< ActionListener >();
 
-	public ProfilePathFindingFrame( final int min, final int max )
+	public ProfilePathFindingFrame( final int min, final int max, final String targetName )
 	{
 		setSize( new Dimension( 300, 300 ) );
 		setResizable( false );
@@ -54,7 +56,7 @@ final class ProfilePathFindingFrame extends JFrame
 		panel.add( lblInfo );
 
 		slider = new JSlider( min, max );
-		slider.setBounds( 138, 154, 155, 29 );
+		slider.setBounds( 138, 202, 155, 29 );
 		slider.addChangeListener( new ChangeListener()
 		{
 			@Override
@@ -66,7 +68,7 @@ final class ProfilePathFindingFrame extends JFrame
 		panel.add( slider );
 
 		comboBox = new JComboBox( ProfilePathFinding.PathType.values() );
-		comboBox.setBounds( 138, 115, 155, 27 );
+		comboBox.setBounds( 138, 163, 155, 27 );
 		comboBox.setFont( FONT );
 		comboBox.addActionListener( new ActionListener()
 		{
@@ -81,16 +83,19 @@ final class ProfilePathFindingFrame extends JFrame
 
 		final JLabel lblPathType = new JLabel( "Find path on:" );
 		lblPathType.setFont( FONT );
-		lblPathType.setBounds( 6, 119, 120, 16 );
+		lblPathType.setBounds( 6, 167, 120, 16 );
 		panel.add( lblPathType );
 
 		final JLabel lblHeuristicStrength = new JLabel( "Long paths penalty" );
 		lblHeuristicStrength.setFont( FONT );
-		lblHeuristicStrength.setBounds( 6, 154, 130, 16 );
+		lblHeuristicStrength.setBounds( 6, 202, 130, 16 );
 		panel.add( lblHeuristicStrength );
 
-		final JLabel lblStatus = new JLabel();
-		lblStatus.setBounds( 6, 182, 287, 64 );
+		final JLabel lblStatus = new JLabel( targetName );
+		lblStatus.setHorizontalAlignment( SwingConstants.CENTER );
+		lblStatus.setFont( FONT.deriveFont( Font.ITALIC ).deriveFont( 12f ) );
+		lblStatus.setBorder( new LineBorder( Color.ORANGE, 1, true ) );
+		lblStatus.setBounds( 6, 89, 287, 62 );
 		panel.add( lblStatus );
 
 		final JButton btnGenerateTable = new JButton( "Results table" );
