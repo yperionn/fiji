@@ -1,5 +1,7 @@
 package fiji.selection;
 
+import fiji.tool.SliceListener;
+import fiji.tool.SliceObserver;
 import ij.ImageJ;
 import ij.ImagePlus;
 import ij.WindowManager;
@@ -8,8 +10,8 @@ import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import ij.gui.Toolbar;
 import ij.measure.ResultsTable;
-import ij.plugin.Duplicator;
 import ij.plugin.PlugIn;
+import ij.process.ImageStatistics;
 
 import java.awt.Color;
 import java.awt.Polygon;
@@ -19,6 +21,7 @@ import java.awt.event.MouseAdapter;
 import java.util.List;
 
 import net.imglib2.Cursor;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.pathfinding.AStar;
 import net.imglib2.algorithm.pathfinding.DefaultAStar;
 import net.imglib2.algorithm.pathfinding.InvertedCostAStar;
@@ -27,6 +30,7 @@ import net.imglib2.algorithm.pathfinding.PathCursor;
 import net.imglib2.img.Img;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
 
 /**
  * A simple ImageJ plugin that generate paths over an image, following "veins"
@@ -62,12 +66,26 @@ public class ProfilePathFinding implements PlugIn
 
 	private final DisplayUpdater updater = new DisplayUpdater();
 
+	private RandomAccessibleInterval source;
+
+	private double maxPixelVal;
+
 	@Override
 	public void run( final String arg )
 	{
 		imp = WindowManager.getCurrentImage();
 		if ( null == imp ) { return; }
 		Toolbar.getInstance().setTool( Toolbar.POINT );
+
+		new SliceObserver( imp, new SliceListener()
+		{
+
+			@Override
+			public void sliceChanged( final ImagePlus image )
+			{
+				regenerateProcessor();
+			}
+		} );
 
 		imp.setOverlay( new Overlay() );
 		imp.getOverlay().setStrokeColor( Color.RED );
@@ -105,7 +123,19 @@ public class ProfilePathFinding implements PlugIn
 				}
 			}
 		} );
+		heuristicStrength = frame.getSliderValue();
+		pathType = frame.getPathType();
+	}
 
+	@SuppressWarnings( { "unchecked", "rawtypes" } )
+	protected void regenerateProcessor()
+	{
+		final Img img = ImageJFunctions.wrap( imp );
+		final long pos = imp.getSlice();
+		source = Views.hyperSlice( img, 2, pos );
+
+		final ImageStatistics statistics = ImageStatistics.getStatistics( imp.getProcessor(), ImageStatistics.MIN_MAX, null );
+		maxPixelVal = statistics.max;
 	}
 
 	@SuppressWarnings( { "rawtypes", "unchecked" } )
@@ -125,16 +155,13 @@ public class ProfilePathFinding implements PlugIn
 
 		if ( start[ 0 ] < 0 || start[ 1 ] < 0 || start[ 0 ] >= imp.getWidth() || start[ 1 ] >= imp.getHeight() || end[ 0 ] < 0 || end[ 1 ] < 0 || end[ 0 ] >= imp.getWidth() || end[ 1 ] >= imp.getHeight() ) { return; }
 
-		final ImagePlus dup = new Duplicator().run( imp, imp.getSlice(), imp.getSlice() );
-		final Img source = ImageJFunctions.wrap( dup );
 
 		final AStar pathfinder;
 		switch ( pathType )
 		{
 		case HIGH_INTENSITIES:
 		{
-			final double maxVal = imp.getProcessor().getMax();
-			pathfinder = new InvertedCostAStar( source, start, end, heuristicStrength, maxVal );
+			pathfinder = new InvertedCostAStar( source, start, end, heuristicStrength, maxPixelVal );
 			break;
 		}
 
@@ -238,17 +265,17 @@ public class ProfilePathFinding implements PlugIn
 	 */
 	private final class DisplayUpdater extends Thread
 	{
-		long request = 0;
+		private long request = 0;
 
 		// Constructor autostarts thread
-		DisplayUpdater()
+		private DisplayUpdater()
 		{
 			super( "TrackMate displayer thread" );
 			setPriority( Thread.NORM_PRIORITY );
 			start();
 		}
 
-		void doUpdate()
+		private void doUpdate()
 		{
 			if ( isInterrupted() )
 				return;
@@ -259,7 +286,7 @@ public class ProfilePathFinding implements PlugIn
 			}
 		}
 
-		void quit()
+		private void quit()
 		{
 			interrupt();
 			synchronized ( this )
@@ -303,10 +330,10 @@ public class ProfilePathFinding implements PlugIn
 	public static void main( final String[] args )
 	{
 		ImageJ.main( args );
-		new ImagePlus( "/Users/tinevez/Desktop/Data/PathExample.tif" ).show();
-		// new ImagePlus( "/Users/tinevez/Desktop/test3DPath.tif" ).show();
+		// new ImagePlus( "/Users/tinevez/Desktop/Data/PathExample.tif"
+		// ).show();
+		new ImagePlus( "/Users/tinevez/Desktop/test3DPath.tif" ).show();
 		new ProfilePathFinding().run( "" );
 	}
-
 
 }
