@@ -60,6 +60,8 @@ public class ProfilePathFinding implements PlugIn
 
 	private ListPathIterable< ? > pathIterable;
 
+	private final DisplayUpdater updater = new DisplayUpdater();
+
 	@Override
 	public void run( final String arg )
 	{
@@ -74,14 +76,7 @@ public class ProfilePathFinding implements PlugIn
 			@Override
 			public void mouseDragged( final java.awt.event.MouseEvent e )
 			{
-				new Thread()
-				{
-					@Override
-					public void run()
-					{
-						compute();
-					};
-				}.start();
+				updater.doUpdate();
 			};
 
 		} );
@@ -102,7 +97,7 @@ public class ProfilePathFinding implements PlugIn
 				{
 					pathType = frame.getPathType();
 					heuristicStrength = frame.getSliderValue();
-					compute();
+					updater.doUpdate();
 				}
 				else
 				{
@@ -137,15 +132,18 @@ public class ProfilePathFinding implements PlugIn
 		switch ( pathType )
 		{
 		case HIGH_INTENSITIES:
+		{
 			final double maxVal = imp.getProcessor().getMax();
 			pathfinder = new InvertedCostAStar( source, start, end, heuristicStrength, maxVal );
 			break;
+		}
 
 		case LOW_INTENSITIES:
 			pathfinder = new DefaultAStar( source, start, end, heuristicStrength );
 			break;
 
 		default:
+			System.err.println( "Unknown path type: " + pathType );
 			return;
 		}
 
@@ -235,12 +233,78 @@ public class ProfilePathFinding implements PlugIn
 		}
 	}
 
+	/**
+	 * This is a helper class modified after a class by Albert Cardona
+	 */
+	private final class DisplayUpdater extends Thread
+	{
+		long request = 0;
+
+		// Constructor autostarts thread
+		DisplayUpdater()
+		{
+			super( "TrackMate displayer thread" );
+			setPriority( Thread.NORM_PRIORITY );
+			start();
+		}
+
+		void doUpdate()
+		{
+			if ( isInterrupted() )
+				return;
+			synchronized ( this )
+			{
+				request++;
+				notify();
+			}
+		}
+
+		void quit()
+		{
+			interrupt();
+			synchronized ( this )
+			{
+				notify();
+			}
+		}
+
+		@Override
+		public void run()
+		{
+			while ( !isInterrupted() )
+			{
+				try
+				{
+					final long r;
+					synchronized ( this )
+					{
+						r = request;
+					}
+					if ( r > 0 )
+						compute();
+					synchronized ( this )
+					{
+						if ( r == request )
+						{
+							request = 0; // reset
+							wait();
+						}
+						// else loop through to update again
+					}
+				}
+				catch ( final Exception e )
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
 	public static void main( final String[] args )
 	{
 		ImageJ.main( args );
-		// new ImagePlus( "/Users/tinevez/Desktop/Data/PathExample.tif"
-		// ).show();
-		new ImagePlus( "/Users/tinevez/Desktop/test3DPath.tif" ).show();
+		new ImagePlus( "/Users/tinevez/Desktop/Data/PathExample.tif" ).show();
+		// new ImagePlus( "/Users/tinevez/Desktop/test3DPath.tif" ).show();
 		new ProfilePathFinding().run( "" );
 	}
 
