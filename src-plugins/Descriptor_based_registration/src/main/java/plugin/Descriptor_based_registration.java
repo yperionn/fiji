@@ -3,8 +3,7 @@ package plugin;
 import javax.media.j3d.Transform3D;
 import javax.vecmath.Vector3d;
 
-import fiji.plugin.Apply_External_Transformation;
-import fiji.plugin.Bead_Registration;
+import fiji.plugin.GUIHelper;
 import fiji.stacks.Hyperstack_rearranger;
 import ij.CompositeImage;
 import ij.IJ;
@@ -83,7 +82,7 @@ public class Descriptor_based_registration implements PlugIn
 					   "Preibisch et al., Nature Methods (2010), 7(6):418-419\n" );
 
 		MultiLineLabel text =  (MultiLineLabel) gd.getMessage();
-		Bead_Registration.addHyperLinkListener( text, paperURL );
+		GUIHelper.addHyperLinkListener( text, paperURL );
 
 		gd.showDialog();
 		
@@ -279,7 +278,7 @@ public class Descriptor_based_registration implements PlugIn
 		gd.addMessage("This Plugin is developed by Stephan Preibisch\n" + myURL);
 
 		MultiLineLabel text = (MultiLineLabel) gd.getMessage();
-		Bead_Registration.addHyperLinkListener(text, myURL);
+		GUIHelper.addHyperLinkListener(text, myURL);
 
 		gd.showDialog();
 		
@@ -612,7 +611,7 @@ public class Descriptor_based_registration implements PlugIn
 				if ( gd2.wasCanceled() )
 					return null;
 
-				String entry = Apply_External_Transformation.removeSequences( gd2.getNextString().trim(), new String[] { "(", ")", "{", "}", "[", "]", "<", ">", ":", "m00", "m01", "m02", "m03", "m10", "m11", "m12", "m13", "m20", "m21", "m22", "m23", " " } );			
+				String entry = GUIHelper.removeSequences( gd2.getNextString().trim(), new String[] { "(", ")", "{", "}", "[", "]", "<", ">", ":", "m00", "m01", "m02", "m03", "m10", "m11", "m12", "m13", "m20", "m21", "m22", "m23", " " } );			
 				final String[] numbers = entry.split( "," );
 				
 				if  ( numbers.length != 12 )
@@ -658,7 +657,7 @@ public class Descriptor_based_registration implements PlugIn
 				if ( gd2.wasCanceled() )
 					return null;
 
-				String entry = Apply_External_Transformation.removeSequences( gd2.getNextString().trim(), new String[] { "(", ")", "{", "}", "[", "]", "<", ">", ":", "m00", "m01", "m02", "m03", "m10", "m11", "m12", "m13", "m20", "m21", "m22", "m23", " " } );			
+				String entry = GUIHelper.removeSequences( gd2.getNextString().trim(), new String[] { "(", ")", "{", "}", "[", "]", "<", ">", ":", "m00", "m01", "m02", "m03", "m10", "m11", "m12", "m13", "m20", "m21", "m22", "m23", " " } );			
 				final String[] numbers = entry.split( "," );
 				
 				if  ( numbers.length != 6 )
@@ -699,7 +698,7 @@ public class Descriptor_based_registration implements PlugIn
 				if ( gd2.wasCanceled() )
 					return null;
 
-				String entry = Apply_External_Transformation.removeSequences( gd2.getNextString().trim(), new String[] { "(", ")", "{", "}", "[", "]", "<", ">", ":", "m00", "m01", "m02", "m03", "m10", "m11", "m12", "m13", "m20", "m21", "m22", "m23", " " } );			
+				String entry = GUIHelper.removeSequences( gd2.getNextString().trim(), new String[] { "(", ")", "{", "}", "[", "]", "<", ">", ":", "m00", "m01", "m02", "m03", "m10", "m11", "m12", "m13", "m20", "m21", "m22", "m23", " " } );			
 				final String[] numbers = entry.split( "," );
 				
 				if  ( numbers.length != 9 )

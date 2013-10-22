@@ -1,6 +1,6 @@
 package plugin;
 
-import fiji.plugin.Bead_Registration;
+import fiji.plugin.GUIHelper;
 import fiji.stacks.Hyperstack_rearranger;
 import fiji.util.gui.GenericDialogPlus;
 import ij.IJ;
@@ -18,7 +18,6 @@ import mpicbg.models.AffineModel3D;
 import mpicbg.models.HomographyModel2D;
 import mpicbg.models.InterpolatedAffineModel2D;
 import mpicbg.models.InterpolatedAffineModel3D;
-import mpicbg.models.InterpolatedModel;
 import mpicbg.models.InvertibleBoundable;
 import mpicbg.models.RigidModel2D;
 import mpicbg.models.RigidModel3D;
@@ -79,7 +78,7 @@ public class Descriptor_based_series_registration implements PlugIn
 					   "Preibisch et al., Nature Methods (2010), 7(6):418-419\n" );
 
 		MultiLineLabel text =  (MultiLineLabel) gd.getMessage();
-		Bead_Registration.addHyperLinkListener( text, paperURL );
+		GUIHelper.addHyperLinkListener( text, paperURL );
 
 		gd.showDialog();
 		
@@ -262,7 +261,7 @@ public class Descriptor_based_series_registration implements PlugIn
 		gd.addMessage("This Plugin is developed by Stephan Preibisch\n" + myURL);
 
 		MultiLineLabel text = (MultiLineLabel) gd.getMessage();
-		Bead_Registration.addHyperLinkListener(text, myURL);
+		GUIHelper.addHyperLinkListener(text, myURL);
 
 		gd.showDialog();
 		
