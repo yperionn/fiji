@@ -1,7 +1,6 @@
 package fiji.selection;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -17,17 +16,18 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.SwingConstants;
-import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-final class ProfilePathFindingFrame extends JFrame
+import fiji.selection.PathFinder.PathType;
+
+final class PathFindingToolDialog extends JFrame
 {
 	private static final long serialVersionUID = 1L;
 
 	private static final Font FONT = new Font( "Arial", Font.PLAIN, 10 );
 
-	private static final ImageIcon BUTTON_ICON = new ImageIcon( ProfilePathFindingFrame.class.getResource( "page_white_text.png" ) );
+	private static final ImageIcon BUTTON_ICON = new ImageIcon( PathFindingToolDialog.class.getResource( "page_white_text.png" ) );
 
 	final ActionEvent SETTINGS_CHANGED = new ActionEvent( this, 0, "SettingsChanged" );
 
@@ -39,7 +39,7 @@ final class ProfilePathFindingFrame extends JFrame
 
 	private final Set< ActionListener > actionListener = new HashSet< ActionListener >();
 
-	public ProfilePathFindingFrame( final int min, final int max, final String targetName )
+	public PathFindingToolDialog( final double heuristicStrength, final PathType pathType )
 	{
 		setSize( new Dimension( 300, 300 ) );
 		setResizable( false );
@@ -51,11 +51,11 @@ final class ProfilePathFindingFrame extends JFrame
 		final JLabel lblInfo = new JLabel();
 		lblInfo.setVerticalAlignment( SwingConstants.TOP );
 		lblInfo.setFont( FONT );
-		lblInfo.setText( "<html><h2>Pathfinding profile</h2>Using the ImageJ point tool, create two points  on the target image to specify the start and end points." + "</html>" );
+		lblInfo.setText( "<html><h2>Pathfinding profile</h2>CLick & drag the mouse on the target image to specify the start and end points." + "</html>" );
 		lblInfo.setBounds( 6, 6, 287, 79 );
 		panel.add( lblInfo );
 
-		slider = new JSlider( min, max );
+		slider = new JSlider( 0, 200, ( int ) ( 100 * heuristicStrength ) );
 		slider.setBounds( 138, 202, 155, 29 );
 		slider.addChangeListener( new ChangeListener()
 		{
@@ -67,7 +67,7 @@ final class ProfilePathFindingFrame extends JFrame
 		} );
 		panel.add( slider );
 
-		comboBox = new JComboBox( ProfilePathFinding.PathType.values() );
+		comboBox = new JComboBox( PathFinder.PathType.values() );
 		comboBox.setBounds( 138, 163, 155, 27 );
 		comboBox.setFont( FONT );
 		comboBox.addActionListener( new ActionListener()
@@ -91,12 +91,13 @@ final class ProfilePathFindingFrame extends JFrame
 		lblHeuristicStrength.setBounds( 6, 202, 130, 16 );
 		panel.add( lblHeuristicStrength );
 
-		final JLabel lblStatus = new JLabel( targetName );
-		lblStatus.setHorizontalAlignment( SwingConstants.CENTER );
-		lblStatus.setFont( FONT.deriveFont( Font.ITALIC ).deriveFont( 12f ) );
-		lblStatus.setBorder( new LineBorder( Color.ORANGE, 1, true ) );
-		lblStatus.setBounds( 6, 89, 287, 62 );
-		panel.add( lblStatus );
+		// final JLabel lblStatus = new JLabel( targetName );
+		// lblStatus.setHorizontalAlignment( SwingConstants.CENTER );
+		// lblStatus.setFont( FONT.deriveFont( Font.ITALIC ).deriveFont( 12f )
+		// );
+		// lblStatus.setBorder( new LineBorder( Color.ORANGE, 1, true ) );
+		// lblStatus.setBounds( 6, 89, 287, 62 );
+		// panel.add( lblStatus );
 
 		final JButton btnGenerateTable = new JButton( "Results table" );
 		btnGenerateTable.setFont( FONT );
@@ -133,13 +134,14 @@ final class ProfilePathFindingFrame extends JFrame
 	}
 
 
-	ProfilePathFinding.PathType getPathType()
+	PathFinder.PathType getPathType()
 	{
-		return ( ProfilePathFinding.PathType ) comboBox.getSelectedItem();
+		return ( PathFinder.PathType ) comboBox.getSelectedItem();
 	}
 
-	int getSliderValue() {
-		return slider.getValue();
+	double getSliderValue()
+	{
+		return ( slider.getValue() / 100d );
 	}
 
 	@Override
