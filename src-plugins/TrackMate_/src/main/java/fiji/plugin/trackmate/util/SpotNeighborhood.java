@@ -42,7 +42,8 @@ public class SpotNeighborhood<T extends RealType<T>> implements Neighborhood<T> 
 			span[d] = Math.round(spot.getFeature(Spot.RADIUS) / calibration[d]);
 		}
 		// Neighborhood
-		final OutOfBoundsMirrorExpWindowingFactory<T, RandomAccessibleInterval<T>> oob = new OutOfBoundsMirrorExpWindowingFactory<T, RandomAccessibleInterval<T>>();
+		final OutOfBoundsMirrorExpWindowingFactory<T, RandomAccessibleInterval<T>> oob =
+			new OutOfBoundsMirrorExpWindowingFactory<T, RandomAccessibleInterval<T>>();
 		if (img.numDimensions() == 2) {
 			this.neighborhood = new EllipseNeighborhood<T>(img, center, span, oob);
 		} else if (img.numDimensions() == 3) {

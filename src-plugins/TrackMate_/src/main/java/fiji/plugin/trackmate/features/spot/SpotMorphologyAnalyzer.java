@@ -18,6 +18,7 @@ import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.meta.ImgPlus;
+import net.imglib2.meta.axis.DefaultLinearAxis;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import Jama.EigenvalueDecomposition;
@@ -39,8 +40,13 @@ import fiji.plugin.trackmate.util.SpotNeighborhoodCursor;
  * angles of the corresponding ellipsoid axis, in spherical coordinates. Angles
  * are expressed in radians.
  * <ul>
+<<<<<<< HEAD
  * 	<li>φ is the azimuth int the XY plane and its range is ]-π/2 ; π/2]
  * 	<li>ϑ is the elevation with respect to the Z axis and ranges from 0 to π
+=======
+ * <li>φ is the azimuth int the XY plane and its range is ]-π/2 ; π/2]
+ * <li>ϑ is the elevation with respect to the Z axis and ranges from 0 to π
+>>>>>>> origin/track-mate
  * </ul>
  * <p>
  * In the 2D case, ELLIPSOIDFIT_SEMIAXISLENGTH_A and ELLIPSOIDFIT_AXISPHI_A are
@@ -55,16 +61,24 @@ import fiji.plugin.trackmate.util.SpotNeighborhoodCursor;
  * <p>
  * In the 2D case, if b > c are the semi-axes length
  * <ul>
+<<<<<<< HEAD
  * 	<li>if b ≅ c, then this index has the value {@link #SPHERE}
  * 	<li>otherwise, it has the value {@link #PROLATE}
+=======
+ * <li>if b ≅ c, then this index has the value {@link #SPHERE}
+ * <li>otherwise, it has the value {@link #PROLATE}
+>>>>>>> origin/track-mate
  * </ul>
  * <p>
  * In the 2D case, if a > b > c are the semi-axes length
  * <ul>
- * 	<li> if a ≅ b ≅ c, then this index has the value {@link #SPHERE}
- * 	<li> if a ≅ b > c, then this index has the value {@link #OBLATE}: the spot resembles a flat disk
- * 	<li> if a > b ≅ c, then this index has the value {@link #PROLATE}: the spot resembles a rugby ball
- * 	<li> otherwise it has the value {@link #SCALENE}; the spot's shape has nothing particular
+ * <li>if a ≅ b ≅ c, then this index has the value {@link #SPHERE}
+ * <li>if a ≅ b > c, then this index has the value {@link #OBLATE}: the spot
+ * resembles a flat disk
+ * <li>if a > b ≅ c, then this index has the value {@link #PROLATE}: the spot
+ * resembles a rugby ball
+ * <li>otherwise it has the value {@link #SCALENE}; the spot's shape has nothing
+ * particular
  * </ul>
  *
  * @author Jean-Yves Tinevez <jeanyves.tinevez@gmail.com> Apr 1, 2011 - 2012
@@ -309,19 +323,24 @@ public class SpotMorphologyAnalyzer<T extends RealType<T>> extends IndependentSp
 		final double[] calibration = new double[] { 1, 1 };
 
 		// Create blank image
-		final Img<UnsignedByteType> img = new ArrayImgFactory<UnsignedByteType>().create(new int[] { 200, 200 }, new UnsignedByteType());
+
+		final Img<UnsignedByteType> img = new ArrayImgFactory<UnsignedByteType>()
+				.create(new int[] {200, 200}, new UnsignedByteType());
 		final ImgPlus<UnsignedByteType> imgplus = new ImgPlus<UnsignedByteType>(img);
-		imgplus.setCalibration(calibration);
+		for (int d = 0; d < imgplus.numDimensions(); d++) {
+			imgplus.setAxis(new DefaultLinearAxis(imgplus.axis(d).type(), calibration[d]), d);
+		}
 		final byte on = (byte) 255;
 
 		// Create an ellipse
 		long start = System.currentTimeMillis();
 		System.out.println(String.format("Creating an ellipse with a = %.1f, b = %.1f", a, b));
 		System.out.println(String.format("phi = %.1f", Math.toDegrees(phi_r)));
-		final long[] center = new long[] { size_x / 2, size_y / 2 };
+		final long[] center = new long[] { size_x/2, size_y/2};
 		final long[] radiuses = new long[] { max_radius, max_radius };
 
-		final EllipseNeighborhood<UnsignedByteType, Img<UnsignedByteType>> disc = new EllipseNeighborhood<UnsignedByteType, Img<UnsignedByteType>>(img, center, radiuses);
+		final EllipseNeighborhood<UnsignedByteType> disc =
+			new EllipseNeighborhood<UnsignedByteType>(img, center, radiuses);
 		final EllipseCursor<UnsignedByteType> sc = disc.cursor();
 
 		double r2, phi, term;
