@@ -401,7 +401,7 @@ public class TMUtils {
 		for (final AxisType axisType : axesQuery) {
 			final int dimensionIndex = img.dimensionIndex(axisType);
 			if (dimensionIndex >= 0) {
-				calibration[index++] = img.calibration(dimensionIndex);
+				calibration[index++] = img.averageScale(dimensionIndex);
 			}
 		}
 		return calibration;
