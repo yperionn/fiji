@@ -6,6 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
+import org.jgrapht.graph.SimpleWeightedGraph;
 
 import fiji.plugin.trackmate.features.FeatureFilter;
 
@@ -17,8 +18,9 @@ import fiji.plugin.trackmate.features.FeatureFilter;
  * through user manual editing and automatic processing. To avoid conflicting
  * accesses to the data, some specialized methods had to be created, hopefully
  * built in coherent sets.
- * 
+ *
  * @author Jean-Yves Tinevez <tinevez@pasteur.fr> - 2010-2011
+ *
  */
 public class Model {
 
@@ -163,7 +165,7 @@ public class Model {
 
 	/**
 	 * Sets the physical units for the quantities stored in this model.
-	 * 
+	 *
 	 * @param spaceUnits
 	 *            the spatial units (e.g. μm).
 	 * @param timeUnits
@@ -176,12 +178,8 @@ public class Model {
 
 	/**
 	 * Returns the spatial units for the quantities stored in this model.
-	 * 
+	 *
 	 * @return the spatial units.
-<<<<<<< HEAD
-=======
-	 * @return the spatial units.
->>>>>>> origin/track-mate
 	 */
 	public String getSpaceUnits() {
 		return spaceUnits;
@@ -189,7 +187,7 @@ public class Model {
 
 	/**
 	 * Returns the time units for the quantities stored in this model.
-	 * 
+	 *
 	 * @return the time units.
 	 */
 	public String getTimeUnits() {
@@ -222,10 +220,33 @@ public class Model {
 	 */
 
 	/**
-	 * Returns the {@link TrackModel} that manages tracks for this model.
+	 * Returns the {@link TrackModel} that manages the tracks for this model.
 	 */
 	public TrackModel getTrackModel() {
 		return trackModel;
+	}
+
+	/**
+	 * Sets the tracks stored in this model in bulk.
+	 * <p>
+	 * Clears the tracks of this model and replace it by the tracks found by
+	 * inspecting the specified graph. All new tracks found will be made visible
+	 * and will be given a default name.
+	 * <p>
+	 *
+	 * @param graph
+	 *            the graph to parse for tracks.
+	 * @param doNotify
+	 *            if <code>true</code>, model listeners will be notified with a
+	 *            {@link ModelChangeEvent#TRACKS_COMPUTED} event.
+	 */
+	public void setTracks(final SimpleWeightedGraph<Spot, DefaultWeightedEdge> graph, final boolean doNotify) {
+		trackModel.setGraph(graph);
+		if (doNotify) {
+			final ModelChangeEvent event = new ModelChangeEvent(this, ModelChangeEvent.TRACKS_COMPUTED);
+			for (final ModelChangeListener listener : modelChangeListeners)
+				listener.modelChanged(event);
+		}
 	}
 
 	/*
@@ -234,7 +255,7 @@ public class Model {
 
 	/**
 	 * Returns the spot collection managed by this model.
-	 * 
+	 *
 	 * @return the spot collection managed by this model.
 	 */
 	public SpotCollection getSpots() {
@@ -243,7 +264,7 @@ public class Model {
 
 	/**
 	 * Set the {@link SpotCollection} managed by this model.
-	 * 
+	 *
 <<<<<<< HEAD
 	 * @param spots
 	 *            the {@link SpotCollection} to set.
@@ -270,7 +291,7 @@ public class Model {
 	/**
 	 * Filters the {@link SpotCollection} managed by this model with the
 	 * {@link FeatureFilter}s specified.
-	 * 
+	 *
 	 * @param spotFilters
 	 *            the {@link FeatureFilter} collection to use for filtering.
 	 * @param doNotify
@@ -326,7 +347,7 @@ public class Model {
 	 * <p>
 	 * For the model update to happen correctly and listeners to be notified
 	 * properly, a call to this method must happen within a transaction, as in:
-	 * 
+	 *
 	 * <pre>
 	 * model.beginUpdate();
 	 * try {
@@ -335,7 +356,7 @@ public class Model {
 	 * 	model.endUpdate();
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * @param spotToMove
 	 *            the spot to move
 	 * @param fromFrame
@@ -373,7 +394,7 @@ public class Model {
 	 * <p>
 	 * For the model update to happen correctly and listeners to be notified
 	 * properly, a call to this method must happen within a transaction, as in:
-	 * 
+	 *
 	 * <pre>
 	 * model.beginUpdate();
 	 * try {
@@ -382,7 +403,7 @@ public class Model {
 	 * 	model.endUpdate();
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * @return the spot just added.
 	 */
 	public synchronized Spot addSpotTo(final Spot spotToAdd, final Integer toFrame) {
@@ -406,7 +427,7 @@ public class Model {
 	 * <p>
 	 * For the model update to happen correctly and listeners to be notified
 	 * properly, a call to this method must happen within a transaction, as in:
-	 * 
+	 *
 	 * <pre>
 	 * model.beginUpdate();
 	 * try {
@@ -415,7 +436,7 @@ public class Model {
 	 * 	model.endUpdate();
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * @param spotToRemove
 	 *            the spot to remove.
 <<<<<<< HEAD
@@ -452,7 +473,7 @@ public class Model {
 	 * <p>
 	 * For the model update to happen correctly and listeners to be notified
 	 * properly, a call to this method must happen within a transaction, as in:
-	 * 
+	 *
 	 * <pre>
 	 * model.beginUpdate();
 	 * try {
@@ -461,7 +482,7 @@ public class Model {
 	 * 	model.endUpdate();
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * @param spotToUpdate
 	 *            the spot to mark for update
 	 */
@@ -478,7 +499,7 @@ public class Model {
 	 * <p>
 	 * For the model update to happen correctly and listeners to be notified
 	 * properly, a call to this method must happen within a transaction, as in:
-	 * 
+	 *
 	 * <pre>
 	 * model.beginUpdate();
 	 * try {
@@ -487,7 +508,7 @@ public class Model {
 	 * 	model.endUpdate();
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * @param source
 	 *            the source spot.
 	 * @param target
@@ -503,7 +524,7 @@ public class Model {
 	/**
 	 * Removes an edge between two spots and returns it. Returns
 	 * <code>null</code> and do nothing to the tracks if the edge did not exist.
-	 * 
+	 *
 	 * @param source
 	 *            the source spot.
 	 * @param target
@@ -519,7 +540,7 @@ public class Model {
 	 * <p>
 	 * For the model update to happen correctly and listeners to be notified
 	 * properly, a call to this method must happen within a transaction, as in:
-	 * 
+	 *
 	 * <pre>
 	 * model.beginUpdate();
 	 * try {
@@ -528,7 +549,7 @@ public class Model {
 	 * 	model.endUpdate();
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * @param edge
 	 *            the edge to remove.
 	 * @return <code>true</code> if the edge existed in the model and was
@@ -543,7 +564,7 @@ public class Model {
 	 * <p>
 	 * For the model update to happen correctly and listeners to be notified
 	 * properly, a call to this method must happen within a transaction, as in:
-	 * 
+	 *
 	 * <pre>
 	 * model.beginUpdate();
 	 * try {
@@ -552,7 +573,7 @@ public class Model {
 	 * 	model.endUpdate();
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * @param edge
 	 *            the edge.
 	 * @param weight
@@ -568,7 +589,7 @@ public class Model {
 	 * <p>
 	 * For the model update to happen correctly and listeners to be notified
 	 * properly, a call to this method must happen within a transaction, as in:
-	 * 
+	 *
 	 * <pre>
 	 * model.beginUpdate();
 	 * try {
@@ -577,7 +598,7 @@ public class Model {
 	 * 	model.endUpdate();
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * @param trackID
 	 *            the track ID.
 	 * @param visible

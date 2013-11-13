@@ -9,10 +9,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.TreeMap;
 
 import javax.media.j3d.BadTransformException;
 import javax.vecmath.Color3f;
+import javax.vecmath.Color4f;
 import javax.vecmath.Point4d;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -44,7 +46,7 @@ public class SpotDisplayer3D extends AbstractTrackMateModelView {
 			"be in sync with the hyperstack displayer. " +
 			"</html>";
 	public static final int DEFAULT_RESAMPLING_FACTOR = 4;
-	public static final int DEFAULT_THRESHOLD = 50;
+	//	public static final int DEFAULT_THRESHOLD = 50;
 
 	private static final boolean DEBUG = false;
 	private static final String TRACK_CONTENT_NAME = "Tracks";
@@ -75,33 +77,158 @@ public class SpotDisplayer3D extends AbstractTrackMateModelView {
 	public void modelChanged(final ModelChangeEvent event) {
 		if (DEBUG) {
 			System.out.println("[SpotDisplayer3D: modelChanged() called with event ID: " + event.getEventID());
+			System.out.println(event);
 		}
-		switch (event.getEventID()) {
-		case ModelChangeEvent.SPOTS_COMPUTED:
-			spotContent = makeSpotContent();
-			universe.removeContent(SPOT_CONTENT_NAME);
-			universe.addContent(spotContent);
-			break;
-		case ModelChangeEvent.SPOTS_FILTERED:
-			for (final int frame : blobs.keySet()) {
-				final SpotGroupNode<Spot> frameBlobs = blobs.get(frame);
-				for (final Iterator<Spot> it = model.getSpots().iterator(frame, false); it.hasNext();) {
-					final Spot spot = it.next();
-					final boolean visible = spot.getFeature(SpotCollection.VISIBLITY).compareTo(SpotCollection.ZERO) > 0;
-					frameBlobs.setVisible(spot, visible);
-				}
-			}
-			break;
-		case ModelChangeEvent.TRACKS_COMPUTED:
-			trackContent = makeTrackContent();
-			universe.removeContent(TRACK_CONTENT_NAME);
-			universe.addContent(trackContent);
-			break;
-		case ModelChangeEvent.TRACKS_VISIBILITY_CHANGED:
-			updateTrackColors();
-			trackNode.setTrackVisible(model.getTrackModel().trackIDs(true));
-			break;
 
+		switch (event.getEventID()) {
+
+			case ModelChangeEvent.SPOTS_COMPUTED:
+				spotContent = makeSpotContent();
+				universe.removeContent(SPOT_CONTENT_NAME);
+				universe.addContent(spotContent);
+				break;
+
+			case ModelChangeEvent.SPOTS_FILTERED:
+				for (final int frame : blobs.keySet()) {
+					final SpotGroupNode<Spot> frameBlobs = blobs.get(frame);
+					for (final Iterator<Spot> it = model.getSpots().iterator(frame, false); it.hasNext();) {
+						final Spot spot = it.next();
+						final boolean visible = spot.getFeature(SpotCollection.VISIBLITY).compareTo(SpotCollection.ZERO) > 0;
+						frameBlobs.setVisible(spot, visible);
+					}
+				}
+				break;
+
+			case ModelChangeEvent.TRACKS_COMPUTED:
+				trackContent = makeTrackContent();
+				universe.removeContent(TRACK_CONTENT_NAME);
+				universe.addContent(trackContent);
+				break;
+
+			case ModelChangeEvent.TRACKS_VISIBILITY_CHANGED:
+				updateTrackColors();
+				trackNode.setTrackVisible(model.getTrackModel().trackIDs(true));
+				break;
+
+			case ModelChangeEvent.MODEL_MODIFIED: {
+
+				/*
+				 * Deal with spots first.
+				 */
+
+				// Useful fields.
+				@SuppressWarnings("unchecked")
+				final FeatureColorGenerator<Spot> spotColorGenerator = (FeatureColorGenerator<Spot>) displaySettings.get(KEY_SPOT_COLORING);
+				final float radiusRatio = (Float) displaySettings.get(KEY_SPOT_RADIUS_RATIO);
+
+				// Iterate each spot of the event.
+				final Set<Spot> spotsModified = event.getSpots();
+				for (final Spot spot : spotsModified) {
+					final int spotFlag = event.getSpotFlag(spot);
+					final int frame = spot.getFeature(Spot.FRAME).intValue();
+					final SpotGroupNode<Spot> spotGroupNode = blobs.get(frame);
+
+					switch (spotFlag) {
+						case ModelChangeEvent.FLAG_SPOT_REMOVED:
+							spotGroupNode.remove(spot);
+							break;
+
+						case ModelChangeEvent.FLAG_SPOT_ADDED: {
+
+							// Sphere location and radius
+							final double[] coords = new double[3];
+							TMUtils.localize(spot, coords);
+							final Double radius = spot.getFeature(Spot.RADIUS);
+							final double[] pos = new double[] {coords[0], coords[1], coords[2], radius*radiusRatio};
+							final Point4d center = new Point4d(pos);
+
+							// Sphere color
+							final Color4f color = new Color4f(spotColorGenerator.color(spot));
+							color.w = 0;
+							spotGroupNode.add(spot, center, color);
+							break;
+						}
+
+						case ModelChangeEvent.FLAG_SPOT_FRAME_CHANGED: {
+
+							// Where did it belonged?
+							Integer targetFrame = -1;
+							for (final Integer f : blobs.keySet()) {
+								if (blobs.get(f).centers.containsKey(spot)) {
+									targetFrame = f;
+									break;
+								}
+							}
+
+							if (targetFrame < 0) {
+								System.err.println("[SpotDisplayer3D] Could not find the frame spot " + spot + " belongs to.");
+								return;
+							}
+
+							blobs.get(targetFrame).remove(spot);
+							// Sphere location and radius
+							final double[] coords = new double[3];
+							TMUtils.localize(spot, coords);
+							final Double radius = spot.getFeature(Spot.RADIUS);
+							final double[] pos = new double[] { coords[0], coords[1], coords[2], radius * radiusRatio };
+							final Point4d center = new Point4d(pos);
+
+							// Sphere color
+							final Color4f color = new Color4f(spotColorGenerator.color(spot));
+							color.w = 0;
+							spotGroupNode.add(spot, center, color);
+							break;
+						}
+
+						case ModelChangeEvent.FLAG_SPOT_MODIFIED: {
+							spotGroupNode.remove(spot);
+							// Sphere location and radius
+							final double[] coords = new double[3];
+							TMUtils.localize(spot, coords);
+							final Double radius = spot.getFeature(Spot.RADIUS);
+							final double[] pos = new double[] { coords[0], coords[1], coords[2], radius * radiusRatio };
+							final Point4d center = new Point4d(pos);
+
+							// Sphere color
+							final Color4f color = new Color4f(spotColorGenerator.color(spot));
+							color.w = 0;
+							spotGroupNode.add(spot, center, color);
+							break;
+						}
+
+						default: {
+							System.err.println("[SpotDisplayer3D] Unknown spot flag ID: " + spotFlag);
+						}
+					}
+				}
+
+				/*
+				 * Deal with edges
+				 */
+
+				for (final DefaultWeightedEdge edge : event.getEdges()) {
+					final int edgeFlag = event.getEdgeFlag(edge);
+					switch (edgeFlag) {
+						case ModelChangeEvent.FLAG_EDGE_ADDED:
+						case ModelChangeEvent.FLAG_EDGE_MODIFIED:
+						case ModelChangeEvent.FLAG_EDGE_REMOVED: {
+							trackNode.makeMeshes();
+							updateTrackColors();
+							break;
+						}
+
+						default: {
+							System.err.println("[SpotDisplayer3D] Unknown edge flag ID: " + edgeFlag);
+						}
+
+					}
+				}
+				break;
+			}
+
+			default: {
+				System.err.println("[SpotDisplayer3D] Unknown event ID: " + event.getEventID());
+			}
 		}
 	}
 
@@ -161,7 +288,7 @@ public class SpotDisplayer3D extends AbstractTrackMateModelView {
 			}
 		} else if (key == KEY_SPOTS_VISIBLE) {
 			spotContent.setVisible((Boolean) value);
-		} else if (key == KEY_TRACKS_VISIBLE) {
+		} else if (key == KEY_TRACKS_VISIBLE && null != trackContent) {
 			trackContent.setVisible((Boolean) value);
 		} else if (key == KEY_TRACK_DISPLAY_MODE && null != trackNode) {
 			trackNode.setTrackDisplayMode((Integer) value);
@@ -281,7 +408,7 @@ public class SpotDisplayer3D extends AbstractTrackMateModelView {
 			final SpotGroupNode<Spot> spotGroup = blobs.get(frame);
 			for (final Iterator<Spot> iterator = model.getSpots().iterator(frame, false); iterator.hasNext();) {
 				final Spot spot = iterator.next();
-				spotGroup.setRadius(spot, radiusRatio*spot.getFeature(Spot.RADIUS));
+				spotGroup.setRadius(spot, radiusRatio * spot.getFeature(Spot.RADIUS));
 			}
 		}
 	}

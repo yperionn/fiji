@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.media.j3d.Appearance;
+import javax.media.j3d.BranchGroup;
 import javax.media.j3d.ColoringAttributes;
 import javax.media.j3d.Font3D;
 import javax.media.j3d.LineAttributes;
@@ -34,6 +35,20 @@ public class SpotGroupNode<K> extends ContentNode {
 
 	private static final int DEFAULT_MERIDIAN_NUMBER = 12;
 	private static final int DEFAULT_PARALLEL_NUMBER = 12;
+
+	/**
+	 * The font size
+	 */
+	private final float fontsize = 3;
+	private final Font3D font3D = new Font3D(SMALL_FONT.deriveFont(fontsize), null);
+	private final Appearance textAp = new Appearance();
+	private final LineAttributes lineAttributes = new LineAttributes(1, 1, true);
+	private final Color3f color3 = new Color3f(TrackMateModelView.DEFAULT_SPOT_COLOR);
+	{
+		textAp.setLineAttributes(lineAttributes);
+		textAp.setColoringAttributes(new ColoringAttributes(color3, ColoringAttributes.FASTEST));
+	}
+
 	/**
 	 * Holder (cache) for the coordinates of the mesh of a globe of radius 1,
 	 * centered at (0, 0, 0), that will be used to generate all spheres in this
@@ -54,6 +69,10 @@ public class SpotGroupNode<K> extends ContentNode {
 	 * Hold the mesh of each spot.
 	 */
 	protected HashMap<K, CustomTriangleMesh> meshes;
+	/**
+	 * Hold the text of each spot.
+	 */
+	protected Map<K, TransformGroup> texts;
 
 	/**
 	 * Switch used for spot display.
@@ -69,7 +88,6 @@ public class SpotGroupNode<K> extends ContentNode {
 	protected BitSet switchMask;
 	/**
 	 * Map that links the spot keys to their indices in the Switch.
-	 *
 	 * @see #spotSwitch
 	 */
 	protected HashMap<K, Integer> indices;
@@ -77,10 +95,7 @@ public class SpotGroupNode<K> extends ContentNode {
 	 * If true, the text label will be displayed next to the balls.
 	 */
 	private boolean showLabels = false;
-	/**
-	 * The font size
-	 */
-	private final float fontsize = 3;
+
 
 	/**
 	 * Create a new {@link SpotGroupNode} with spots at position and with color
@@ -128,7 +143,6 @@ public class SpotGroupNode<K> extends ContentNode {
 	 * <p>
 	 * The arguments are copied on creation, ensuring that are unmodified by
 	 * this class, and vice-versa.
-	 *
 	 * @param centers
 	 * @param colors
 	 */
@@ -174,7 +188,8 @@ public class SpotGroupNode<K> extends ContentNode {
 		str.append("  - content:\n");
 		for (final K spot : centers.keySet()) {
 			final int index = indices.get(spot);
-			str.append("     - " + spot + ": color = " + colors.get(spot) + "; center = " + centers.get(spot) + "; visible = " + switchMask.get(index) + "\n");
+			str.append("     - " + spot + ": color = " +colors.get(spot) + "; center = "
+					+ centers.get(spot) + "; visible = " + switchMask.get(index)  + "\n");
 		}
 		return str.toString();
 	}
@@ -191,40 +206,34 @@ public class SpotGroupNode<K> extends ContentNode {
 	 * with new values.
 	 */
 	protected void makeMeshes() {
-		List<Point3f> points;
-		CustomTriangleMesh node;
-		Color4f color;
-		Point4d center;
 		meshes = new HashMap<K, CustomTriangleMesh>(centers.size());
+		texts = new HashMap<K, TransformGroup>(centers.size());
 		indices = new HashMap<K, Integer>(centers.size());
 		spotSwitch.removeAllChildren();
 		textSwitch.removeAllChildren();
 		int index = 0;
 
-		final Font3D font3D = new Font3D(SMALL_FONT.deriveFont(fontsize), null);
-		final Appearance textAp = new Appearance();
-		final LineAttributes lineAttributes = new LineAttributes(1, 1, true);
-		textAp.setLineAttributes(lineAttributes);
-		final Color3f color3 = new Color3f(TrackMateModelView.DEFAULT_SPOT_COLOR);
-		textAp.setColoringAttributes(new ColoringAttributes(color3, ColoringAttributes.FASTEST));
 
 		for (final K key : centers.keySet()) {
-			center = centers.get(key);
-			color = colors.get(key);
+			final Point4d center = centers.get(key);
+			final Color4f color = colors.get(key);
 
 			// Create mesh for the ball
-			points = createSphere(center.x, center.y, center.z, center.w);
-			node = new CustomTriangleMesh(points, new Color3f(color.x, color.y, color.z), color.w);
+			final List<Point3f> points = createSphere(center.x, center.y, center.z, center.w);
+			final CustomTriangleMesh node = new CustomTriangleMesh(points, new Color3f(color.x, color.y, color.z), color.w);
 			// Add it to the switch. We keep an index of the position it is added to for later retrieval by key
 			meshes.put(key, node);
-			spotSwitch.addChild(node); // at index
+			final BranchGroup bg = new BranchGroup();
+			bg.setCapability(BranchGroup.ALLOW_DETACH);
+			bg.addChild(node);
+			spotSwitch.addChild(bg); // at index
 			indices.put(key, index); // store index for key
 			index++;
 
 			// Deal with the text
 			final Transform3D translation = new Transform3D();
 			translation.rotX(Math.PI);
-			translation.setTranslation(new Vector3d(center.x + 1.5f * center.w, center.y, center.z));
+			translation.setTranslation(new Vector3d(center.x + 1.5f*center.w, center.y, center.z));
 			final TransformGroup tg = new TransformGroup(translation);
 
 			final OrientedShape3D textShape = new OrientedShape3D();
@@ -237,7 +246,12 @@ public class SpotGroupNode<K> extends ContentNode {
 			textShape.setAppearance(textAp);
 
 			tg.addChild(textShape);
-			textSwitch.addChild(tg);
+			texts.put(key, tg);
+
+			final BranchGroup bg2 = new BranchGroup();
+			bg2.addChild(tg);
+			bg2.setCapability(BranchGroup.ALLOW_DETACH);
+			textSwitch.addChild(bg2);
 
 		}
 		switchMask = new BitSet(centers.size());
@@ -253,6 +267,89 @@ public class SpotGroupNode<K> extends ContentNode {
 		addChild(textSwitch);
 	}
 
+	public void add(final K key, final Point4d center, final Color4f color) {
+
+		// Sphere
+		final List<Point3f> points = createSphere(center.x, center.y, center.z, center.w);
+		final CustomTriangleMesh node = new CustomTriangleMesh(points, new Color3f(color.x, color.y, color.z), color.w);
+		final BranchGroup bg1 = new BranchGroup();
+		bg1.setCapability(BranchGroup.ALLOW_DETACH);
+		bg1.addChild(node);
+		spotSwitch.addChild(bg1);
+
+		// Text
+		final Text3D textGeom = new Text3D(font3D, key.toString());
+		textGeom.setAlignment(Text3D.ALIGN_FIRST);
+
+		final OrientedShape3D textShape = new OrientedShape3D();
+		textShape.setAlignmentMode(OrientedShape3D.ROTATE_NONE);
+		textShape.addGeometry(textGeom);
+		textShape.setAppearance(textAp);
+
+		final Transform3D translation = new Transform3D();
+		translation.rotX(Math.PI);
+		translation.setTranslation(new Vector3d(center.x + 1.5f * center.w, center.y, center.z));
+		final TransformGroup tg = new TransformGroup(translation);
+		tg.addChild(textShape);
+		final BranchGroup bg2 = new BranchGroup();
+		bg2.setCapability(BranchGroup.ALLOW_DETACH);
+		bg2.addChild(tg);
+		textSwitch.addChild(bg2);
+
+		final int index = centers.size();
+		indices.put(key, index);
+		final BitSet bitSet = new BitSet(switchMask.length());
+		for (int i = 0; i < switchMask.length(); i++) {
+			bitSet.set(i, switchMask.get(i));
+		}
+		bitSet.set(switchMask.length(), true);
+		switchMask = bitSet;
+		spotSwitch.setChildMask(switchMask);
+		if (showLabels) {
+			textSwitch.setChildMask(switchMask);
+		} else {
+			textSwitch.setChildMask(new BitSet(centers.size()));
+		}
+
+		texts.put(key, tg);
+		meshes.put(key, node);
+		colors.put(key, color);
+		centers.put(key, center);
+	}
+
+	public void remove(final K key) {
+		// Remove from generic holders
+		final int index = indices.remove(key);
+		centers.remove(key);
+		colors.remove(key);
+
+		// Remove spot from scene
+		final CustomTriangleMesh mesh = meshes.remove(key);
+		spotSwitch.removeChild(mesh.getParent());
+
+		// Remove text from scene
+		final TransformGroup tg = texts.remove(key);
+		textSwitch.removeChild(tg.getParent());
+
+		// Rebuild visibility mask
+		final BitSet bitSet = new BitSet(switchMask.length());
+		for (int i = 0; i < index; i++) {
+			bitSet.set(i, switchMask.get(i));
+		}
+		for (int i = index + 1; i < switchMask.length(); i++) {
+			bitSet.set(i - 1, switchMask.get(i));
+		}
+		switchMask = bitSet;
+
+		// Pass new visibility mask
+		spotSwitch.setChildMask(bitSet);
+		if (showLabels) {
+			textSwitch.setChildMask(bitSet);
+		} else {
+			textSwitch.setChildMask(new BitSet(centers.size()));
+		}
+	}
+
 	/**
 	 * Create the list of points of the mesh of sphere, centered on (x, y, z) of
 	 * radius r, based on the {@link #globe} cache calculated by
@@ -264,20 +361,39 @@ public class SpotGroupNode<K> extends ContentNode {
 
 		// Create triangular faces and add them to the list
 		final ArrayList<Point3f> list = new ArrayList<Point3f>();
+
 		for (int j = 0; j < globe.length - 1; j++) { // the parallels
 			for (int k = 0; k < globe[0].length - 1; k++) { // meridian points
 				if (j != globe.length - 2) {
 
 					// Half quadrant (a triangle)
-					list.add(new Point3f((float) (globe[j + 1][k + 1][0] * r + x), (float) (globe[j + 1][k + 1][1] * r + y), (float) (globe[j + 1][k + 1][2] * r + z)));
-					list.add(new Point3f((float) (globe[j][k][0] * r + x), (float) (globe[j][k][1] * r + y), (float) (globe[j][k][2] * r + z)));
-					list.add(new Point3f((float) (globe[j + 1][k][0] * r + x), (float) (globe[j + 1][k][1] * r + y), (float) (globe[j + 1][k][2] * r + z)));
+					list.add(new Point3f(
+							(float) (globe[j+1][k+1][0] * r + x),
+							(float) (globe[j+1][k+1][1] * r + y),
+							(float) (globe[j+1][k+1][2] * r + z)));
+					list.add(new Point3f(
+							(float) (globe[j][k][0] * r + x),
+							(float) (globe[j][k][1] * r + y),
+							(float) (globe[j][k][2] * r + z)));
+					list.add(new Point3f(
+							(float) (globe[j+1][k][0] * r + x),
+							(float) (globe[j+1][k][1] * r + y),
+							(float) (globe[j+1][k][2] * r + z)));
 				}
 				if (j != 0) {
 					// The other half quadrant
-					list.add(new Point3f((float) (globe[j][k][0] * r + x), (float) (globe[j][k][1] * r + y), (float) (globe[j][k][2] * r + z)));
-					list.add(new Point3f((float) (globe[j + 1][k + 1][0] * r + x), (float) (globe[j + 1][k + 1][1] * r + y), (float) (globe[j + 1][k + 1][2] * r + z)));
-					list.add(new Point3f((float) (globe[j][k + 1][0] * r + x), (float) (globe[j][k + 1][1] * r + y), (float) (globe[j][k + 1][2] * r + z)));
+					list.add(new Point3f(
+							(float) (globe[j][k][0] * r + x),
+							(float) (globe[j][k][1] * r + y),
+							(float) (globe[j][k][2] * r + z)));
+					list.add(new Point3f(
+							(float) (globe[j+1][k+1][0] * r + x),
+							(float) (globe[j+1][k+1][1] * r + y),
+							(float) (globe[j+1][k+1][2] * r + z)));
+					list.add(new Point3f(
+							(float) (globe[j][k+1][0] * r + x),
+							(float) (globe[j][k+1][1] * r + y),
+							(float) (globe[j][k+1][2] * r + z)));
 				}
 			}
 		}
@@ -296,7 +412,8 @@ public class SpotGroupNode<K> extends ContentNode {
 	public void setVisible(final Iterable<K> toShow) {
 		switchMask = new BitSet(meshes.size());
 		Integer index;
-		for (final K key : toShow) {
+
+		for(final K key : toShow) {
 			index = indices.get(key);
 			if (null == index)
 				continue;
@@ -318,7 +435,7 @@ public class SpotGroupNode<K> extends ContentNode {
 	 * Set the visibility of all spots.
 	 */
 	public void setVisible(final boolean visible) {
-		switchMask.set(0, switchMask.size() - 1, visible);
+		switchMask.set(0, switchMask.size()-1, visible);
 		spotSwitch.setChildMask(switchMask);
 	}
 
@@ -405,8 +522,13 @@ public class SpotGroupNode<K> extends ContentNode {
 
 	/**
 	 * Move the spot <code>key</code> center to the position given by the
+<<<<<<< HEAD
 	 * <code>x</code>, <code>y</code>, <code>z</code> fields of the
 	 * {@link Point4d}. Its radius is set by the <code>w</code> field.
+=======
+	 * <code>x</code>,  <code>y</code>,  <code>z</code> fields of the {@link Point4d}.
+	 * Its radius is set by the <code>w</code> field.
+>>>>>>> origin/track-mate
 	 */
 	public void setCenter(final K key, final Point4d center) {
 		final CustomTriangleMesh mesh = meshes.get(key);
@@ -436,20 +558,20 @@ public class SpotGroupNode<K> extends ContentNode {
 
 	@Override
 	public void colorUpdated(final Color3f color) {
-		for (final CustomTriangleMesh mesh : meshes.values())
+		for(final CustomTriangleMesh mesh : meshes.values())
 			mesh.setColor(color);
 	}
 
 	@Override
 	public void transparencyUpdated(final float transparency) {
-		for (final CustomTriangleMesh mesh : meshes.values())
+		for(final CustomTriangleMesh mesh : meshes.values())
 			mesh.setTransparency(transparency);
 	}
 
 	@Override
 	public void shadeUpdated(final boolean shaded) {
 		for (final CustomTriangleMesh mesh : meshes.values())
-			mesh.setShaded(shaded);
+			 mesh.setShaded(shaded);
 	}
 
 	@Override
@@ -512,35 +634,30 @@ public class SpotGroupNode<K> extends ContentNode {
 		return volume;
 	}
 
-	@Override
-	public void channelsUpdated(final boolean[] channels) {
-	}
+
 
 	@Override
-	public void thresholdUpdated(final int threshold) {
-	}
+	public void channelsUpdated(final boolean[] channels) {}
+	@Override
+	public void thresholdUpdated(final int threshold) {}
+	@Override
+	public void eyePtChanged(final View view) {}
 
 	@Override
-	public void eyePtChanged(final View view) {
-	}
+	public void lutUpdated(final int[] r, final int[] g, final int[] b, final int[] a) {}
 
 	@Override
-	public void lutUpdated(final int[] r, final int[] g, final int[] b, final int[] a) {
-	}
+	public void swapDisplayedData(final String path, final String name) {}
 
 	@Override
-	public void swapDisplayedData(final String path, final String name) {
-	}
-
-	@Override
-	public void restoreDisplayedData(final String path, final String name) {
-	}
+	public void restoreDisplayedData(final String path, final String name) {}
 
 	@Override
 	public void clearDisplayedData() {
 	}
 
 	/**
+	 *
 	 * Generate a globe of radius 1.0 that can be used for any Ball. First
 	 * dimension is Z, then comes a double array x,y. Minimal accepted meridians
 	 * and parallels is 3.
@@ -574,12 +691,13 @@ public class SpotGroupNode<K> extends ContentNode {
 		xy_points[xy_points.length - 1][1] = 0;
 
 		// Build parallels from circle
-		angle_increase = (float) (Math.PI / parallels); // = 180 / parallels in radians
-		final float[][][] xyz = new float[parallels + 1][xy_points.length][3];
-		for (int p = 1; p < xyz.length - 1; p++) {
-			final float radius = (float) Math.sin(angle_increase * p);
-			final float Z = (float) Math.cos(angle_increase * p);
-			for (int mm = 0; mm < xyz[0].length - 1; mm++) {
+
+		angle_increase = (float) (Math.PI / parallels);   // = 180 / parallels in radians
+		final float[][][] xyz = new float[parallels+1][xy_points.length][3];
+		for (int p=1; p<xyz.length-1; p++) {
+			final float radius = (float) Math.sin(angle_increase*p);
+			final float Z = (float) Math.cos(angle_increase*p);
+			for (int mm=0; mm<xyz[0].length-1; mm++) {
 				//scaling circle to appropriate radius, and positioning the Z
 				xyz[p][mm][0] = xy_points[mm][0] * radius;
 				xyz[p][mm][1] = xy_points[mm][1] * radius;
