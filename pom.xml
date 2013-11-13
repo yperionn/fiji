@@ -57,7 +57,6 @@
 		<skeletonize3d.version>1.0.1-SNAPSHOT</skeletonize3d.version>
 		<trakem2.version>1.0b-SNAPSHOT</trakem2.version>
 		<weka.version>3.7.6</weka.version>
-		<imglib2.version>2.0.0-SNAPSHOT</imglib2.version>
 	</properties>
 
 	<modules>
