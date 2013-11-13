@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 
+import net.imglib2.meta.Axes;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.util.Util;
@@ -104,7 +105,21 @@ public class TransformUtils
 	{
 		final AffineTransform3D transform = new AffineTransform3D();
 		final double[] calibration = Util.getArrayFromValue( 1d, 3 );
-		img.calibration( calibration );
+		for ( int d = 0; d < img.numDimensions(); d++ )
+		{
+			if ( img.axis( d ).type() == Axes.X )
+			{
+				calibration[ 0 ] = img.averageScale( d );
+			}
+			else if ( img.axis( d ).type() == Axes.Y )
+			{
+				calibration[ 1 ] = img.averageScale( d );
+			}
+			else if ( img.axis( d ).type() == Axes.Z )
+			{
+				calibration[ 2 ] = img.averageScale( d );
+			}
+		}
 		transform.set( 1 / calibration[ 0 ], 0, 0, 0, 0, 1 / calibration[ 1 ], 0, 0, 0, 0, 1 / calibration[ 2 ], 0 );
 		return transform;
 	}
