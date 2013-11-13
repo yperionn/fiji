@@ -1833,6 +1833,25 @@ public class WekaSegmentation {
 		this.classifier = cls;
 	}
 
+    /**
+     * Set current training header, and attempt to adjust segmentation state to it.
+     * @param newHeader the header to set
+     * @return true if adjustment was successful
+     */
+    public boolean setTrainHeader(final Instances newHeader)
+    {
+        if (adjustSegmentationStateToData(newHeader))
+        {
+            this.trainHeader = newHeader;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+
 	/**
 	 * Load a new image to segment (no GUI)
 	 *
@@ -3400,8 +3419,12 @@ public class WekaSegmentation {
 								featuresChanged = true;
 							}
 							break;
+						case FeatureStack.KUWAHARA:
+							tokens = a.name().split("_");
+							membranePatchSize = Integer.parseInt( tokens[ 1 ]);
+							break;							
 						case FeatureStack.NEIGHBORS:
-						case FeatureStack.ENTROPY:
+						case FeatureStack.ENTROPY:						
 							tokens = a.name().split("_");
 							sigma = Float.parseFloat( tokens[ 1 ]);
 							if(sigma < minSigma)
@@ -3425,7 +3448,9 @@ public class WekaSegmentation {
 							if(sigma > maxSigma)
 								maxSigma = sigma;
 							break;
-							
+						case FeatureStack.BILATERAL:
+						case FeatureStack.LIPSCHITZ:
+							break; // Bilateral and Lipschitz filters do not have sigma																		
 						default:
 							tokens = a.name().split("_");
 							for(int j=0; j<tokens.length; j++)
