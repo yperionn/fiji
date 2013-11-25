@@ -11,9 +11,10 @@
 		<version>2.0.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>Fiji_Archipelago</artifactId>
+	<artifactId>Archipelago_Plugins</artifactId>
+	<version>0.5.0-SNAPSHOT</version>
 
-	<name>plugins/Fiji_Archipelago.jar</name>
+	<name>plugins/Archipelago_Plugins.jar</name>
 	<description></description>
 
 	<dependencies>
@@ -23,14 +24,14 @@
 			<version>${imagej1.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.jcraft</groupId>
-			<artifactId>jsch</artifactId>
-			<version>${jsch.version}</version>
+			<groupId>sc.fiji</groupId>
+			<artifactId>Fiji_Archipelago</artifactId>
+			<version>2.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>mpicbg</groupId>
-			<artifactId>mpicbg</artifactId>
-			<version>${mpicbg.version}</version>
+			<groupId>sc.fiji</groupId>
+			<artifactId>Trainable_Segmentation</artifactId>
+			<version>2.0.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
@@ -44,7 +45,6 @@
 			<id>imagej.snapshots</id>
 			<url>http://maven.imagej.net/content/repositories/snapshots</url>
 		</repository>
-		<!-- NB: for JAI -->
 		<repository>
 			<id>JBoss 3rdparty</id>
 			<url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases</url>
