@@ -5,6 +5,7 @@ import fiji.plugin.trackmate.io.IOUtils;
 import ij.IJ;
 import ij.ImageJ;
 import ij.plugin.PlugIn;
+import io.scif.img.ImgIOException;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,7 +13,6 @@ import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import loci.formats.FormatException;
-import net.imglib2.io.ImgIOException;
 
 import org.xml.sax.SAXException;
 
