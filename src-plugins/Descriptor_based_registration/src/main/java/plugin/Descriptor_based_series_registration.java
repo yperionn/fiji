@@ -1,6 +1,6 @@
 package plugin;
 
-import fiji.plugin.GUIHelper;
+import spim.fiji.plugin.GUIHelper;
 import fiji.stacks.Hyperstack_rearranger;
 import fiji.util.gui.GenericDialogPlus;
 import ij.IJ;

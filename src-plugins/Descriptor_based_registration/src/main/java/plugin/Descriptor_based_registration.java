@@ -3,7 +3,7 @@ package plugin;
 import javax.media.j3d.Transform3D;
 import javax.vecmath.Vector3d;
 
-import fiji.plugin.GUIHelper;
+import spim.fiji.plugin.GUIHelper;
 import fiji.stacks.Hyperstack_rearranger;
 import ij.CompositeImage;
 import ij.IJ;
