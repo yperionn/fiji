@@ -11,16 +11,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.view.HyperSliceImgPlus;
+import net.imglib2.Interval;
+import net.imglib2.RandomAccessible;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
+import fiji.plugin.trackmate.util.TMUtils;
 
 public class DownsampleLogDetectorFactory<T extends RealType<T> & NativeType<T>> extends LogDetectorFactory<T> {
 
 	/*
 	 * CONSTANTS
 	 */
+
 
 	/** A string key identifying this factory. */
 	public static final String DETECTOR_KEY = "DOWNSAMPLE_LOG_DETECTOR";
@@ -39,15 +42,27 @@ public class DownsampleLogDetectorFactory<T extends RealType<T> & NativeType<T>>
 	 */
 
 	@Override
-	public SpotDetector<T> getDetector(final int frame) {
-		final int targetChannel = (Integer) settings.get(KEY_TARGET_CHANNEL) - 1; // parameter is 1-based
-		final ImgPlus<T> imgC = HyperSliceImgPlus.fixChannelAxis(img, targetChannel);
-		final ImgPlus<T> imgT = HyperSliceImgPlus.fixTimeAxis(imgC, frame);
+	public SpotDetector< T > getDetector( final Interval interval, final int frame )
+	{
 		final double radius = (Double) settings.get(KEY_RADIUS);
 		final double threshold = (Double) settings.get(KEY_THRESHOLD);
 		final int downsamplingFactor = (Integer) settings.get(KEY_DOWNSAMPLE_FACTOR);
-		return new DownsampleLogDetector<T>(imgT, radius, threshold, downsamplingFactor);
+		final double[] calibration = TMUtils.getSpatialCalibration( img );
+
+		final int timeDim = TMUtils.findTAxisIndex( img );
+		final RandomAccessible< T > imFrame;
+		if ( timeDim < 0 )
+		{
+			imFrame = img;
+		}
+		else
+		{
+			imFrame = Views.hyperSlice( img, timeDim, frame );
+		}
+		final DownsampleLogDetector< T > detector = new DownsampleLogDetector< T >( imFrame, interval, calibration, radius, threshold, downsamplingFactor );
+		return detector;
 	}
+
 
 	@Override
 	public String getKey() {
@@ -93,5 +108,6 @@ public class DownsampleLogDetectorFactory<T extends RealType<T> & NativeType<T>>
 		ok = ok & checkMapKeys(settings, mandatoryKeys, null, errorHolder);
 		return ok;
 	}
+
 
 }

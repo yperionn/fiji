@@ -24,27 +24,35 @@ import fiji.plugin.trackmate.providers.SpotAnalyzerProvider;
 import fiji.plugin.trackmate.providers.TrackAnalyzerProvider;
 import fiji.plugin.trackmate.visualization.hyperstack.HyperStackDisplayer;
 
-public class StartDialogDescriptor implements WizardPanelDescriptor {
+public class StartDialogDescriptor implements WizardPanelDescriptor
+{
 
 	private static final String KEY = "Start";
+
 	private final StartDialogPanel panel;
-	private final ArrayList<ActionListener> actionListeners = new ArrayList<ActionListener>();
+
+	private final ArrayList< ActionListener > actionListeners = new ArrayList< ActionListener >();
+
 	private final TrackMateGUIController controller;
+
 	/**
 	 * The view that is launched immediately when this descriptor leaves. It
 	 * will be used as a central view.
 	 */
 	private HyperStackDisplayer mainView;
 
-	public StartDialogDescriptor(final TrackMateGUIController controller) {
+	public StartDialogDescriptor( final TrackMateGUIController controller )
+	{
 		this.controller = controller;
 		this.panel = new StartDialogPanel();
-		panel.addActionListener(new ActionListener() {
+		panel.addActionListener( new ActionListener()
+		{
 			@Override
-			public void actionPerformed(final ActionEvent event) {
-				fireAction(event);
+			public void actionPerformed( final ActionEvent event )
+			{
+				fireAction( event );
 			}
-		});
+		} );
 	}
 
 	/*
@@ -57,7 +65,8 @@ public class StartDialogDescriptor implements WizardPanelDescriptor {
 	 *
 	 * @return a boolean flag.
 	 */
-	public boolean isImpValid() {
+	public boolean isImpValid()
+	{
 		return panel.isImpValid();
 	}
 
@@ -66,28 +75,35 @@ public class StartDialogDescriptor implements WizardPanelDescriptor {
 	 */
 
 	@Override
-	public StartDialogPanel getComponent() {
+	public StartDialogPanel getComponent()
+	{
 		return panel;
 	}
 
 	@Override
-	public void aboutToDisplayPanel() { }
+	public void aboutToDisplayPanel()
+	{}
 
 	@Override
-	public void displayingPanel() {
+	public void displayingPanel()
+	{
 		ImagePlus imp;
 		final TrackMate trackmate = controller.getPlugin();
-		if (null == trackmate.getSettings().imp) {
+		if ( null == trackmate.getSettings().imp )
+		{
 			imp = WindowManager.getCurrentImage();
-		} else {
-			panel.echoSettings(trackmate.getModel(), trackmate.getSettings());
+		}
+		else
+		{
+			panel.echoSettings( trackmate.getModel(), trackmate.getSettings() );
 			imp = trackmate.getSettings().imp;
 		}
-		panel.getFrom(imp);
+		panel.getFrom( imp );
 	}
 
 	@Override
-	public void aboutToHidePanel() {
+	public void aboutToHidePanel()
+	{
 		final TrackMate trackmate = controller.getPlugin();
 		final Settings settings = trackmate.getSettings();
 		final Model model = trackmate.getModel();
@@ -96,8 +112,8 @@ public class StartDialogDescriptor implements WizardPanelDescriptor {
 		 * Get settings and pass them to the trackmate managed by the wizard
 		 */
 
-		panel.updateTo(model, settings);
-		trackmate.getModel().getLogger().log(settings.toStringImageInfo());
+		panel.updateTo( model, settings );
+		trackmate.getModel().getLogger().log( settings.toStringImageInfo() );
 
 		/*
 		 * Configure settings object with spot, edge and track analyzers as
@@ -107,52 +123,62 @@ public class StartDialogDescriptor implements WizardPanelDescriptor {
 
 		settings.clearSpotAnalyzerFactories();
 		final SpotAnalyzerProvider spotAnalyzerProvider = controller.getSpotAnalyzerProvider();
-		final List<String> spotAnalyzerKeys = spotAnalyzerProvider.getAvailableFeatureAnalyzers();
-		for (final String key : spotAnalyzerKeys) {
-			final SpotAnalyzerFactory<?> spotFeatureAnalyzer = spotAnalyzerProvider.getFeatureAnalyzer(key);
-			settings.addSpotAnalyzerFactory(spotFeatureAnalyzer);
+		final List< String > spotAnalyzerKeys = spotAnalyzerProvider.getAvailableFeatureAnalyzers();
+		for ( final String key : spotAnalyzerKeys )
+		{
+			final SpotAnalyzerFactory< ? > spotFeatureAnalyzer = spotAnalyzerProvider.getFeatureAnalyzer( key );
+			settings.addSpotAnalyzerFactory( spotFeatureAnalyzer );
 		}
 
 		settings.clearEdgeAnalyzers();
 		final EdgeAnalyzerProvider edgeAnalyzerProvider = controller.getEdgeAnalyzerProvider();
-		final List<String> edgeAnalyzerKeys = edgeAnalyzerProvider.getAvailableFeatureAnalyzers();
-		for (final String key : edgeAnalyzerKeys) {
-			final EdgeAnalyzer edgeAnalyzer = edgeAnalyzerProvider.getFeatureAnalyzer(key);
-			settings.addEdgeAnalyzer(edgeAnalyzer);
+		final List< String > edgeAnalyzerKeys = edgeAnalyzerProvider.getAvailableFeatureAnalyzers();
+		for ( final String key : edgeAnalyzerKeys )
+		{
+			final EdgeAnalyzer edgeAnalyzer = edgeAnalyzerProvider.getFeatureAnalyzer( key );
+			settings.addEdgeAnalyzer( edgeAnalyzer );
 		}
 
 		settings.clearTrackAnalyzers();
 		final TrackAnalyzerProvider trackAnalyzerProvider = controller.getTrackAnalyzerProvider();
-		final List<String> trackAnalyzerKeys = trackAnalyzerProvider.getAvailableFeatureAnalyzers();
-		for (final String key : trackAnalyzerKeys) {
-			final TrackAnalyzer trackAnalyzer = trackAnalyzerProvider.getFeatureAnalyzer(key);
-			settings.addTrackAnalyzer(trackAnalyzer);
+		final List< String > trackAnalyzerKeys = trackAnalyzerProvider.getAvailableFeatureAnalyzers();
+		for ( final String key : trackAnalyzerKeys )
+		{
+			final TrackAnalyzer trackAnalyzer = trackAnalyzerProvider.getFeatureAnalyzer( key );
+			settings.addTrackAnalyzer( trackAnalyzer );
 		}
 
-		trackmate.getModel().getLogger().log(settings.toStringFeatureAnalyzersInfo());
+		trackmate.getModel().getLogger().log( settings.toStringFeatureAnalyzersInfo() );
 
 		/*
 		 * Launch the ImagePlus view now.
 		 */
 
 		// De-register old one, if any.
-		if (mainView != null) {
+		if ( mainView != null )
+		{
 			mainView.clear();
-			model.removeModelChangeListener(mainView);
+			model.removeModelChangeListener( mainView );
 		}
 
 		final SelectionModel selectionModel = controller.getSelectionModel();
-		mainView = new HyperStackDisplayer(model, selectionModel, settings.imp);
-		controller.getGuimodel().addView(mainView);
-		final Map<String, Object> displaySettings = controller.getGuimodel().getDisplaySettings();
-		for (final String key : displaySettings.keySet()) {
-			mainView.setDisplaySettings(key, displaySettings.get(key));
+		mainView = new HyperStackDisplayer( model, selectionModel, settings.imp );
+		controller.getGuimodel().addView( mainView );
+		final Map< String, Object > displaySettings = controller.getGuimodel().getDisplaySettings();
+		for ( final String key : displaySettings.keySet() )
+		{
+			mainView.setDisplaySettings( key, displaySettings.get( key ) );
 		}
 		mainView.render();
 	}
 
 	@Override
-	public String getKey() {
+	public void comingBackToPanel()
+	{}
+
+	@Override
+	public String getKey()
+	{
 		return KEY;
 	}
 
@@ -164,28 +190,35 @@ public class StartDialogDescriptor implements WizardPanelDescriptor {
 	 * Adds an {@link ActionListener} to this panel. These listeners will be
 	 * notified when a button is pushed or when the feature to color is changed.
 	 */
-	public void addActionListener(final ActionListener listener) {
-		actionListeners.add(listener);
+	public void addActionListener( final ActionListener listener )
+	{
+		actionListeners.add( listener );
 	}
 
 	/**
 	 * Removes an ActionListener from this panel.
-	 * @return true if the listener was in the ActionListener collection of this instance.
+	 *
+	 * @return true if the listener was in the ActionListener collection of this
+	 *         instance.
 	 */
-	public boolean removeActionListener(final ActionListener listener) {
-		return actionListeners.remove(listener);
+	public boolean removeActionListener( final ActionListener listener )
+	{
+		return actionListeners.remove( listener );
 	}
 
-	public Collection<ActionListener> getActionListeners() {
+	public Collection< ActionListener > getActionListeners()
+	{
 		return actionListeners;
 	}
 
-
 	/**
-	 * Forward the given {@link ActionEvent} to all the {@link ActionListener} of this panel.
+	 * Forward the given {@link ActionEvent} to all the {@link ActionListener}
+	 * of this panel.
 	 */
-	private void fireAction(final ActionEvent e) {
-		for (final ActionListener l : actionListeners)
-			l.actionPerformed(e);
+	private void fireAction( final ActionEvent e )
+	{
+		for ( final ActionListener l : actionListeners )
+			l.actionPerformed( e );
 	}
+
 }

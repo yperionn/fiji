@@ -12,10 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import net.imglib2.Interval;
+import net.imglib2.RandomAccessible;
 import net.imglib2.meta.ImgPlus;
-import net.imglib2.meta.view.HyperSliceImgPlus;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.view.Views;
+import fiji.plugin.trackmate.util.TMUtils;
 
 public class LogDetectorFactory<T extends RealType<T> & NativeType<T>> implements SpotDetectorFactory<T> {
 
@@ -57,15 +60,25 @@ public class LogDetectorFactory<T extends RealType<T> & NativeType<T>> implement
 	}
 
 	@Override
-	public SpotDetector<T> getDetector(final int frame) {
-		final int targetChannel = (Integer) settings.get(KEY_TARGET_CHANNEL) - 1; // parameter is 1-based
-		final ImgPlus<T> imgC = HyperSliceImgPlus.fixChannelAxis(img, targetChannel);
-		final ImgPlus<T> imgT = HyperSliceImgPlus.fixTimeAxis(imgC, frame);
+	public SpotDetector< T > getDetector( final Interval interval, final int frame )
+	{
 		final double radius = (Double) settings.get(KEY_RADIUS);
 		final double threshold = (Double) settings.get(KEY_THRESHOLD);
 		final boolean doMedian = (Boolean) settings.get(KEY_DO_MEDIAN_FILTERING);
 		final boolean doSubpixel = (Boolean) settings.get(KEY_DO_SUBPIXEL_LOCALIZATION);
-		final LogDetector<T> detector = new LogDetector<T>(imgT, radius, threshold, doSubpixel, doMedian);
+		final double[] calibration = TMUtils.getSpatialCalibration( img );
+
+		final int timeDim = TMUtils.findTAxisIndex( img );
+		final RandomAccessible< T > imFrame;
+		if ( timeDim < 0 )
+		{
+			imFrame = img;
+		}
+		else
+		{
+			imFrame = Views.hyperSlice( img, timeDim, frame );
+		}
+		final LogDetector< T > detector = new LogDetector< T >( imFrame, interval, calibration, radius, threshold, doSubpixel, doMedian );
 		detector.setNumThreads(1); // in TrackMate context, we use 1 thread per detector but multiple detectors
 		return detector;
 	}
@@ -79,6 +92,7 @@ public class LogDetectorFactory<T extends RealType<T> & NativeType<T>> implement
 	public String toString() {
 		return NAME;
 	}
+
 
 	@Override
 	public String getErrorMessage() {

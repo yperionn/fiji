@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import net.imglib2.Interval;
 import net.imglib2.meta.ImgPlus;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
@@ -23,8 +24,10 @@ public class ManualDetectorFactory<T extends RealType<T> & NativeType<T>> implem
 	protected String errorMessage;
 	protected Map<String, Object> settings;
 
+
 	@Override
-	public SpotDetector<T> getDetector(final int frame) {
+	public SpotDetector< T > getDetector( final Interval interval, final int frame )
+	{
 		// Return nothing
 		return null;
 	}
@@ -65,7 +68,7 @@ public class ManualDetectorFactory<T extends RealType<T> & NativeType<T>> implem
 	 */
 	public static final boolean checkInput(final Map<String, Object> settings, final StringBuilder errorHolder) {
 		boolean ok = true;
-		ok = ok & checkParameter(settings, KEY_RADIUS, Double.class, errorHolder);
+		ok = ok & checkParameter(settings, KEY_RADIUS, Double.class, errorHolder) ;
 		final List<String> mandatoryKeys = new ArrayList<String>();
 		mandatoryKeys.add(KEY_RADIUS);
 		ok = ok & checkMapKeys(settings, mandatoryKeys, null, errorHolder);

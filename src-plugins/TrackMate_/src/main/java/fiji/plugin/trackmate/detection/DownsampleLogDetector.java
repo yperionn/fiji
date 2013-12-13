@@ -4,24 +4,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.imglib2.Cursor;
+import net.imglib2.Interval;
 import net.imglib2.RandomAccess;
+import net.imglib2.RandomAccessible;
 import net.imglib2.img.Img;
-import net.imglib2.meta.ImgPlus;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.util.Util;
 import fiji.plugin.trackmate.Spot;
-import fiji.plugin.trackmate.util.TMUtils;
 
 public class DownsampleLogDetector<T extends RealType<T> & NativeType<T>> implements SpotDetector<T> {
 
 	private final static String BASE_ERROR_MESSAGE = "DownSampleLogDetector: ";
+
 
 	/*
 	 * FIELDS
 	 */
 
 	/** The image to segment. Will not modified. */
-	protected final ImgPlus<T> img;
+	protected final RandomAccessible< T > img;
 	protected final double radius;
 	protected final double threshold;
 	protected final int downsamplingFactor;
@@ -32,12 +34,19 @@ public class DownsampleLogDetector<T extends RealType<T> & NativeType<T>> implem
 	/** The processing time in ms. */
 	protected long processingTime;
 
+	private final Interval interval;
+
+	private final double[] calibration;
+
 	/*
 	 * CONSTRUCTORS
 	 */
 
-	public DownsampleLogDetector(final ImgPlus<T> img, final double radius, final double threshold, final int downsamplingFactor) {
+	public DownsampleLogDetector( final RandomAccessible< T > img, final Interval interval, final double[] calibration, final double radius, final double threshold, final int downsamplingFactor )
+	{
 		this.img = img;
+		this.interval = interval;
+		this.calibration = calibration;
 		this.radius = radius;
 		this.threshold = threshold;
 		this.downsamplingFactor = downsamplingFactor;
@@ -75,9 +84,8 @@ public class DownsampleLogDetector<T extends RealType<T> & NativeType<T>> implem
 		final long[] dimensions = new long[img.numDimensions()];
 		final int[] dsarr = new int[img.numDimensions()];
 		final double[] dwnCalibration = new double[img.numDimensions()];
-		final double[] calibration = TMUtils.getSpatialCalibration(img);
 		for (int i = 0; i < 2; i++) {
-			dimensions[i] = img.dimension(i) / downsamplingFactor;
+			dimensions[ i ] = interval.dimension( i ) / downsamplingFactor;
 			dsarr[i] = downsamplingFactor;
 			dwnCalibration[i] = calibration[i] * downsamplingFactor;
 		}
@@ -86,16 +94,15 @@ public class DownsampleLogDetector<T extends RealType<T> & NativeType<T>> implem
 			final double zratio = calibration[2] / calibration[0]; // Z spacing is how much bigger
 			int zdownsampling = (int) (downsamplingFactor / zratio); // temper z downsampling
 			zdownsampling = Math.max(1, zdownsampling); // but at least 1
-			dimensions[2] = img.dimension(2) / zdownsampling;
+			dimensions[ 2 ] = interval.dimension( 2 ) / zdownsampling;
 			dsarr[2] = zdownsampling;
 			dwnCalibration[2] = calibration[2] * zdownsampling;
 		}
 
 		// 1. Downsample the image
 
-		final Img<T> downsampled = img.factory().create(dimensions, img.firstElement().createVariable());
-		final ImgPlus<T> dsimg = new ImgPlus<T>(downsampled, img);
-		dsimg.setCalibration(dwnCalibration);
+		final T type = Util.getTypeFromRandomAccess( img );
+		final Img< T > downsampled = Util.getArrayOrCellImgFactory( interval, type ).create( dimensions, type );
 
 		final Cursor<T> dwnCursor = downsampled.localizingCursor();
 		final RandomAccess<T> srcCursor = img.randomAccess();
@@ -120,7 +127,8 @@ public class DownsampleLogDetector<T extends RealType<T> & NativeType<T>> implem
 		// 2. Segment downsampled image
 
 		// 2.1 Instantiate detector
-		final LogDetector<T> detector = new LogDetector<T>(dsimg, radius, threshold, false, false);
+		final LogDetector< T > detector = new LogDetector< T >( downsampled, downsampled, dwnCalibration, radius, threshold, false, false );
+		detector.setNumThreads( 1 );
 
 		// 2.2 Execute detection
 		if (!detector.checkInput() || !detector.process()) {

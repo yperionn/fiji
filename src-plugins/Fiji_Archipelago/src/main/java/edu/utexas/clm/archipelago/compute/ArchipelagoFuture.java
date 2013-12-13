@@ -38,6 +38,7 @@ package edu.utexas.clm.archipelago.compute;
 
 import edu.utexas.clm.archipelago.Cluster;
 import edu.utexas.clm.archipelago.FijiArchipelago;
+import edu.utexas.clm.archipelago.network.node.ClusterNode;
 
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
@@ -53,11 +54,11 @@ public class ArchipelagoFuture<T> implements Future<T>
     private T t;
     private final long id;
     private final Cluster.ProcessScheduler scheduler;
-    private final AtomicBoolean wasCancelled, done, finished;    
+    private final AtomicBoolean wasCancelled, done, finished;
     private final Vector<Thread> waitingThreads;
     private final ReentrantLock threadLock;
-    private Exception e;
-   
+    private Throwable e;
+    private ClusterNode ranOnNode = null;
    
     
     public ArchipelagoFuture(Cluster.ProcessScheduler scheduler)
@@ -83,14 +84,29 @@ public class ArchipelagoFuture<T> implements Future<T>
     {
         return id;
     }
-    
-    public void setException(final Exception eIn)
+
+    public boolean finish(final Throwable exception)
     {
-        e = eIn;
+        threadLock.lock();
+        if (!finished.getAndSet(true))
+        {
+            e = exception;
+            done.set(true);
+            smoochThreads();
+            threadLock.unlock();
+            return true;
+        }
+        else
+        {
+            threadLock.unlock();
+            return false;
+        }
+
     }
-    
+
     public boolean finish(ProcessManager<?> pm) throws ClassCastException
     {
+        threadLock.lock();
         if (!finished.getAndSet(true))
         {
             if (pm != null)
@@ -102,6 +118,7 @@ public class ArchipelagoFuture<T> implements Future<T>
                 {
                     t = result;
                 }
+                ranOnNode = scheduler.getNode(pm.getRunningOn());
                 e = pm.getRemoteException();
                 done.set(true);
                 // MUST set done to true before interrupting threads, or we'll get a bunch of
@@ -112,22 +129,26 @@ public class ArchipelagoFuture<T> implements Future<T>
             {
                 t = null;
             }
+            threadLock.unlock();
             return true;
         }
         else
         {
+            threadLock.unlock();
             return false;
         }
     }
 
     private synchronized void smoochThreads()
     {
-        threadLock.lock();
+        /*
+        This function assumes that threadLock is locked when it is called.
+         */
+        assert threadLock.isLocked();
         for (Thread t: waitingThreads)
         {
             t.interrupt();
         }
-        threadLock.unlock();
     }
 
     // Future-only methods.
@@ -142,9 +163,11 @@ public class ArchipelagoFuture<T> implements Future<T>
      */
     public synchronized boolean cancel(boolean b)
     {
+        threadLock.lock();
         if (done.get())
         {
             FijiArchipelago.debug("Job " + getID() + ": Cancel called, but job is already done");
+            threadLock.unlock();
             return false;
         }
         else
@@ -155,6 +178,7 @@ public class ArchipelagoFuture<T> implements Future<T>
             if (cancelled)
             {
                 FijiArchipelago.debug("Job " + getID() + " cancel SUCCESS");
+                finished.set(true);
                 smoochThreads();
             }
             else
@@ -162,6 +186,7 @@ public class ArchipelagoFuture<T> implements Future<T>
                 FijiArchipelago.debug("Job " + getID() + " was NOT CANCELLED");
             }
             wasCancelled.set(cancelled);
+            threadLock.unlock();
             return cancelled;
         }
     }
@@ -228,7 +253,8 @@ public class ArchipelagoFuture<T> implements Future<T>
 
         if (e != null)
         {
-            throw new ExecutionException(e);
+            throw new ExecutionException("On host " +
+                    (ranOnNode == null ? "null" : ranOnNode.getHost()), e);
         }
 
         return t;

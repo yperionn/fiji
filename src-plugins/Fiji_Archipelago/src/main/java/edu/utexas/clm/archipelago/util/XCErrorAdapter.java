@@ -19,6 +19,7 @@
 package edu.utexas.clm.archipelago.util;
 
 import edu.utexas.clm.archipelago.FijiArchipelago;
+import edu.utexas.clm.archipelago.data.ClusterMessage;
 import edu.utexas.clm.archipelago.listen.TransceiverExceptionListener;
 import edu.utexas.clm.archipelago.network.MessageXC;
 import edu.utexas.clm.archipelago.network.node.NodeManager;
@@ -48,17 +49,20 @@ public class XCErrorAdapter implements TransceiverExceptionListener
         nodeManager = nm;
     }
 
-    protected boolean handleCustomRX(final Throwable t, final MessageXC mxc)
+    protected boolean handleCustomRX(final Throwable t, final MessageXC mxc,
+                                     final ClusterMessage message)
     {
         return true;
     }
 
-    protected boolean handleCustomTX(final Throwable t, final MessageXC mxc)
+    protected boolean handleCustomTX(final Throwable t, final MessageXC mxc,
+                                     final ClusterMessage message)
     {
         return true;
     }
 
-    protected boolean handleCustom(final Throwable t, final MessageXC mxc)
+    protected boolean handleCustom(final Throwable t, final MessageXC mxc,
+                                   final ClusterMessage message)
     {
         return true;
     }
@@ -79,7 +83,8 @@ public class XCErrorAdapter implements TransceiverExceptionListener
     
     protected void reportRX(final Throwable t, final String message, final MessageXC mxc)
     {
-        final NodeManager.NodeParameters np = nodeManager.getParam(mxc.getId());
+        final NodeManager.NodeParameters np = nodeManager == null ? null :
+                nodeManager.getParam(mxc.getId());
         final String hostString = np == null ? "" : np.getHost() + ": ";
 
         report(t, "RX: " + hostString + message, throwablesSeenRX);
@@ -93,17 +98,32 @@ public class XCErrorAdapter implements TransceiverExceptionListener
         report(t, "TX: " + hostString + message, throwablesSeenTX);
     }
 
-    public void handleRXThrowable(final Throwable t, final MessageXC mxc) {
+    public void handleRXThrowable(final Throwable t, final MessageXC mxc,
+                                  final ClusterMessage message) {
 
-
-        if (handleCustom(t, mxc) && handleCustomRX(t, mxc))
+/*
+        System.out.println("RX: Throwable " + t);
+        for (StackTraceElement ste : t.getStackTrace())
+        {
+            System.out.println(ste);
+        }
+*/
+        if (handleCustom(t, mxc, message) && handleCustomRX(t, mxc, message))
         {
             reportRX(t, t.toString(), mxc);
         }
     }
 
-    public void handleTXThrowable(final Throwable t, final MessageXC mxc) {
-        if (handleCustom(t, mxc) && handleCustomTX(t, mxc))
+    public void handleTXThrowable(final Throwable t, final MessageXC mxc,
+                                  final ClusterMessage message) {
+/*
+        System.out.println("TX: Throwable " + t);
+        for (StackTraceElement ste : t.getStackTrace())
+        {
+            System.out.println(ste);
+        }
+*/
+        if (handleCustom(t, mxc, message) && handleCustomTX(t, mxc, message))
         {
             reportTX(t, t.toString(), mxc);
         }

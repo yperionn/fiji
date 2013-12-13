@@ -8,11 +8,12 @@ import fiji.plugin.trackmate.gui.LogPanel;
 /**
  * An abstract class made for describing panels that generate a dialog, like
  * save and load panels.
- * 
+ *
  * @author Jean-Yves Tinevez
- * 
+ *
  */
-public abstract class SomeDialogDescriptor implements WizardPanelDescriptor {
+public abstract class SomeDialogDescriptor implements WizardPanelDescriptor
+{
 
 	/**
 	 * File that governs saving and loading. We make it a static field so that
@@ -20,25 +21,32 @@ public abstract class SomeDialogDescriptor implements WizardPanelDescriptor {
 	 * default.
 	 */
 	public static File file;
+
 	protected final LogPanel logPanel;
 
-	public SomeDialogDescriptor(final LogPanel logPanel) {
+	public SomeDialogDescriptor( final LogPanel logPanel )
+	{
 		this.logPanel = logPanel;
 	}
 
 	@Override
-	public Component getComponent() {
+	public Component getComponent()
+	{
 		return logPanel;
 	}
 
 	@Override
-	public void aboutToDisplayPanel() {
-	}
+	public void aboutToDisplayPanel()
+	{}
 
 	@Override
 	public abstract void displayingPanel();
 
 	@Override
-	public void aboutToHidePanel() {
-	}
+	public void aboutToHidePanel()
+	{}
+
+	@Override
+	public void comingBackToPanel()
+	{}
 }

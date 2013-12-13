@@ -8,6 +8,7 @@ import fiji.plugin.Multi_View_Deconvolution;
 
 import mpicbg.imglib.container.ContainerFactory;
 import mpicbg.imglib.container.array.ArrayContainerFactory;
+import mpicbg.imglib.container.cell.CellContainerFactory;
 import mpicbg.imglib.interpolation.InterpolatorFactory;
 import mpicbg.imglib.interpolation.linear.LinearInterpolatorFactory;
 import mpicbg.imglib.outofbounds.OutOfBoundsStrategyFactory;
@@ -93,6 +94,7 @@ public class SPIMConfiguration
     public boolean multipleImageFusion = false;
     public boolean isDeconvolution = false;
     public boolean deconvolutionLoadSequentially = false;
+    public boolean deconvolutionJustShowOverlap = false;
     public int deconvolutionDisplayPSF = 1;
     public boolean extractPSF = true;
     public boolean transformPSFs = true;
