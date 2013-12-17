@@ -31,7 +31,8 @@ public class PerTrackFeatureColorGenerator implements TrackColorGenerator, Model
 	private HashMap<Integer, Color> colorMap;
 	private final Model model;
 	private String feature;
-	private Integer trackID;
+
+	private Color color;
 
 	public PerTrackFeatureColorGenerator(final Model model, final String feature) {
 		this.model = model;
@@ -153,13 +154,15 @@ public class PerTrackFeatureColorGenerator implements TrackColorGenerator, Model
 	}
 
 	@Override
-	public Color color(final DefaultWeightedEdge edge) {
-		return colorMap.get(trackID);
+	public Color color( final DefaultWeightedEdge edge )
+	{
+		return color;
 	}
 
 	@Override
-	public synchronized void setCurrentTrackID(final Integer trackID) {
-		this.trackID = trackID;
+	public void setCurrentTrackID( final Integer trackID )
+	{
+		this.color = colorMap.get( trackID );
 	}
 
 	@Override
