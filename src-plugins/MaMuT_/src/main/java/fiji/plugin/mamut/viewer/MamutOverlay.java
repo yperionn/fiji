@@ -19,7 +19,7 @@ import net.imglib2.realtransform.AffineTransform3D;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
 
-import viewer.render.ViewerState;
+import bdv.viewer.state.ViewerState;
 import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.SelectionModel;
 import fiji.plugin.trackmate.Spot;
@@ -189,7 +189,7 @@ public class MamutOverlay
 			}
 
 			// The rest
-			final int currentFrame = viewer.getCurrentTimepoint();
+			final int currentFrame = state.getCurrentTimepoint();
 			final int trackDisplayMode = ( Integer ) viewer.displaySettings.get( TrackMateModelView.KEY_TRACK_DISPLAY_MODE );
 			final int trackDisplayDepth = ( Integer ) viewer.displaySettings.get( TrackMateModelView.KEY_TRACK_DISPLAY_DEPTH );
 			final Set< Integer > filteredTrackIDs = model.getTrackModel().unsortedTrackIDs( true );

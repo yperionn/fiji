@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import viewer.HelpFrame;
 import fiji.plugin.mamut.MaMuT;
 import fiji.plugin.mamut.viewer.MamutViewer;
 import fiji.plugin.trackmate.Logger;
@@ -26,8 +25,8 @@ public class MamutActions {
 		return new SemiAutoTrackingAction(mamut);
 	}
 
-	public static final Action getShowHelpAction() {
-		return new ShowHelpAction();
+	public static final Action getShowHelpAction(final MaMuT mamut) {
+		return new ShowHelpAction(mamut);
 	}
 
 	public static final Action getToggleBrightnessDialogAction(final MaMuT mamut) {
@@ -103,10 +102,15 @@ public class MamutActions {
 	private static final class ShowHelpAction extends AbstractAction {
 
 		private static final long serialVersionUID = 1L;
+		private final MaMuT mamut;
+
+		public ShowHelpAction(final MaMuT mamut) {
+			this.mamut = mamut;
+		}
 
 		@Override
 		public void actionPerformed(final ActionEvent e) {
-			new HelpFrame(MaMuT.class.getResource("Help.html"));
+			mamut.toggleHelpDialog();
 		}
 
 	}

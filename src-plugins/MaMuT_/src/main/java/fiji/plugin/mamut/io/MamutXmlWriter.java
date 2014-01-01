@@ -15,7 +15,7 @@ import java.io.File;
 
 import org.jdom2.Element;
 
-import viewer.gui.brightness.SetupAssignments;
+import bdv.tools.brightness.SetupAssignments;
 import fiji.plugin.mamut.SourceSettings;
 import fiji.plugin.mamut.viewer.MamutViewer;
 import fiji.plugin.trackmate.Settings;
@@ -103,8 +103,8 @@ public class MamutXmlWriter extends TmXmlWriter {
 
 			if (view.getKey().equals(MamutViewer.KEY)) {
 				final MamutViewer mv = (MamutViewer) view;
-				final Point location = mv.getFrame().getLocation();
-				final Dimension size = mv.getFrame().getSize();
+				final Point location = mv.getLocation();
+				final Dimension size = mv.getSize();
 				viewel.setAttribute(GUI_VIEW_ATTRIBUTE_POSITION_X, ""
 						+ location.x);
 				viewel.setAttribute(GUI_VIEW_ATTRIBUTE_POSITION_Y, ""

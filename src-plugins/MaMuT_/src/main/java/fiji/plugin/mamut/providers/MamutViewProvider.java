@@ -3,7 +3,8 @@ package fiji.plugin.mamut.providers;
 import java.util.ArrayList;
 import java.util.List;
 
-import viewer.render.SourceAndConverter;
+import bdv.img.cache.Cache;
+import bdv.viewer.SourceAndConverter;
 import fiji.plugin.mamut.MaMuT;
 import fiji.plugin.mamut.SourceSettings;
 import fiji.plugin.mamut.viewer.MamutViewer;
@@ -42,8 +43,9 @@ public class MamutViewProvider extends ViewProvider
 					throw new IllegalArgumentException("Settings must be an instance of SourceSettings.");
 				}
 				final SourceSettings ss = (SourceSettings) settings;
-				final List< SourceAndConverter< ? >> sources = ss.getSources();
-				val = new MamutViewer( MaMuT.DEFAULT_WIDTH, MaMuT.DEFAULT_HEIGHT, sources, ss.nframes, model, selectionModel );
+				final List<SourceAndConverter<?>> sources = ss.getSources();
+				final Cache cache = ss.getCache();
+				val = new MamutViewer( MaMuT.DEFAULT_WIDTH, MaMuT.DEFAULT_HEIGHT, sources, ss.nframes, cache, model, selectionModel );
 			}
 		}
 

@@ -8,7 +8,6 @@ import java.util.Properties;
 
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
-import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 
 import fiji.FijiTools;
@@ -60,7 +59,7 @@ public class MamutKeyboardHandler {
 		this.mamut = mamut;
 		this.viewer = viewer;
 
-		installKeyboardActions(viewer.getDisplay());
+		installKeyboardActions();
 	}
 
 	protected InputMap readPropertyFile() {
@@ -88,7 +87,7 @@ public class MamutKeyboardHandler {
 		return map;
 	}
 
-	protected void installKeyboardActions(final JComponent graphComponent) {
+	protected void installKeyboardActions() {
 		// Remove old input map for navigation and put new one.
 		viewer.getKeybindings().removeInputMap("navigation");
 
@@ -119,7 +118,7 @@ public class MamutKeyboardHandler {
 
 		map.put("toggle linking mode", MamutActions.getToggleLinkingModeAction(mamut, viewer.getLogger()));
 
-		map.put("show help", MamutActions.getShowHelpAction());
+		map.put("show help", MamutActions.getShowHelpAction(mamut));
 
 		map.put("toggle brightness dialog", MamutActions.getToggleBrightnessDialogAction(mamut));
 
