@@ -48,6 +48,25 @@ public class MamutViewer extends JFrame implements TrackMateModelView
 
 	private static final Font DEFAULT_FONT = new Font("SansSerif", Font.PLAIN, 14);
 
+	private static final String INFO_TEXT = "A viewer based on Tobias Pietzsch SPIM Viewer";
+
+	public static final String KEY = "MaMuT Viewer";
+
+	/** The logger instance that echoes message on this view. */
+	private final Logger logger;
+
+	private final Model model;
+
+	private final SelectionModel selectionModel;
+
+	/** A map of String/Object that configures the look and feel of the display. */
+	protected Map< String, Object > displaySettings = new HashMap< String, Object >();
+
+	/** The mapping from spot to a color. */
+	SpotColorGenerator spotColorProvider;
+
+	TrackColorGenerator trackColorProvider;
+
 	protected final MamutViewerPanel viewerPanel;
 
 	private final InputActionBindings keybindings;
@@ -117,51 +136,19 @@ public class MamutViewer extends JFrame implements TrackMateModelView
 		setVisible( true );
 	}
 
-	public void addHandler( final Object handler )
-	{
-		viewerPanel.getDisplay().addHandler( handler );
-		if ( KeyListener.class.isInstance( handler ) )
-			addKeyListener( ( KeyListener ) handler );
+	public void addHandler(final Object handler) {
+		viewerPanel.getDisplay().addHandler(handler);
+		if (KeyListener.class.isInstance(handler))
+			addKeyListener((KeyListener) handler);
 	}
 
-	public MamutViewerPanel getViewerPanel()
-	{
+	public MamutViewerPanel getViewerPanel() {
 		return viewerPanel;
 	}
 
-	public InputActionBindings getKeybindings()
-	{
+	public InputActionBindings getKeybindings() {
 		return keybindings;
 	}
-
-
-
-
-
-
-
-
-
-
-
-	private static final String INFO_TEXT = "A viewer based on Tobias Pietzsch SPIM Viewer";
-
-	public static final String KEY = "MaMuT Viewer";
-
-	/** The logger instance that echoes message on this view. */
-	private final Logger logger;
-
-	private final Model model;
-
-	private final SelectionModel selectionModel;
-
-	/** A map of String/Object that configures the look and feel of the display. */
-	protected Map< String, Object > displaySettings = new HashMap< String, Object >();
-
-	/** The mapping from spot to a color. */
-	SpotColorGenerator spotColorProvider;
-
-	TrackColorGenerator trackColorProvider;
 
 	/**
 	 * Returns the {@link Logger} object that will echo any message to this
@@ -169,8 +156,7 @@ public class MamutViewer extends JFrame implements TrackMateModelView
 	 *
 	 * @return this {@link MamutViewer} logger.
 	 */
-	public Logger getLogger()
-	{
+	public Logger getLogger() {
 		return logger;
 	}
 
@@ -186,6 +172,7 @@ public class MamutViewer extends JFrame implements TrackMateModelView
 
 	@Override
 	public void refresh() {
+//		System.out.println("refresh");
 		viewerPanel.requestRepaint();
 	}
 
@@ -241,29 +228,25 @@ public class MamutViewer extends JFrame implements TrackMateModelView
 	 * INNER CLASSES
 	 */
 
-	private final class MamutViewerLogger extends Logger
-	{
+	private final class MamutViewerLogger extends Logger {
 
 		@Override
-		public void setStatus( final String status )
-		{
+		public void setStatus(final String status) {
 			viewerPanel.showMessage(status);
 		}
 
 		@Override
-		public void setProgress(final double val) {}
+		public void setProgress(final double val) {
+		}
 
 		@Override
-		public void log( final String message, final Color color )
-		{
+		public void log(final String message, final Color color) {
 			viewerPanel.showMessage(message);
 		}
 
 		@Override
-		public void error( final String message )
-		{
+		public void error(final String message) {
 			viewerPanel.showMessage(message);
 		}
-
 	}
 }

@@ -26,22 +26,6 @@ public class MamutViewerPanel extends ViewerPanel {
 		super(sources, numTimePoints, cache, optional);
 	}
 
-//	@Override
-//	public void paint() {
-//		synchronized (this) {
-//			if (currentAnimator != null) {
-//				final TransformEventHandler<AffineTransform3D> handler = display.getTransformEventHandler();
-//				final AffineTransform3D transform = currentAnimator.getCurrent(System.currentTimeMillis());
-//				handler.setTransform(transform);
-//				transformChanged(transform);
-//				if (currentAnimator.isComplete())
-//					currentAnimator = null;
-//			}
-//		}
-//
-//		super.paint();
-//	}
-
 	@Override
 	public void drawOverlays(final Graphics g) {
 		super.drawOverlays(g);
@@ -75,5 +59,4 @@ public class MamutViewerPanel extends ViewerPanel {
 		currentAnimator.setTime(System.currentTimeMillis());
 		requestRepaint();
 	}
-
 }
