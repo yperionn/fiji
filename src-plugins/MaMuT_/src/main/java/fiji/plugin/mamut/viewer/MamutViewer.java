@@ -3,6 +3,7 @@ package fiji.plugin.mamut.viewer;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -20,6 +21,7 @@ import bdv.viewer.InputActionBindings;
 import bdv.viewer.SourceAndConverter;
 import bdv.viewer.ViewerPanel;
 import bdv.viewer.ViewerPanel.Options;
+import bdv.viewer.animate.MessageOverlayAnimator;
 import fiji.plugin.trackmate.Logger;
 import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.SelectionModel;
@@ -37,6 +39,14 @@ import fiji.plugin.trackmate.visualization.TrackMateModelView;
 public class MamutViewer extends JFrame implements TrackMateModelView
 {
 	private static final long serialVersionUID = 1L;
+
+	private static final long DEFAULT_TEXT_DISPLAY_DURATION = 3000;
+
+	private static final double DEFAULT_FADEINTIME = 0;
+
+	private static final double DEFAULT_FADEOUTTIME = 0.5;
+
+	private static final Font DEFAULT_FONT = new Font("SansSerif", Font.PLAIN, 14);
 
 	protected final MamutViewerPanel viewerPanel;
 
@@ -81,7 +91,8 @@ public class MamutViewer extends JFrame implements TrackMateModelView
 			final Options optional )
 	{
 		super("BigDataViewer", GuiUtil.getSuitableGraphicsConfiguration(GuiUtil.RGB_COLOR_MODEL));
-		viewerPanel = new MamutViewerPanel(sources, numTimePoints, cache, optional.width(width).height(height));
+		final MessageOverlayAnimator msgOverlay = new MessageOverlayAnimator(DEFAULT_TEXT_DISPLAY_DURATION, DEFAULT_FADEINTIME, DEFAULT_FADEOUTTIME, DEFAULT_FONT);
+		viewerPanel = new MamutViewerPanel(sources, numTimePoints, cache, optional.width(width).height(height).msgOverlay(msgOverlay));
 		keybindings = new InputActionBindings();
 
 		this.model = model;
