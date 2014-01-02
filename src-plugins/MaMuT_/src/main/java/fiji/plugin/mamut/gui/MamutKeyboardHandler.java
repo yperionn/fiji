@@ -1,57 +1,42 @@
 package fiji.plugin.mamut.gui;
 
+import static bdv.viewer.NavigationActions.ALIGN_PLANE;
+import static bdv.viewer.NavigationActions.NEXT_TIMEPOINT;
+import static bdv.viewer.NavigationActions.PREVIOUS_TIMEPOINT;
+import static bdv.viewer.NavigationActions.SET_CURRENT_SOURCE;
+import static bdv.viewer.NavigationActions.TOGGLE_FUSED_MODE;
+import static bdv.viewer.NavigationActions.TOGGLE_GROUPING;
+import static bdv.viewer.NavigationActions.TOGGLE_INTERPOLATION;
+import static bdv.viewer.NavigationActions.TOGGLE_SOURCE_VISIBILITY;
+import static fiji.plugin.mamut.gui.MamutActions.ADD_SPOT;
+import static fiji.plugin.mamut.gui.MamutActions.BRIGHTNESS_SETTINGS;
+import static fiji.plugin.mamut.gui.MamutActions.DECREASE_SPOT_RADIUS;
+import static fiji.plugin.mamut.gui.MamutActions.DECREASE_SPOT_RADIUS_A_BIT;
+import static fiji.plugin.mamut.gui.MamutActions.DECREASE_SPOT_RADIUS_A_LOT;
+import static fiji.plugin.mamut.gui.MamutActions.DELETE_SPOT;
+import static fiji.plugin.mamut.gui.MamutActions.INCREASE_SPOT_RADIUS;
+import static fiji.plugin.mamut.gui.MamutActions.INCREASE_SPOT_RADIUS_A_BIT;
+import static fiji.plugin.mamut.gui.MamutActions.INCREASE_SPOT_RADIUS_A_LOT;
+import static fiji.plugin.mamut.gui.MamutActions.SEMI_AUTO_TRACKING;
+import static fiji.plugin.mamut.gui.MamutActions.SHOW_HELP;
+import static fiji.plugin.mamut.gui.MamutActions.TOGGLE_LINKING;
+
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
-import javax.swing.KeyStroke;
 
+import bdv.util.KeyProperties;
+import bdv.util.KeyProperties.KeyStrokeAdder;
+import bdv.viewer.InputActionBindings;
+import bdv.viewer.NavigationActions;
+import bdv.viewer.ViewerPanel.AlignPlane;
 import fiji.FijiTools;
 import fiji.plugin.mamut.MaMuT;
 import fiji.plugin.mamut.viewer.MamutViewer;
 
 public class MamutKeyboardHandler {
 
-	private static final Properties DEFAULT_KEYBINGS = new Properties();
-	static {
-		DEFAULT_KEYBINGS.setProperty("A", "add spot");
-		DEFAULT_KEYBINGS.setProperty("ENTER", "add spot");
-		DEFAULT_KEYBINGS.setProperty("D", "delete spot");
-		DEFAULT_KEYBINGS.setProperty("shift A", "semi-auto tracking");
-		DEFAULT_KEYBINGS.setProperty("shift L", "toggle linking mode");
-		DEFAULT_KEYBINGS.setProperty("E", "increase spot radius");
-		DEFAULT_KEYBINGS.setProperty("Q", "decrease spot radius");
-		DEFAULT_KEYBINGS.setProperty("shift E", "increase spot radius a lot");
-		DEFAULT_KEYBINGS.setProperty("shift Q", "decrease spot radius a lot");
-		DEFAULT_KEYBINGS.setProperty("control E", "increase spot radius a bit");
-		DEFAULT_KEYBINGS.setProperty("control Q", "decrease spot radius a bit");
-		DEFAULT_KEYBINGS.setProperty("F1", "show help");
-		DEFAULT_KEYBINGS.setProperty("S", "toggle brightness dialog");
-
-		DEFAULT_KEYBINGS.setProperty("I", "toggle interpolation");
-		DEFAULT_KEYBINGS.setProperty("F", "toggle fused mode");
-		DEFAULT_KEYBINGS.setProperty("G", "toggle grouping");
-
-		final String[] numkeys = new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" };
-		for (int i = 0; i < numkeys.length; ++i) {
-			DEFAULT_KEYBINGS.setProperty(numkeys[i], "set current source " + i);
-			DEFAULT_KEYBINGS.setProperty("shift " + numkeys[i], "toggle source visibility " + i);
-		}
-
-		DEFAULT_KEYBINGS.setProperty("shift Z", "align XY plane");
-		DEFAULT_KEYBINGS.setProperty("shift X", "align ZY plane");
-		DEFAULT_KEYBINGS.setProperty("shift Y", "align XZ plane");
-		DEFAULT_KEYBINGS.setProperty("shift C", "align XZ plane");
-
-		DEFAULT_KEYBINGS.setProperty("CLOSE_BRACKET", "next timepoint");
-		DEFAULT_KEYBINGS.setProperty("M", "next timepoint");
-		DEFAULT_KEYBINGS.setProperty("OPEN_BRACKET", "previous timepoint");
-		DEFAULT_KEYBINGS.setProperty("N", "previous timepoint");
-	}
 	private final MamutViewer viewer;
 	private final MaMuT mamut;
 
@@ -62,67 +47,71 @@ public class MamutKeyboardHandler {
 		installKeyboardActions();
 	}
 
-	protected InputMap readPropertyFile() {
-		Properties config = new Properties();
-		try {
-			final String fijiDir = FijiTools.getFijiDir();
-			final InputStream stream = new FileInputStream(new File(fijiDir, "mamut.properties"));
-			config.load(stream);
-		} catch (final IOException e) {
-			System.out.println("MaMuT: cannot find the config file. Using default key bindings.");
-			System.out.println(e.getMessage());
-			config = DEFAULT_KEYBINGS;
-		}
-
-		return generateMapFrom(config);
-	}
-
-	private InputMap generateMapFrom(final Properties config) {
-		final InputMap map = new InputMap();
-		for (final Object obj : config.keySet()) {
-			final String key = (String) obj;
-			final String command = config.getProperty(key);
-			map.put(KeyStroke.getKeyStroke(key), command);
-		}
-		return map;
-	}
-
 	protected void installKeyboardActions() {
-		// Remove old input map for navigation and put new one.
-		viewer.getKeybindings().removeInputMap("navigation");
-
-		final InputMap inputMap = readPropertyFile();
-		final ActionMap actionMap = createActionMap();
-
-		viewer.getKeybindings().addActionMap("all", actionMap);
-		viewer.getKeybindings().addInputMap("all", inputMap);
-
+		final String fijiDir = FijiTools.getFijiDir();
+		final KeyProperties keyProperties = KeyProperties.readPropertyFile(new File(fijiDir, "mamut.properties"));
+		installActionBindings(viewer.getKeybindings(), mamut, viewer, keyProperties);
 	}
 
 	/**
-	 * Return the mapping between JTree's input map and MaMuT's actions.
+	 * Create actions and install them in the specified
+	 * {@link InputActionBindings}.
+	 *
+	 * @param inputActionBindings
+	 *            {@link InputMap} and {@link ActionMap} are installed here.
+	 * @param mamut
+	 *            Actions are targeted at this {@link MaMuT} instance.
+	 * @param viewer
+	 *            Actions are targeted at this {@link MamutViewer} window.
+	 * @param keyProperties
+	 *            user-defined key-bindings.
 	 */
-	protected ActionMap createActionMap() {
-		final ActionMap map = new ActionMap();
-
-		map.put("add spot", MamutActions.getAddSpotAction(mamut, viewer));
-		map.put("delete spot", MamutActions.getDeleteSpotAction(mamut, viewer));
-		map.put("increase spot radius", MamutActions.getIncreaseRadiusAction(mamut, viewer));
-		map.put("decrease spot radius", MamutActions.getDecreaseRadiusAction(mamut, viewer));
-		map.put("increase spot radius a lot", MamutActions.getIncreaseRadiusALotAction(mamut, viewer));
-		map.put("decrease spot radius a lot", MamutActions.getDecreaseRadiusALotAction(mamut, viewer));
-		map.put("increase spot radius a bit", MamutActions.getIncreaseRadiusABitAction(mamut, viewer));
-		map.put("decrease spot radius a bit", MamutActions.getDecreaseRadiusABitAction(mamut, viewer));
-
-		map.put("semi-auto tracking", MamutActions.getSemiAutoTrackingAction(mamut));
-
-		map.put("toggle linking mode", MamutActions.getToggleLinkingModeAction(mamut, viewer.getLogger()));
-
-		map.put("show help", MamutActions.getShowHelpAction(mamut));
-
-		map.put("toggle brightness dialog", MamutActions.getToggleBrightnessDialogAction(mamut));
-
-		return map;
+	public static void installActionBindings(
+			final InputActionBindings inputActionBindings,
+			final MaMuT mamut,
+			final MamutViewer viewer,
+			final KeyProperties keyProperties )
+	{
+		inputActionBindings.addActionMap("mamut", MamutActions.createActionMap(mamut, viewer));
+		inputActionBindings.addActionMap("navigation", NavigationActions.createActionMap(viewer.getViewerPanel()));
+		inputActionBindings.addInputMap("all", createInputMap(keyProperties));
 	}
 
+	public static InputMap createInputMap( final KeyProperties keyProperties )
+	{
+		final InputMap inputMap = new InputMap();
+		final KeyStrokeAdder map = keyProperties.adder( inputMap );
+
+		map.put(ADD_SPOT,                   "A", "ENTER");
+		map.put(DELETE_SPOT,                "D");
+		map.put(SEMI_AUTO_TRACKING,         "shift A");
+		map.put(TOGGLE_LINKING,             "shift L");
+		map.put(INCREASE_SPOT_RADIUS,       "E");
+		map.put(DECREASE_SPOT_RADIUS,       "Q");
+		map.put(INCREASE_SPOT_RADIUS_A_LOT, "shift E");
+		map.put(DECREASE_SPOT_RADIUS_A_LOT, "shift Q");
+		map.put(INCREASE_SPOT_RADIUS_A_BIT, "control E");
+		map.put(DECREASE_SPOT_RADIUS_A_BIT, "control Q");
+		map.put(SHOW_HELP,                  "F1", "H");
+		map.put(BRIGHTNESS_SETTINGS,        "S");
+
+		map.put( TOGGLE_INTERPOLATION, "I" );
+		map.put( TOGGLE_FUSED_MODE, "F" );
+		map.put( TOGGLE_GROUPING, "G" );
+		map.put( NEXT_TIMEPOINT, "CLOSE_BRACKET", "M" );
+		map.put( PREVIOUS_TIMEPOINT, "OPEN_BRACKET", "N" );
+
+		final String[] numkeys = new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" };
+		for ( int i = 0; i < numkeys.length; ++i )
+		{
+			map.put( String.format( SET_CURRENT_SOURCE, i ), numkeys[ i ] );
+			map.put( String.format( TOGGLE_SOURCE_VISIBILITY, i ), "shift " + numkeys[ i ] );
+		}
+
+		map.put( String.format( ALIGN_PLANE, AlignPlane.XY ), "shift Z" );
+		map.put( String.format( ALIGN_PLANE, AlignPlane.ZY ), "shift X" );
+		map.put( String.format( ALIGN_PLANE, AlignPlane.XZ ), "shift Y", "shift C" );
+
+		return inputMap;
+	}
 }
