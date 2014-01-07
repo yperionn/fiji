@@ -25,12 +25,48 @@ PASSWD_FILE="$HOME/$UPDATE_SITE_USER-WebDAV.passwd"
 
 # -- Download and unpack Fiji if it is not already present --
 
-if [ ! -d "$FIJI_DIR" ]
+if [ -d "$FIJI_DIR" ]
+then
+	FIJI_INITIALIZED=1
+fi
+
+if [ -z "$FIJI_INITIALIZED" ]
 then
 	wget -nv "$FIJI_URL"
 	tar xf "$FIJI_ARCHIVE"
 	rm "$FIJI_ARCHIVE"
-	"$FIJI_DIR"/ImageJ-linux64 --update add-update-site "$UPDATE_SITE_NAME" \
+fi
+
+# -- Identify ImageJ launcher executable --
+
+OS_NAME="$(uname)"
+if [ "$OS_NAME" = "Linux" ]
+then
+	OS_ARCH="$(uname -m)"
+	if [ "$OS_ARCH" = "x86_64" ]
+	then
+		EXE="ImageJ-linux64"
+	else
+		EXE="ImageJ-linux32"
+	fi
+elif [ "$OS_NAME" == "Darwin" ]
+then
+	EXE="Contents/MacOS/ImageJ-macosx"
+else
+	echo "Unsupported OS: $OS_NAME"
+	exit 6
+fi
+if [ ! -e "$FIJI_DIR/$EXE" ]
+then
+	echo "Cannot find ImageJ launcher: $EXE"
+	exit 7
+fi
+
+# -- Add update site credentials if needed --
+
+if [ -z "$FIJI_INITIALIZED" ]
+then
+	"$FIJI_DIR"/$EXE --update add-update-site "$UPDATE_SITE_NAME" \
 		"$UPDATE_SITE_URL" \
 		"webdav:$UPDATE_SITE_USER:$(cat "$PASSWD_FILE")" .
 fi
@@ -39,7 +75,7 @@ cd "$FIJI_DIR"
 
 # -- First, make sure that Fiji is up-to-date --
 
-./ImageJ-linux64 --update update-force-pristine
+./$EXE --update update-force-pristine
 
 # -- Download JAR files and install into local Fiji --
 
@@ -63,5 +99,5 @@ done
 
 # -- Upload files to the update site! --
 
-./ImageJ-linux64 --update upload \
+./$EXE --update upload \
 	--update-site "$UPDATE_SITE_NAME" --force-shadow $FILES_TO_UPLOAD
