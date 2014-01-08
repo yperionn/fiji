@@ -90,7 +90,6 @@
 		<module>Script_Editor</module>
 		<module>Series_Labeler</module>
 		<module>SheppLogan_</module>
-		<module>Sholl_Analysis</module>
 		<module>Simple_Neurite_Tracer</module>
 		<module>Siox_Segmentation</module>
 		<module>Skeletonize3D_</module>
@@ -99,14 +98,12 @@
 		<module>StackReg_</module>
 		<module>Stack_Manipulation</module>
 		<module>Statistical_Region_Merging</module>
-		<module>Stitching_</module>
 		<module>Sync_Win</module>
 		<module>Thread_Killer</module>
 		<module>Threshold_Colour</module>
 		<module>Time_Stamper</module>
 		<module>ToAST_</module>
 		<module>TopoJ_</module>
-		<module>TrackMate_</module>
 		<module>Trainable_Segmentation</module>
 		<module>TransformJ_</module>
 		<module>TurboReg_</module>
