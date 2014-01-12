@@ -9,7 +9,8 @@ import fiji.plugin.trackmate.InfoTextable;
 import fiji.plugin.trackmate.Model;
 import fiji.plugin.trackmate.Spot;
 
-public interface TrackMateModelView extends InfoTextable {
+public interface TrackMateModelView extends InfoTextable
+{
 
 	/*
 	 * KEY-VALUE CONSTANTS FOR LOOK & FILL CUSTOMIZATION
@@ -66,7 +67,7 @@ public interface TrackMateModelView extends InfoTextable {
 	/**
 	 * Defines the key for the spot name display. Values are boolean. If
 	 * <code>false</code>, spot names are not visible.
-	 * */
+	 */
 	public static final String KEY_DISPLAY_SPOT_NAMES = "DisplaySpotNames";
 
 	/**
@@ -88,6 +89,21 @@ public interface TrackMateModelView extends InfoTextable {
 	 * {@link InterpolatePaintScale#Jet}.
 	 */
 	public static final String KEY_COLORMAP = "ColorMap";
+
+	/**
+	 * Defines the key for the drawing depth, for views that can use this
+	 * settings. The draw depth is the max distance between the view plane and
+	 * any object for this object to be drawn. Accepted values are
+	 * <code>double</code>. The values must be specified in image units.
+	 */
+	public static final String KEY_DRAWING_DEPTH = "DrawingDepth";
+
+	/**
+	 * Defines the key for limiting the drawing depth. Values are boolean. If
+	 * <code>true</code>, drawing depth will be limited by the values specified
+	 * by {@link #KEY_DRAWING_DEPTH}.
+	 */
+	public static final String KEY_LIMIT_DRAWING_DEPTH = "LimitDrawingDepth";
 
 	/*
 	 * VALUES
@@ -146,15 +162,7 @@ public interface TrackMateModelView extends InfoTextable {
 	/**
 	 * String that describe the corresponding track display mode.
 	 */
-	public static final String[] TRACK_DISPLAY_MODE_DESCRIPTION = new String[] {
-		"Show all entire tracks",
-		"Show local tracks",
-		"Show local tracks, backward",
-		"Show local tracks, forward",
-		"Local tracks (fast)",
-		"Local tracks, backward (fast)",
-		"Local tracks, forward (fast)"
-	};
+	public static final String[] TRACK_DISPLAY_MODE_DESCRIPTION = new String[] { "Show all entire tracks", "Show local tracks", "Show local tracks, backward", "Show local tracks, forward", "Local tracks (fast)", "Local tracks, backward (fast)", "Local tracks, forward (fast)" };
 
 	/*
 	 * DEFAULTS
@@ -163,17 +171,17 @@ public interface TrackMateModelView extends InfoTextable {
 	/**
 	 * The default color for spots.
 	 */
-	public static final Color DEFAULT_SPOT_COLOR = new Color(1f, 0, 1f);
+	public static final Color DEFAULT_SPOT_COLOR = new Color( 1f, 0, 1f );
 
 	/**
 	 * The default track color.
 	 */
-	public static final Color DEFAULT_TRACK_COLOR = new Color(250, 250, 0);
+	public static final Color DEFAULT_TRACK_COLOR = new Color( 250, 250, 0 );
 
 	/**
 	 * The default color for highlighting.
 	 */
-	public static final Color DEFAULT_HIGHLIGHT_COLOR = new Color(0, 1f, 0);
+	public static final Color DEFAULT_HIGHLIGHT_COLOR = new Color( 0, 1f, 0 );
 
 	/**
 	 * The default track display mode.
@@ -181,7 +189,7 @@ public interface TrackMateModelView extends InfoTextable {
 	public static final int DEFAULT_TRACK_DISPLAY_MODE = TRACK_DISPLAY_MODE_WHOLE;
 
 	/**
-	 * The default track display mode
+	 * The default track display mode.
 	 */
 	public static final int DEFAULT_TRACK_DISPLAY_DEPTH = 10;
 
@@ -189,6 +197,16 @@ public interface TrackMateModelView extends InfoTextable {
 	 * The default color map.
 	 */
 	public static final InterpolatePaintScale DEFAULT_COLOR_MAP = InterpolatePaintScale.Jet;
+
+	/**
+	 * The default drawing depth, in image units.
+	 */
+	public static final double DEFAULT_DRAWING_DEPTH = 10d;
+
+	/**
+	 * The default drawing depth limitation mode..
+	 */
+	public static final boolean DEFAULT_LIMIT_DRAWING_DEPTH = false;
 
 	/*
 	 * INTERFACE METHODS
@@ -219,12 +237,12 @@ public interface TrackMateModelView extends InfoTextable {
 	/**
 	 * Centers the view on the given spot.
 	 */
-	public void centerViewOn(final Spot spot);
+	public void centerViewOn( final Spot spot );
 
 	/**
 	 * Returns the current display settings map.
 	 */
-	public Map<String, Object> getDisplaySettings();
+	public Map< String, Object > getDisplaySettings();
 
 	/**
 	 * Set a display parameter.
@@ -234,12 +252,12 @@ public interface TrackMateModelView extends InfoTextable {
 	 * @param value
 	 *            the value for the display parameter
 	 */
-	public void setDisplaySettings(final String key, final Object value);
+	public void setDisplaySettings( final String key, final Object value );
 
 	/**
 	 * Returns the value of a specific display parameter.
 	 */
-	public Object getDisplaySettings(final String key);
+	public Object getDisplaySettings( final String key );
 
 	/**
 	 * Returns the model displayed in this view.
