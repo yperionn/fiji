@@ -18,8 +18,8 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>batik</groupId>
-			<artifactId>batik</artifactId>
+			<groupId>${batik.groupId}</groupId>
+			<artifactId>${batik.artifactId}</artifactId>
 			<version>${batik.version}</version>
 		</dependency>
 		<dependency>
